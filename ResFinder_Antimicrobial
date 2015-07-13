@@ -1,0 +1,18 @@
+ResFinder Antimicrobial configuration options
+
+Option  Name
+aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,vancomycin All
+aminoglycoside  Aminoglycoside
+beta-lactamase  Beta-lactamase
+quinolone   Fluoroquinolone
+fosfomycin  Fosfomycin
+fusidicacid Fusidic Acid
+vancomycin  Glycopeptide
+macrolide   MLS - Macrolide-Lincosamide-StreptograminB
+nitroimidazole  Nitroimidazole
+oxazolidinone   Oxazolidinone
+phenicol    Phenicol
+rifampicin  Rifampicin
+sulphonamide    Sulphonamide
+tetracycline    Tetracycline
+trimethoprim    Trimethoprim
