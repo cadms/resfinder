@@ -1032,6 +1032,11 @@ sub commandline_parsing {
             shift @ARGV;
             shift @ARGV;
         }
+		elsif ($ARGV[0] =~ m/^-pheno$/) {
+            $Pheno = $ARGV[1];
+            shift @ARGV;
+            shift @ARGV;
+        }
         elsif ($ARGV[0] =~ m/^-l$/) {
             $min_length = $ARGV[1];
             shift @ARGV;
