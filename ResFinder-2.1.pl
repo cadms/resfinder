@@ -16,6 +16,7 @@ use constant PROGRAM_NAME_LONG       => 'Findes antimicrobial resitance genes fo
 use constant VERSION                 => '2.1';
 
 #Global variables
+my $BLAST;
 my $BLASTALL;
 my $FORMATDB;
 my $ABRES_DB;
@@ -33,13 +34,18 @@ if (defined $Help || not defined $AB_indput || not defined $InFile || not define
    exit;
 }
 
-#If there are not given a path to the different databases and BLAST the program assume that the files are located as downloaded from the webside
-if (not defined $BLASTALL or not defined $FORMATDB or not defined $ABRES_DB or not defined $Pheno or not defined $dir) {
+#If there are not given a path to the database or BLAST the program assume that the files are located in the curet directury
+if (not defined $BLAST) {
    $BLASTALL = "blast-2.2.26/bin/blastall";
    $FORMATDB = "blast-2.2.26/bin/formatdb";
-   $ABRES_DB = "database";
-   $Pheno = "database/notes.txt";
-   $dir = "Output";
+}
+if (not defined $ABRES_DB) {
+  $ABRES_DB = "database";
+  $Pheno = "database/notes.txt";
+}
+if (not defined $dir) {
+  mkdir "output";
+  $dir = "output";
 }
 
 my $procent_length = 100*$min_length;
@@ -1019,21 +1025,14 @@ sub commandline_parsing {
     while (scalar @ARGV) {
         if ($ARGV[0] =~ m/^-d$/) {
             $ABRES_DB = $ARGV[1];
+			$Pheno = "$ABRES_DB/notes.txt";
             shift @ARGV;
             shift @ARGV;
         }
-        elsif ($ARGV[0] =~ m/^-blast$/) {
-            $BLASTALL = $ARGV[1];
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-format$/) {
-            $FORMATDB = $ARGV[1];
-            shift @ARGV;
-            shift @ARGV;
-        }
-		elsif ($ARGV[0] =~ m/^-pheno$/) {
-            $Pheno = $ARGV[1];
+        elsif ($ARGV[0] =~ m/^-b$/) {
+            $BLAST = $ARGV[1];
+			$BLASTALL = "$BLAST/bin/blastall";
+            $FORMATDB = "$BLAST/bin/formatdb";
             shift @ARGV;
             shift @ARGV;
         }
@@ -1048,16 +1047,23 @@ sub commandline_parsing {
             shift @ARGV;
         }
         elsif ($ARGV[0] =~ m/^-a$/) {
-            $AB_indput = $ARGV[1];
+            if ($ARGV[1] eq 'all') {
+			  $AB_indput = 'aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,
+			  nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,
+			  vancomycin'
+			}
+			else {
+			  $AB_indput = $ARGV[1];
+			}
             shift @ARGV;
             shift @ARGV;
         }
-        elsif ($ARGV[0] =~ m/^-file$/) {
+        elsif ($ARGV[0] =~ m/^-i$/) {
             $InFile = $ARGV[1];
             shift @ARGV;
             shift @ARGV;
         }
-        elsif ($ARGV[0] =~ m/^-outdir$/) {
+        elsif ($ARGV[0] =~ m/^-o$/) {
             $dir = $ARGV[1];
             shift @ARGV;
             shift @ARGV;
@@ -1261,10 +1267,8 @@ NAME
   $ProgName - $ProgNameLong
 
 SYNOPSIS
-  $ProgName -d [Antimicrobial] [Options] < [File]
-     or
-  $ProgName -d [Antimicrobial] -i [File] [Options]
-
+  $ProgName [Options]
+  
 DESCRIPTION
   Calculates antibiotic resistance genes based on a BLAST alignment of the input
   sequence file and the specified allele set. If possible the ST will be
@@ -1276,44 +1280,36 @@ DESCRIPTION
   alleles from the species specified with '-d'.
 
   Notice also that the default options for BLAST are changed to suit the
-  ResFinder alignment. Although the user can change the arguments just as if he
-  was running blastall directly, this is the command line used as default
-  in this script:
-
-        $BLASTALL $CMD
-
-  These defaults can be overridden by giving them as arguments to this
-  script, although it will likely break if anything other than '-a' is
-  changed. Example:
-
-  $ProgName -a 10 -i [File] -d [Antimicrobial Database]
+  ResFinder alignment.
 
 OPTIONS
-  Most options are simply forwarded to the call to BLAST. A few are unique
-  to this script and a few blast arguments deserve special mention.
+  
+    -h HELP
+                    Prints a message with options and information to the screen
+    -d DATABASE
+                    The path to where you have located the database folder
+    -b BLAST
+                    The path to the location of blast-2.2.26
+    -i INFILE
+                    Your input file which needs to be preassembled partial or complete genomes in fasta format
+    -o OUTFOLDER
+                    The folder you want to have your output files places
+    -a ANTIMICROBIAL
+                    Antimicrobial configuration. The options can be found in the file *ResFinder_Antimicrobial*
+    -k  THRESHOLD
+                    The threshold for % identity for example '95.00' for 95 %
+    -l  MIN_LENGHT
+                    The minimum length of the overlap ex 0.60 for an overlap of minimum 60 %
+```
 
-     -d [Antimicrobial database]
-  The antibiotic for which the resistance gene should be calculated.
-  Should follow a simple format, e.g. tetracycline, macrolide, etc. These are
-  in fact the core names of a .fsa located in the database directory:
+Example of use with the *database* and *blast-2.2.26* folder loacted in the current directory
+    
+    perl ResFinder-2.1.pl -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
 
-  $ABRES_DB
+Example of use with the *database* and *blast-2.2.26* folder loacted in antoher directory
 
-     -I [Format]
-  Specify the sequence format of the input file.
-  If the input file is in another format than fasta, this can be specified
-  here. Most BioPerl sequence formats are supported.
-  Default is 'fasta'
-
-     -O [Format]
-  Specifies the format of the output.
-  If left unspecified (the default), the ST is given along with the
-  corresponding allele numbers in a tabbed format. If set to a sequence
-  format, e.g. 'tab' or 'fasta', the sequence of the alleles will instead
-  be outputted in the requested format.
-
-     -h or --help
-  Prints this text.
+    perl ResFinder-2.1.pl -d path/to/database -blast path/to/blast-2.2.26 -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+    
 
 VERSION
     Current: $Version

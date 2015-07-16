@@ -1,7 +1,7 @@
 ResFinder Antimicrobial configuration options
 
 Option  Name
-aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,vancomycin All
+all All possible antimicrobial
 aminoglycoside  Aminoglycoside
 beta-lactamase  Beta-lactamase
 quinolone   Fluoroquinolone
