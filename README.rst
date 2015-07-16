@@ -43,7 +43,7 @@ Options:
                     Your input file which needs to be preassembled partial or complete genomes in fasta format
     -o OUTFOLDER
                     The folder you want to have your output files places
-    -a ANTIMICROBIAL
+    -a ANTIMICR.
                     Antimicrobial configuration. The options can be found in the file *ResFinder_Antimicrobial*
     -k  THRESHOLD
                     The threshold for % identity for example '95.00' for 95 %
