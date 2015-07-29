@@ -95,7 +95,7 @@ Options:
                     of minimum 60 %
 ```
 
-## Example of use with the *database* folder is loacted in the current directory and Blast added to the user's path
+#### Example of use with the *database* folder is loacted in the current directory and Blast added to the user's path
 ```perl 
     perl ResFinder-2.1.pl -i test.fsa -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
 ```
