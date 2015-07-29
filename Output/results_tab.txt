@@ -1,2 +1,0 @@
-Resistance gene	Identity	Query/HSP	Contig	Position in contig	Phenotype	Accession no.
-aac(2')-Ic	100.00	546/546	gi|375294201|ref|NC_016768.1|	314249..314794	Aminoglycoside resistance	U72714
