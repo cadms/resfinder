@@ -1048,9 +1048,7 @@ sub commandline_parsing {
         }
         elsif ($ARGV[0] =~ m/^-a$/) {
             if ($ARGV[1] eq 'all') {
-			  $AB_indput = 'aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,
-			  nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,
-			  vancomycin'
+			  $AB_indput = 'aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,vancomycin'
 			}
 			else {
 			  $AB_indput = $ARGV[1];
