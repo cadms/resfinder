@@ -1,1 +1,0 @@
-Resistance gene	Identity	Query/HSP	Contig	Position in contig	Phenotype	Accession no.
