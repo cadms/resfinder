@@ -4,12 +4,10 @@ package ResFinder;
 
 use 5.010000;
 use strict;
-use warnings;
 
 require Exporter;
 
 our @ISA = qw(Exporter);
-
 
 
 # Items to export into callers namespace by default. Note: do not export
@@ -37,7 +35,6 @@ $VERSION = '2.1.0';
 # %% Setting up %%
 #
 
-use strict;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev pass_through);
 use File::Temp qw/ tempfile tempdir /;
 use Bio::SeqIO;
@@ -78,8 +75,7 @@ if (not defined $ABRES_DB) {
   $Pheno = "database/notes.txt";
 }
 if (not defined $dir) {
-  mkdir "output";
-  $dir = "output";
+  $dir = ".";
 }
 
 my $procent_length = 100*$min_length;
@@ -147,10 +143,6 @@ foreach my $element(@Antimicrobial){
    
       my @Blast_lines = get_blast_run(-d => $Seqs_input, -i => $Seqs_ABres, %ARGV);
    }
-   #delay{
-   #   return if $_[0] >= 10; # only three tries
-   #   sleep 1;              # constant delay between tries
-   #}
    catch{ die $_ };
   
  
@@ -1108,6 +1100,7 @@ sub commandline_parsing {
         }
         elsif ($ARGV[0] =~ m/^-o$/) {
             $dir = $ARGV[1];
+            mkdir $dir;
             shift @ARGV;
             shift @ARGV;
         }
@@ -1333,30 +1326,28 @@ Options:
                     The path to where you have located the database folder
     -b BLAST
                     The path to the location of blast-2.2.26 if it is not added
-                    to the user's path (see the install guide in 'README.md')
+                    to the users path (see the install guide in 'README.md')
     -i INFILE
                     Your input file which needs to be preassembled partial
                     or complete genomes in fasta format
     -o OUTFOLDER
                     The folder you want to have your output files places.
-                    If not specified the program will create a folder named
-                    'Output' in which the result files will be stored
+                    If not specified the program store the output in your
+                    current directory
     -a ANTIMICROBIAL
                     Antimicrobial configuration. The options can be found
                     in the file 'ResFinder_Antimicrobial'
     -k THRESHOLD
                     The threshold for % identity for example '95.00' for 95 %
     -l MIN_LENGHT
-                    The minimum length of the overlap ex 0.60 for an overlap of minimum 60 %
+                    The minimum length of the overlap ex 0.60 for an overlap
+                    of minimum 60 %
 
-Example of use with the 'database' folder is loacted in the current directory and Blast added to the user's path
-    
-    perl ResFinder-2.1.pl -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+Example of use with the *database* folder located in the current directory
+    ResFinder.pm -i test.fsa -a aminoglycoside -k 95.00 -l 0.60
 
-Example of use with the 'database* and *blast-2.2.26' folders loacted in other directories
-
-    perl ResFinder-2.1.pl -d path/to/database -b path/to/blast-2.2.26 -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
-    
+Example of use with the *database* loacted in another directory and a specified output folder
+    ResFinder.pm -d path/to/database 6 -i test.fsa -a aminoglycoside -k 95.00 -l 0.60
 
 VERSION
     Current: $Version

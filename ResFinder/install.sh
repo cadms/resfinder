@@ -19,6 +19,8 @@ make install
 make clean
 
 # Installing NCBI Blast tools if missing
+BLASTLINUX='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-x64-linux.tar.gz'
+BLASTMAC='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-universal-macosx.tar.gz'
 BLASTFOLDER=blast
 command -v blastall >/dev/null 2>&1 || {
     echo 'Installing Blast tools...'

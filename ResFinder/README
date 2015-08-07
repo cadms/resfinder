@@ -21,15 +21,29 @@ To use the service some data needs to be pre-installed: *database*, Blast and se
 The folder *database* includes the ResFinder datasets and needs to be manually updataed frequently to get the best
 results. The datasets can be downloaded from http://cge.cbs.dtu.dk/services/data.php.
 
-Perlbrew is used to manage isolated perl environments. To install it run:
+There are two options for installing and running ResFinder. You can install perlbrew, which is used to manage isolated perl environments,
+and install and run ResFinder in the isolated enviroment or just install and run in your own enviroment.
+If you uses perlbrew first do:
+
 ```bash
-bash brew.sh
+bash install_brew.sh
 ```
 
-This will installed Perl 5.23 in the Home folder, along with CPAN minus as package manager.
-Blast will also be installed when running brew.sh if BlastAll and FormatDB are not already installed and place in the user's path.
-After running brew.sh and installing Blast add this command to the end of your ~/bash_profile to add BlastAll and FormatDB to the user's path
+This will install Perlbrew with Perl 5.10, along with CPAN minus as package manager.
+After running brew.sh the isolated perl enviroment can be used:
 
+```bash
+perlbrew use perl-5.10.0
+```
+
+Now ResFinder can be installed, in the enviorment you want, along with the dependencies and BLAST,
+if BlastAll and FormatDB are not already installed and place in the user's path.
+```bash
+bash install.sh
+```
+
+After the instalation of blast add this command to the end of your ~/bash_profile to add BlastAll and
+FormatDB to the user's path
 ```bash
 export PATH=$PATH:blast-2.2.26/bin
 ```
@@ -51,11 +65,6 @@ export PATH=$PATH:/path/to/blast-folder/bin
 
 where path/to/blast-folder is the folder you unzipped.
 
-At last ResFinder has several Perl dependencies. To install them (this requires CPAN minus as package manager):
-```bash
-make install
-```
-
 The scripts are self contained. You just have to copy them to where they should
 be used. Only the *database* folder needs to be updated mannually.
 
@@ -67,7 +76,7 @@ If you don't do that you have to write the full path to the program when using i
 The program can be invoked with the -h option to get help and more information of the service.
 
 ```bash
-Usage: perl ResFinder-2.1.pl [options]
+Usage: ResFinder.pm [options]
 
 Options:
 
@@ -83,8 +92,8 @@ Options:
                     or complete genomes in fasta format
     -o OUTFOLDER
                     The folder you want to have your output files places.
-                    If not specified the program will create a folder named
-                    'Output' in which the result files will be stored
+                    If not specified the program store the output in your
+                    current directory
     -a ANTIMICROBIAL
                     Antimicrobial configuration. The options can be found
                     in the file 'ResFinder_Antimicrobial'
@@ -95,14 +104,13 @@ Options:
                     of minimum 60 %
 ```
 
-#### Example of use with the *database* folder is loacted in the current directory and Blast added to the user's path
+#### Example of use with the *database* folder located in the current directory
 ```perl 
-    perl ResFinder-2.1.pl -i test.fsa -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+    ResFinder.pm -i test.fsa -a aminoglycoside -k 95.00 -l 0.60
 ```
-#### Example of use with the *database* and *blast-2.2.26* folders loacted in other directories
+#### Example of use with the *database* loacted in another directoriy and a specified output folder
 ```perl
-    perl ResFinder-2.1.pl -d path/to/database -b path/to/blast-2.2.26 -i test.fsa \
-    -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+    ResFinder.pm -d path/to/database 6 -i test.fsa -a aminoglycoside -k 95.00 -l 0.60
 ```
 
 ## Web-server

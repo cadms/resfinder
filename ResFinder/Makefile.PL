@@ -11,6 +11,7 @@ WriteMakefile(
         'Data::Dumper' => 0,
         'File::Temp' => 0,
         'Getopt::Long' => 0,
+        'Try::Tiny::Retry' => 0,
     }, # e.g., Module::Name => 1.1
     # META_MERGE => {
     #     'meta-spec' => { version => 2 },

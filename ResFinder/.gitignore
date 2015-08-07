@@ -6,3 +6,5 @@ MYMETA.*
 blib/
 pm_to_blib
 Makefile.old
+*.txt
+*_seq.fsa

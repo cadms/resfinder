@@ -1,9 +1,6 @@
 #!/bin/env bash
 
 PERLBREW='http://install.perlbrew.pl'
-BLASTLINUX='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-x64-linux.tar.gz'
-BLASTMAC='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-universal-macosx.tar.gz'
-BLASTFOLDER=blast
 
 # PerlBrew needs to be installed to manage isolated perl environemnts if missing
 command -v perlbrew >/dev/null 2>&1 || {
