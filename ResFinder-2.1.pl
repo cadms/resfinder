@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # --------------------------------------------------------------------
 # %% Setting up %%
@@ -108,16 +108,12 @@ foreach my $element(@Antimicrobial){
   my ($Seqs_ABres, $Seqs_input, @Blast_lines);
   
   retry{
-      my $Seqs_ABres   = read_seqs(-file => $ABRES_DB.'/'.$element.'.fsa', format => 'fasta');  
-      my $Seqs_input  = $InFile ne "" ? read_seqs(-file => $InFile, -format => $IFormat) : 
+      $Seqs_ABres   = read_seqs(-file => $ABRES_DB.'/'.$element.'.fsa', format => 'fasta');  
+      $Seqs_input  = $InFile ne "" ? read_seqs(-file => $InFile, -format => $IFormat) : 
                                   read_seqs(-fh => \*STDIN,   -format => $IFormat);
    
-      my @Blast_lines = get_blast_run(-d => $Seqs_input, -i => $Seqs_ABres, %ARGV);
+      @Blast_lines = get_blast_run(-d => $Seqs_input, -i => $Seqs_ABres, %ARGV);
    }
-   #delay{
-   #   return if $_[0] >= 10; # only three tries
-   #   sleep 1;              # constant delay between tries
-   #}
    catch{ die $_ };
   
  
@@ -1118,13 +1114,11 @@ sub get_blast_run {
   #die "Error! Could not build blast database" if (system("/usr/cbs/bio/bin/Linux/x86_64/formatdb -p F -i $file"));
   die "Error! Could not build blast database" if (system("$FORMATDB -p F -i $file")); 
   my $query_file = $file.".blastpipe";
-  #`mknod $query_file p`;
-  if ( !fork() ) {
-    open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
-    output_sequence(-fh => \*QUERY, seqs => $args{-i}, -format => 'fasta');
-    close QUERY;
-    exit(0);
-  }
+
+  open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
+  output_sequence(-fh => \*QUERY, seqs => $args{-i}, -format => 'fasta');
+  close QUERY;
+  
   delete $args{-i};
   my $cmd = join(" ", %args);
   #my ($fh2, $file2) = tempfile( DIR => '/scratch', UNLINK => 1); 
