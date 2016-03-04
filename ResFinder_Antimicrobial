@@ -1,6 +1,5 @@
-ResFinder Antimicrobial configuration options
-
-Option  Name
+#ResFinder Antimicrobial configuration options
+#Option  Name
 all All possible antimicrobial
 aminoglycoside  Aminoglycoside
 beta-lactamase  Beta-lactamase
