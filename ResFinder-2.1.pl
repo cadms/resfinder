@@ -1305,7 +1305,7 @@ Options:
                     'Output' in which the result files will be stored
     -a ANTIMICROBIAL
                     Antimicrobial configuration. The options can be found
-                    in the file 'ResFinder_Antimicrobial'
+                    in the config file
     -k THRESHOLD
                     The threshold for % identity for example '95.00' for 95 %
     -l MIN_LENGHT

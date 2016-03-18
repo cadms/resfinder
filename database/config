@@ -1,0 +1,20 @@
+# Database configuration file - Describes the content of the database
+# Each db consist of 1 file(s) with the following extensions: fsa
+#db_prefix	name	description
+23Srna.fsa	23S RNA	23S RNA
+all_databases.fsa	All	A combined database
+aminoglycoside.fsa	Aminoglycoside	Aminoglycoside
+beta-lactamase.fsa	Beta-lactamase	Beta-lactamase
+colistin.fsa	Colistin	Colistin
+fosfomycin.fsa	Fosfomycin	Fosfomycin
+fusidicacid.fsa	Fusidic Acid	Fusidic Acid
+macrolide.fsa	MLS	Macrolide-Lincosamide-StreptograminB
+nitroimidazole.fsa	Nitroimidazole	Nitroimidazole
+oxazolidinone.fsa	Oxazolidinone	Oxazolidinone
+phenicol.fsa	Phenicol	Phenicol
+quinolone.fsa	Fluoroquinolone	Fluoroquinolone
+rifampicin.fsa	Rifampicin	Rifampicin
+sulphonamide.fsa	Sulphonamide	Sulphonamide
+tetracycline.fsa	Tetracycline	Tetracycline
+trimethoprim.fsa	Trimethoprim	Trimethoprim
+vancomycin.fsa	Glycopeptide	Glycopeptide
