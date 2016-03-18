@@ -45,8 +45,7 @@ if (not defined $ABRES_DB) {
   $Pheno = "database/notes.txt";
 }
 if (not defined $dir) {
-  mkdir "output";
-  $dir = "output";
+  $dir = ".";
 }
 
 my $procent_length = 100*$min_length;
