@@ -999,7 +999,7 @@ foreach my $key (sort keys %GENE_RESULTS_HASH2) {
   $alignment .= "\n--------------------------------------------------------------------------------\n\n";
 }#end foreach
   
-		#WRITING standard_output.txt
+		#WRITING results.txt
 open (TXTRESULTS, '>>',"$dir/results.txt") or die("Error! Could not write to $dir"."results.txt\n");
 print TXTRESULTS $txtresults;
 print TXTRESULTS $contigtable;
