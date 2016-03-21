@@ -1021,7 +1021,6 @@ open (ALLELE, '>'."$dir/Resistance_gene_seq.fsa") || die("Error! Could not write
 print ALLELE $resalign;
 close (ALLELE);
 
-print STDERR "Done\n";
 exit;
 
 
