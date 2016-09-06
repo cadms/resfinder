@@ -1,0 +1,20 @@
+#!/bin/bash
+# INPUT: path_to_db_dir
+
+# Check if the user provided the input
+if [ -z "$1" ]; then
+   cwd=$(pwd)
+   echo "Current path: "$cwd
+   echo "Type the path to where the database is located, followed by [ENTER]:"
+   read path
+else
+   path=$1
+fi
+
+# Check if the path is valid and existing
+if [ -d $path ]; then
+   cd $path
+   git pull
+else
+   echo "Error: path does not exist! Please provide a valid path..."
+fi
