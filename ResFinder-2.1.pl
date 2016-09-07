@@ -10,7 +10,7 @@ use File::Temp qw/ tempfile tempdir /;
 use Bio::SeqIO;
 #use Bio::Seq;
 use Bio::SearchIO;
-#use Try::Tiny::Retry;
+use Try::Tiny::Retry;
 
 use constant PROGRAM_NAME            => 'ResFinder_v2.pl';
 use constant PROGRAM_NAME_LONG       => 'Findes antimicrobial resitance genes for a sequence or genome';
@@ -1031,13 +1031,13 @@ sub commandline_parsing {
     while (scalar @ARGV) {
         if ($ARGV[0] =~ m/^-d$/) {
             $ABRES_DB = $ARGV[1];
-			$Pheno = "$ABRES_DB/notes.txt";
+			   $Pheno = "$ABRES_DB/notes.txt";
             shift @ARGV;
             shift @ARGV;
         }
         elsif ($ARGV[0] =~ m/^-b$/) {
             $BLAST = $ARGV[1];
-			$BLASTALL = "$BLAST/bin/blastall";
+			   $BLASTALL = "$BLAST/bin/blastall";
             $FORMATDB = "$BLAST/bin/formatdb";
             shift @ARGV;
             shift @ARGV;
@@ -1105,62 +1105,62 @@ sub phenolist {
 # Returns text lines of blast output
 
 sub get_blast_run {
-  my %args        = @_;
-  #my ($fh, $file) = tempfile( DIR => '/scratch', UNLINK => 1); 
-  my ($fh, $file) = tempfile( DIR => '/tmp', UNLINK => 1);
-  #print "\ntemp filename: $file\n";
-  output_sequence(-fh => $fh, seqs => delete $args{-d}, -format => 'fasta');
-  #die "Error! Could not build blast database" if (system("/usr/cbs/bio/bin/Linux/x86_64/formatdb -p F -i $file"));
-  die "Error! Could not build blast database" if (system("$FORMATDB -p F -i $file")); 
-  my $query_file = $file.".blastpipe";
-
-  open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
-  output_sequence(-fh => \*QUERY, seqs => $args{-i}, -format => 'fasta');
-  close QUERY;
-  
-  delete $args{-i};
-  my $cmd = join(" ", %args);
-  #my ($fh2, $file2) = tempfile( DIR => '/scratch', UNLINK => 1); 
-  my ($fh2, $file2) = tempfile( DIR => '/tmp', UNLINK => 1);
-  #print "\ntemp filename: $file2\n";
-  print $fh2 `$BLASTALL -d $file -i $query_file $cmd`;
-  close $fh2;
-  #system("$BLASTALL -d $file -i $query_file $cmd > $file2");
-  #system ("echo -d $file -i $query_file $cmd ");
-  my $report = new Bio::SearchIO(
-         -file => $file2,
-              -format => "blast"); 
-# Go through BLAST reports one by one, evt. array in array...              
-my @blast;
-while(my $result = $report->next_result) {
-   # Go through each matching sequence
-   while(my $hit = $result->next_hit)    { 
-      # Go through each HSP for this sequence
-        while (my$hsp = $hit->next_hsp)  { 
-            push(@blast, 
-      $result->query_accession . "\t" . 
-      $result->query_length . "\t" . 
-      $hsp->hsp_length . "\t" . 
-      $hsp->gaps . "\t" . 
-      $hsp->percent_identity .  "\t" .  
-      $hsp->evalue . "\t" . 
-      $hsp->bits . "\t" . 
-      $hsp->query_string ."\t" . 
-      $hsp->hit_string ."\t" . 
-      $hsp->homology_string . "\t" . 
-      $hsp->seq_inds . "\t" .
-      $hsp->strand('hit') . "\t" .
-      $hsp->start('hit') . "\t" .
-      $hsp->end('hit') . "\t" .
-      $hit->name . "\t" .
-      $hsp->strand('query') . "\t" .
-      $hsp->start('query') . "\n");
+   my %args        = @_;
+   #my ($fh, $file) = tempfile( DIR => '/scratch', UNLINK => 1); 
+   my ($fh, $file) = tempfile( DIR => '/tmp', UNLINK => 1);
+   #print "\ntemp filename: $file\n";
+   output_sequence(-fh => $fh, seqs => delete $args{-d}, -format => 'fasta');
+   #die "Error! Could not build blast database" if (system("/usr/cbs/bio/bin/Linux/x86_64/formatdb -p F -i $file"));
+   die "Error! Could not build blast database" if (system("$FORMATDB -p F -i $file")); 
+   my $query_file = $file.".blastpipe";
+   
+   open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
+   output_sequence(-fh => \*QUERY, seqs => $args{-i}, -format => 'fasta');
+   close QUERY;
+   
+   delete $args{-i};
+   my $cmd = join(" ", %args);
+   #my ($fh2, $file2) = tempfile( DIR => '/scratch', UNLINK => 1); 
+   my ($fh2, $file2) = tempfile( DIR => '/tmp', UNLINK => 1);
+   #print "\ntemp filename: $file2\n";
+   print $fh2 `$BLASTALL -d $file -i $query_file $cmd`;
+   close $fh2;
+   #system("$BLASTALL -d $file -i $query_file $cmd > $file2");
+   #system ("echo -d $file -i $query_file $cmd ");
+   my $report = new Bio::SearchIO(
+      -file => $file2,
+      -format => "blast"); 
+   # Go through BLAST reports one by one, evt. array in array...              
+   my @blast;
+   while(my $result = $report->next_result) {
+      # Go through each matching sequence
+      while(my $hit = $result->next_hit)    { 
+         # Go through each HSP for this sequence
+         while (my$hsp = $hit->next_hsp)  { 
+               push(@blast, 
+         $result->query_accession . "\t" . 
+         $result->query_length . "\t" . 
+         $hsp->hsp_length . "\t" . 
+         $hsp->gaps . "\t" . 
+         $hsp->percent_identity .  "\t" .  
+         $hsp->evalue . "\t" . 
+         $hsp->bits . "\t" . 
+         $hsp->query_string ."\t" . 
+         $hsp->hit_string ."\t" . 
+         $hsp->homology_string . "\t" . 
+         $hsp->seq_inds . "\t" .
+         $hsp->strand('hit') . "\t" .
+         $hsp->start('hit') . "\t" .
+         $hsp->end('hit') . "\t" .
+         $hit->name . "\t" .
+         $hsp->strand('query') . "\t" .
+         $hsp->start('query') . "\n");
+         } 
       } 
-   } 
-}
-unlink 'formatdb.log', 'error.log', "$file.blastpipe" , "$file.nhr" , "$file.nin" , "$file.nsq";
-#system("rm -rf formatdb.log error.log");
-return @blast;
+   }
+   unlink 'formatdb.log', 'error.log', "$file.blastpipe" , "$file.nhr" , "$file.nin" , "$file.nsq";
+   #system("rm -rf formatdb.log error.log");
+   return @blast;
 }
 
 ###################################
