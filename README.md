@@ -10,31 +10,61 @@ Documentation
 
 ## What is it?
 
-The ResFinder service contains one perl script *ResFinder-2.1.pl* which is the script of the lates
-version of the ResFinder service. ResFinder identifies acquired antimicrobial resistance genes in total
-or partial sequenced isolates of bacteria.
+The ResFinder service contains one perl script *resfinder.pl* which is the
+script of the latest version of the ResFinder service. ResFinder identifies
+acquired antimicrobial resistance genes in total or partial sequenced isolates
+of bacteria.
+
+## Content of the repository
+1. resfinder.pl - the program
+2. INSTALL_DB   - shell script for downloading the ResFinder database
+3. UPDATE_DB    - shell script for updating the database to the newest version
+4. VALIDATE_DB  - python script for verifying the database contains all
+                  required files
+5. brew.sh      - shell script for installing dependencies
+6. makefile     - make script for installing dependencies
+7. test.fsa     - test fasta file
 
 ## Installation
 
-To use the service some data needs to be pre-installed: *database*, Blast and several Perl dependencies.
+Setting up ResFinder
+```bash
+# Go to wanted location for resfinder
+cd /path/to/some/dir
+# Clone and enter the resfinder directory
+git clone https://bitbucket.org/genomicepidemiology/resfinder.git
+cd resfinder
+```
 
-The folder *database* includes the ResFinder datasets and needs to be manually updataed frequently to get the best
-results. The datasets can be downloaded from http://cge.cbs.dtu.dk/services/data.php.
+Installing up the ResFinder database
+```bash
+cd /path/to/resfinder
+./INSTALL_DB database
 
+# Check all DB scripts works, and validate the database is correct
+./UPDATE_DB database
+./VALIDATE_DB database
+```
+
+Installing dependencies:
 Perlbrew is used to manage isolated perl environments. To install it run:
 ```bash
 bash brew.sh
 ```
 
-This will installed Perl 5.23 in the Home folder, along with CPAN minus as package manager.
-Blast will also be installed when running brew.sh if BlastAll and FormatDB are not already installed and place in the user's path.
-After running brew.sh and installing Blast add this command to the end of your ~/bash_profile to add BlastAll and FormatDB to the user's path
+This will installed Perl 5.23 in the Home folder, along with CPAN minus as 
+package manager.
+Blast will also be installed when running brew.sh if BlastAll and FormatDB are 
+not already installed and place in the user's path.
+After running brew.sh and installing Blast add this command to the end of your 
+~/bash_profile to add BlastAll and FormatDB to the user's path
 
 ```bash
 export PATH=$PATH:blast-2.2.26/bin
 ```
 
-If you want to download the two external tools from the Blast package, BlastAll and FormatDB, yourself go to
+If you want to download the two external tools from the Blast package, BlastAll 
+and FormatDB, yourself go to
 ```url
 ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST
 ```
@@ -51,20 +81,32 @@ export PATH=$PATH:/path/to/blast-folder/bin
 
 where path/to/blast-folder is the folder you unzipped.
 
-At last ResFinder has several Perl dependencies. To install them (this requires CPAN minus as package manager):
+At last ResFinder has several Perl dependencies. To install them (this requires 
+CPAN minus as package manager):
 ```bash
 make install
 ```
 
 The scripts are self contained. You just have to copy them to where they should
-be used. Only the *database* folder needs to be updated mannually.
+be used.
 
-Remember to add the program to your system path if you want to be able to invoke the program without calling the full path.
-If you don't do that you have to write the full path to the program when using it.
+Remember to add the program to your system path if you want to be able to 
+invoke the program without calling the full path.
+If you don't do that you have to write the full path to the program when using 
+it.
+
+## Test the scripts and database
+```bash
+cd /path/to/test_dir
+cp /path/to/resfinder/test.fsa .
+perl /path/to/resfinder/resfinder.pl -d /path/to/resfinder/database \
+-b /path/to/blast/parent/dir -i test.fsa -a aminoglycoside -k 90.00 -l 0.60
+```
 
 ## Usage
 
-The program can be invoked with the -h option to get help and more information of the service.
+The program can be invoked with the -h option to get help and more information 
+of the service.
 
 ```bash
 Usage: perl ResFinder-2.1.pl [options]
@@ -95,19 +137,23 @@ Options:
                     of minimum 60 %
 ```
 
-#### Example of use with the *database* folder is loacted in the current directory and Blast added to the user's path
+#### Example of use with the *database* folder is loacted in the current
+#### directory and Blast added to the user's path
 ```perl 
-    perl ResFinder-2.1.pl -i test.fsa -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+    perl ResFinder-2.1.pl -i test.fsa -o OUTFOLDER -a aminoglycoside -k 90.00 \
+    -l 0.60
 ```
-#### Example of use with the *database* and *blast-2.2.26* folders loacted in other directories
+#### Example of use with the *database* and *blast-2.2.26* folders loacted in
+#### other directories
 ```perl
-    perl ResFinder-2.1.pl -d path/to/database -b path/to/blast-2.2.26 -i test.fsa \
-    -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+    perl ResFinder-2.1.pl -d path/to/database -b path/to/blast-2.2.26 -i \
+    test.fsa -o OUTFOLDER -a aminoglycoside -k 90.00 -l 0.60
 ```
 
 ## Web-server
 
-A webserver implementing the methods is available at the [CGE website](http://www.genomicepidemiology.org/) and can be found here:
+A webserver implementing the methods is available at the [CGE 
+website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
 
@@ -130,7 +176,8 @@ Citation
 When using the method please cite:
 
 Identification of acquired antimicrobial resistance genes.
-Zankari E, Hasman H, Cosentino S, Vestergaard M, Rasmussen S, Lund O, Aarestrup FM, Larsen MV.
+Zankari E, Hasman H, Cosentino S, Vestergaard M, Rasmussen S, Lund O, Aarestrup 
+FM, Larsen MV.
 J Antimicrob Chemother. 2012 Jul 10.
 PMID: 22782487         doi: 10.1093/jac/dks261
 [Epub ahead of print]

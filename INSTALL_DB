@@ -1,11 +1,9 @@
 #!/bin/bash
-# INPUT: path_to_db_dir
+# INPUT: path_to_db
 
 # Check if the user provided the input
 if [ -z "$1" ]; then
-   cwd=$(pwd)
-   echo "Current path: "$cwd
-   echo "Type the path to where the database should be placed, followed by [ENTER]:"
+   echo "Provide a path to or a name for the database, followed by [ENTER]:"
    read path
 else
    path=$1
@@ -13,13 +11,8 @@ fi
 
 db_path=$path"/resfinder_db"
 # Check if the path is valid and unexisting
-if [ -d $path ]; then
-   cd $path
-   if [ ! -d $db_path ]; then
-      git clone http://compare.cbs.dtu.dk:10080/CGE/resfinder_db.git
-   else
-      echo "Error: Database already exists!"
-   fi
+if [ ! -d $path ]; then
+   git clone http://compare.cbs.dtu.dk:10080/CGE/resfinder_db.git $path
 else
-   echo "Error: path does not exist! Please provide a valid path..."
+   echo "Error: path exists! Please provide a valid and unused path..."
 fi
