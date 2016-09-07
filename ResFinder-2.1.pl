@@ -8,9 +8,9 @@ use strict;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev pass_through);
 use File::Temp qw/ tempfile tempdir /;
 use Bio::SeqIO;
-use Bio::Seq;
+#use Bio::Seq;
 use Bio::SearchIO;
-use Try::Tiny::Retry;
+#use Try::Tiny::Retry;
 
 use constant PROGRAM_NAME            => 'ResFinder_v2.pl';
 use constant PROGRAM_NAME_LONG       => 'Findes antimicrobial resitance genes for a sequence or genome';
