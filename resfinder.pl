@@ -86,6 +86,7 @@ my %FINAL_RESULTS; # will contain the results for txt printing
 
 ### Variables for text-printing ###
 my $txtresults= "ResFinder result file\n\n"; #Added to txt print
+my $tableresult = "";
 my $tabr .= "Resistance gene\tIdentity\tQuery/HSP\tContig\tPosition in contig\tPhenotype\tAccession no.\n"; #added to print tab-separated txt file
 #$txtresults .= "Resistance gene\tIdentity\tAllele Lenght/HSP\tContig\tPosition in contig\tAccession no.\n";
 my  $contigtable ="\nContig Table\n"; #added to txt print
@@ -916,16 +917,31 @@ foreach my $element(@Antimicrobial){
   push(@RESULTS_AND_SETTINGS_ARRAY, $procent_length);
   
 
-  ## Making a hash with results for txt printing WORKS
-  foreach my $key (sort keys %GENE_RESULTS_HASH) {
-    my $array = $GENE_RESULTS_HASH{$key};
-    my @tmp = split(/\<br\>/, @$array[7]);
-    my $phenotype = $tmp[0] ; 
-    $FINAL_RESULTS{$key}= [@$array[9], @$array[1], @$array[2], @$array[3],  @$array[4], @$array[5], @$array[8], $CurrentAnti, $phenotype];
-    #$contigtable .= "Contig ".$antibiocount." is ".@$array[4]."\n";
-    #$contigtable .= "-----------\n";
-    
+  # Making the header of for the tab seperated result file
+  $tableresult .= $argfProfiles{$CurrentAnti};  
+  if (!%GENE_RESULTS_HASH) {
+    $tableresult .= "\nNo resistance genes found.\n"
   }
+  else {
+    $tableresult .= "\nResistance gene\tIdentity\tQuery/HSP\tContig\tPosition in contig\tPhenotype\tAccession no.\n"; #added to print tab-separated txt file
+    
+    ## Making a hash with results for txt printing WORKS
+    foreach my $key (sort keys %GENE_RESULTS_HASH) {
+      my $array = $GENE_RESULTS_HASH{$key};
+      my @tmp = split(/\<br\>/, @$array[7]);
+      my $phenotype = $tmp[0] ; 
+      $FINAL_RESULTS{$key}= [@$array[9], @$array[1], @$array[2], @$array[3],  @$array[4], @$array[5], @$array[8], $CurrentAnti, $phenotype];
+      #$contigtable .= "Contig ".$antibiocount." is ".@$array[4]."\n";
+      #$contigtable .= "-----------\n";
+      
+      $tabr .= @$array[9]."\t".@$array[1]."\t".@$array[2]."/".@$array[3]."\t".@$array[4]."\t".@$array[5]."\t".$phenotype."\t".@$array[8]."\n";
+      $tableresult .= @$array[9]."\t".@$array[1]."\t".@$array[2]."/".@$array[3]."\t".@$array[4]."\t".@$array[5]."\t".$phenotype."\t".@$array[8]."\n";
+    }
+  }
+  
+  # Ekstra newline indicating that the result for the current anti has ended and a new can begin in the tab result
+  $tableresult .= "\n";
+  
 } # End foreach my $element(@Antimicrobial){
 
 my $contigcount = 0; ## To give the contig numbers and put the real contig names in a table
@@ -955,8 +971,6 @@ foreach my $key (sort keys %FINAL_RESULTS) {
   $txtresults .="_________________________________________________________________________________\n\n";
   $contigtable .= "Contig ".$contigcount." is ".@$array[4]."\n";
   $contigtable .= "-----------\n";
-  $tabr .= @$array[0]."\t".@$array[1]."\t".@$array[2]."/".@$array[3]."\t".@$array[4]."\t".@$array[5]."\t".@$array[8]."\t".@$array[6]."\n";
-
 }
 
 ## Printing the alignments as text, making a txt string with alignment
@@ -966,6 +980,9 @@ foreach my $key (sort keys %GENE_RESULTS_HASH2) {
 	  
   my $array = $GENE_RESULTS_HASH2{$key}; 
   my $outStr = @$array[7];
+  my $hspLen = @$array[3];
+  my $qStart = @$array[6];
+  my $qEnd = $qStart + $hspLen - 1;
     #my $matchAll = lc(@$array[5]);
   if (@$array[0] eq "perfect" ){
 	 $outStr .= ": PERFECT MATCH, "; 
@@ -977,7 +994,7 @@ foreach my $key (sort keys %GENE_RESULTS_HASH2) {
     $outStr = $outStr.": WARNING2, "; 
   }  
   $alignment .= $outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Contig name: ".@$array[4].", Position: ".@$array[5]."\n\n";
-  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mŒske forkert text
+  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Positions in reference: ".$qStart."..".$qEnd.", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mŒske forkert text
   $resalign .= ">".@$array[7]."\n";
 
 	 #now print the alleles
@@ -1007,7 +1024,13 @@ print TXTRESULTS $alignment;
 close (TXTRESULTS);
 #print $txtresults; #printing to screen	
 
-open (TABR, '>',"$dir/results_tab.txt") or die("Error! Could not write to results_tab.txt");
+#Print table output
+open (TABLER, '>',"$dir/results_table.txt") or die("Error! Could not write to results_table.txt");
+print TABLER $tableresult;
+close (TABLER);
+
+# Print tab output
+open (TABR, '>', "$dir/results_tab.txt") or die("Error! Could not write to results_tab.txt");
 print TABR $tabr;
 close (TABR);
 
