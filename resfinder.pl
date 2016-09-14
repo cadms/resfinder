@@ -56,25 +56,11 @@ my $procent_length = 100*$min_length;
 my %argfProfiles=();
 open(IN, '<', "$ABRES_DB/config") or die "Error: $!\n";
 while (defined(my $line = <IN>)) {
+   next if $line =~ /^#/;  # discard comments
    my @tmp = split(/\t/, $line);
    $argfProfiles{$tmp[0]} = $tmp[1];
 }
 close IN;
-#$argfProfiles{"beta-lactamase"} ="Beta-lactam";
-#$argfProfiles{"tetracycline"} = "Tetracycline";
-#$argfProfiles{"macrolide"} = "MLS - Macrolide, Lincosamide and Streptogramin B";
-#$argfProfiles{"quinolone"} = "Fluoroquinolone";
-#$argfProfiles{"vancomycin"} = "Glycopeptide";
-#$argfProfiles{"aminoglycoside"} = "Aminoglycoside";
-#$argfProfiles{"phenicol"} = "Phenicol";
-#$argfProfiles{"trimethoprim"} = "Trimethoprim";
-#$argfProfiles{"sulphonamide"} = "Sulphonamide";
-#$argfProfiles{"rifampicin"} = "Rifampicin";
-#$argfProfiles{"fosfomycin"} = "Fosfomycin";
-#$argfProfiles{"fusidicacid"} = "Fusidic Acid";
-#$argfProfiles{"nitroimidazole"} = "Nitroimidazole";
-#$argfProfiles{"oxazolidinone"} = "Oxazolidinone";
-print $argfProfiles;
 
 # -----------------------
 #Making phenotype list
