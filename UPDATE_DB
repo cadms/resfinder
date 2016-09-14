@@ -1,5 +1,5 @@
 #!/bin/bash
-# INPUT: path_to_db_dir
+# INPUT: path_to_db
 
 # Check if the user provided the input
 if [ -z "$1" ]; then
