@@ -152,9 +152,15 @@ args = parser.parse_args()
 # TODO: Add input check
 scripts = args.scripts
 inputfile = args.inputfile
-path = args.out_path
+# path = args.out_path
 blast = args.blast_path
 species = args.species
+
+# Check output directory
+args.out_path = os.path.abspath(args.out_path)
+if(not os.path.isfile(args.out_path)):
+    print("Output directory not found:", args.config_queue)
+    quit(1)
 
 # Check script directory.
 if(not args.scripts):
@@ -174,8 +180,10 @@ if args.acquired is True:
    databases = args.databases
    min_cov = float(args.min_cov)
    threshold = float(args.threshold)
-   out_res = "%s/resfinder_out" % (path)
-   os.system("mkdir %s" % (out_res))
+
+   out_res = args.out_path + "/resfinder_out"
+   os.makedirs(out_res, exist_ok=True)
+
    db_path_res = args.db_path_res
 
    # Run ResFinder
@@ -193,8 +201,9 @@ if args.acquired is True:
 
 if args.point is True:
    db_path_point = args.db_path_point
-   out_point = "%s/pointfinder_out" % (path)
-   os.system("mkdir %s" % (out_point))
+
+   out_point = args.out_path + "/pointfinder_out"
+   os.makedirs(out_point, exist_ok=True)
 
    # Run PointFinder
    # TODO: Python path
