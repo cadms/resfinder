@@ -10,10 +10,10 @@ import sys
 import subprocess
 # import urllib.parse
 from itertools import chain
-from feature import Feature, Gene, Mutation
-from phenodbpoint import PhenoDBPoint
-from res_profile import PhenoDB, ResProfile
-from dbhit import DBHit
+from .feature import Feature, Gene, Mutation
+from .phenodbpoint import PhenoDBPoint
+from .res_profile import PhenoDB, ResProfile
+from .dbhit import DBHit
 
 
 class Isolate(dict):
