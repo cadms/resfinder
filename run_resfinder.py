@@ -159,7 +159,7 @@ species = args.species
 # Check output directory
 args.out_path = os.path.abspath(args.out_path)
 if(not os.path.isfile(args.out_path)):
-    print("Output directory not found:", args.config_queue)
+    print("Output directory not found:", args.out_path)
     quit(1)
 
 # Check script directory.
