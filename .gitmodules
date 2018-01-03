@@ -1,0 +1,3 @@
+[submodule "cge/blaster"]
+	path = cge/blaster
+	url = https://RolfKaas@bitbucket.org/genomicepidemiology/blaster.git
