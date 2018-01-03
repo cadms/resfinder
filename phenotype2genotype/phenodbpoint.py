@@ -10,7 +10,7 @@ import tempfile
 import sys
 import subprocess
 
-from phenotype import Phenotype
+from .phenotype import Phenotype
 
 
 def eprint(*args, **kwargs):

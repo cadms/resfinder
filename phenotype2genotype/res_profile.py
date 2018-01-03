@@ -11,7 +11,7 @@ import sys
 import subprocess
 # import io
 # import urllib.parse
-from feature import Feature, Gene, Mutation
+from .feature import Feature, Gene, Mutation
 
 
 def eprint(*args, **kwargs):
