@@ -17,3 +17,7 @@ class ResFinderRunTest(unittest.TestCase):
         output = p.stdout.read().decode()
 
         print("OUT: \n" + output)
+
+
+if __name__ == "__main__":
+    unittest.main()
