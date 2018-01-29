@@ -17,6 +17,7 @@ class ResFinderRunTest(unittest.TestCase):
         # outs, errs = procs.communicate()
 
         print("ERR: \n" + procs.stderr.decode())
+        print("OUT: \n" + procs.stdout.decode())
 
 
 if __name__ == "__main__":
