@@ -10,6 +10,8 @@ class ResFinderRunTest(unittest.TestCase):
     }
 
     def setUp(self):
+        # Change working dir to test dir
+        os.chdir(os.path.dirname(os.path.realpath(__file__)))
         os.makedirs("running_test", exist_ok=True)
 
     def test_on_data_with_just_acquired_resgene(self):
