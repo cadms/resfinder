@@ -11,13 +11,10 @@ class ResFinderRunTest(unittest.TestCase):
         # She therefore runs resfinder cmd line
 
         # First Maria checks out the documentation
-        procs = run("python3 ../run_resfinder.py -h", shell=True, stdout=PIPE, stderr=PIPE)
-
-        # output = procs.stdout.read().decode()
-        # outs, errs = procs.communicate()
-
-        print("ERR: \n" + procs.stderr.decode())
-        print("OUT: \n" + procs.stdout.decode())
+        procs = run("python3 ../run_resfinder.py -h", shell=True, stdout=PIPE,
+                    check=True)
+        output = procs.stdout.decode()
+        self.assertIn("--help", output)
 
 
 if __name__ == "__main__":
