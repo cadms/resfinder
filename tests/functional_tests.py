@@ -11,8 +11,8 @@ class ResFinderRunTest(unittest.TestCase):
         # She therefore runs resfinder cmd line
 
         # First Maria checks out the documentation
-        procs = Popen("python3 ../run_resfinder.py -h", shell=True, stdin=PIPE,
-                      stdout=PIPE, stderr=PIPE)
+        procs = Popen("python3 ../run_resfinder.py -h", shell=True) #stdin=PIPE,
+                      # stdout=PIPE, stderr=PIPE)
 
         # output = procs.stdout.read().decode()
         outs, errs = procs.communicate()
