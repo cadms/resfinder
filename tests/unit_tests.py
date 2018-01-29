@@ -51,7 +51,7 @@ class ResFinderTest(unittest.TestCase):
         print("Run cmd: " + cmd)
 
         process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, check=True)
+                                 stderr=subprocess.PIPE)
 
         outs = process.stdout.decode()
         errs = process.stderr.decode()
