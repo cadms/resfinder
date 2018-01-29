@@ -2,3 +2,4 @@
 blast-2.2.26
 Output
 *.gz
+__pycache__
