@@ -51,3 +51,7 @@ class ResFinderTest(unittest.TestCase):
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         out, err = process.communicate()
+
+
+if __name__ == "__main__":
+    unittest.main()
