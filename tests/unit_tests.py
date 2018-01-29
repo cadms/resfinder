@@ -58,6 +58,8 @@ class ResFinderTest(unittest.TestCase):
         print("STDOUT:\n" + outs)
         print("STDERR:\n" + errs)
 
+        self.assertNotIn("Error", errs)
+
 
 #        except subprocess.CalledProcessError as e:
 #            print(e)
