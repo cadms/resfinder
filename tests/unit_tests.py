@@ -50,11 +50,17 @@ class ResFinderTest(unittest.TestCase):
 
         print("Run cmd: " + cmd)
 
-        try:
-            process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE, check=True)
-        except subprocess.CalledProcessError as e:
-            print(e)
+        process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, check=True)
+
+        outs = process.stdout.decode()
+        errs = process.stderr.decode()
+        print("STDOUT:\n" + outs)
+        print("STDERR:\n" + errs)
+
+
+#        except subprocess.CalledProcessError as e:
+#            print(e)
 
 
 if __name__ == "__main__":
