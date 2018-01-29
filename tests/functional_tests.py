@@ -14,9 +14,9 @@ class ResFinderRunTest(unittest.TestCase):
         procs = run("python3 ../run_resfinder.py -h", shell=True, stdout=PIPE, stderr=PIPE)
 
         # output = procs.stdout.read().decode()
-        outs, errs = procs.communicate()
+        # outs, errs = procs.communicate()
 
-        print("ERR: \n" + errs.decode())
+        print("ERR: \n" + procs.stderr.decode())
 
 
 if __name__ == "__main__":
