@@ -50,9 +50,10 @@ class ResFinderTest(unittest.TestCase):
 
         print("Run cmd: " + cmd)
 
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        out, err = process.communicate()
+        process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, check=True)
+        outs = procs.stdout.decode()
+        errs = procs.stderr.decode()
 
 
 if __name__ == "__main__":
