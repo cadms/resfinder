@@ -12,11 +12,12 @@ class ResFinderRunTest(unittest.TestCase):
 
         # First Maria checks out the documentation
         procs = Popen("python3 ../run_resfinder.py -h", shell=True, stdin=PIPE,
-                      stdout=PIPE, stderr=STDOUT, close_fds=True)
+                      stdout=PIPE, stderr=PIPE)
 
-        output = procs.stdout.read().decode()
+        # output = procs.stdout.read().decode()
+        outs, errs = procs.communicate()
 
-        print("OUT: \n" + output)
+        print("ERR: \n" + errs.decode())
 
 
 if __name__ == "__main__":
