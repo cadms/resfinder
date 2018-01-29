@@ -1,6 +1,7 @@
 import unittest
 from subprocess import PIPE, run
 import os
+import shutil
 
 
 class ResFinderRunTest(unittest.TestCase):
@@ -12,7 +13,11 @@ class ResFinderRunTest(unittest.TestCase):
     def setUp(self):
         # Change working dir to test dir
         os.chdir(os.path.dirname(os.path.realpath(__file__)))
-        os.makedirs("running_test", exist_ok=True)
+        # Does not allow running two tests in parallel
+        os.makedirs("running_test", exist_ok=False)
+
+    def tearDown(self):
+        shutil.rmtree('running_test')
 
     def test_on_data_with_just_acquired_resgene(self):
         # Maria has an E. coli isolate, with unknown resistance.

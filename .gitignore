@@ -3,3 +3,4 @@ blast-2.2.26
 Output
 *.gz
 __pycache__
+running_test
