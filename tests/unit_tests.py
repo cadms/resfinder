@@ -55,7 +55,6 @@ class ResFinderTest(unittest.TestCase):
                                      stderr=subprocess.PIPE, check=True)
         except subprocess.CalledProcessError as e:
             print(e)
-            self.fail("ResFinder.py did not finish correctly.")
 
 
 if __name__ == "__main__":
