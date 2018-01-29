@@ -55,14 +55,8 @@ class ResFinderTest(unittest.TestCase):
 
         outs = process.stdout.decode()
         errs = process.stderr.decode()
-        print("STDOUT:\n" + outs)
-        print("STDERR:\n" + errs)
 
         self.assertNotIn("Error", errs)
-
-
-#        except subprocess.CalledProcessError as e:
-#            print(e)
 
 
 if __name__ == "__main__":
