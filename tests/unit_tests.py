@@ -42,11 +42,11 @@ class ResFinderTest(unittest.TestCase):
         os.makedirs(test1_blast_dir)
 
         cmd = ("python3 ../ResFinder.py"
-               + "-i " + test_data[test_names[0]]
-               + "-o " + test1_blast_dir
-               + "-p " + configs["resfinder_dbs"]
-               + "-l 0.6"
-               + "-t 0.9")
+               + " -i " + test_data[test_names[0]]
+               + " -o " + test1_blast_dir
+               + " -p " + configs["resfinder_dbs"]
+               + " -l 0.6"
+               + " -t 0.9")
 
         print("Run cmd: " + cmd)
 
