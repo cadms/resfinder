@@ -117,10 +117,10 @@ else:
    out_path = args.out_path
 
 # Check if valid path to BLAST is provided
-if not os.path.exists(args.blast_path):
-   sys.exit("Input Error: The path to BLAST does not exists!\n")
-else:
-   blast = args.blast_path
+# if not os.path.exists(args.blast_path):
+#   sys.exit("Input Error: The path to BLAST does not exists!\n")
+# else:
+#   blast = args.blast_path
 
 # Check if databases and config file are correct/correponds
 if args.databases is '':
