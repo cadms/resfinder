@@ -21,8 +21,8 @@ class ResFinderRunTest(unittest.TestCase):
         # Does not allow running two tests in parallel
         os.makedirs(run_test_dir, exist_ok=False)
 
-    def tearDown(self):
-        shutil.rmtree(run_test_dir)
+#    def tearDown(self):
+#        shutil.rmtree(run_test_dir)
 
     def test_on_data_with_just_acquired_resgene(self):
         # Maria has an E. coli isolate, with unknown resistance.
