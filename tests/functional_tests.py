@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE, STDOUT
 
 class ResFinderRunTest(unittest.TestCase):
 
-    def test_on_data_with_just_acquired_resgene:
+    def test_on_data_with_just_acquired_resgene(self):
         # Maria has an E. coli isolate, with unknown resistance.
         # At first, she just wants to know which acquired resistance genes are
         # found in the genome.
