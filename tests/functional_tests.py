@@ -4,14 +4,16 @@ import os
 import shutil
 
 
+test_names = ["test1", "test3"]
+test_data = {
+    test_names[0]: "data/test_isolate_01.fa",  # Test published resistance
+    test_names[1]: "data/test_isolate_03.fa",  # Test no resistance
+}
+run_test_dir = "running_test"
+blast_out_dir = "blast_out"
+
+
 class ResFinderRunTest(unittest.TestCase):
-    test_names = ["test1", "test3"]
-    test_data = {
-        test_names[0]: "data/test_isolate_01.fa",  # Test published resistance
-        test_names[1]: "data/test_isolate_03.fa",  # Test no resistance
-    }
-    run_test_dir = "running_test"
-    blast_out_dir = "blast_out"
 
     def setUp(self):
         # Change working dir to test dir
