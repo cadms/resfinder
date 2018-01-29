@@ -50,10 +50,15 @@ class ResFinderTest(unittest.TestCase):
 
         print("Run cmd: " + cmd)
 
-        process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, check=True)
-        outs = procs.stdout.decode()
-        errs = procs.stderr.decode()
+        try:
+            process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE, check=True)
+        except subprocess.CalledProcessError:
+            outs = procs.stdout.decode()
+            errs = procs.stderr.decode()
+            print("STDOUT:\n" + outs)
+            print("STDERR:\n" + errs)
+            self.fail("ResFinder.py did not finish correctly.")
 
 
 if __name__ == "__main__":
