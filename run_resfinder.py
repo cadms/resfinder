@@ -114,7 +114,7 @@ parser.add_argument("-db_res", "--databasePath_res",
                     default='')
 parser.add_argument("-d", "--databases",
                     dest="databases",
-                    help="Databases chosen to search in - if non is specified\
+                    help="Databases chosen to search in - if none is specified\
                           all is used",
                     default=None)
 parser.add_argument("-l", "--min_cov",
@@ -193,6 +193,7 @@ if args.acquired is True:
                                                       db_path_res,
                                                       databases, min_cov,
                                                       threshold))
+   print("Run cmd: " + cmd)
    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
    out, err = process.communicate()

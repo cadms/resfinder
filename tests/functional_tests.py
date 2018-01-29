@@ -47,7 +47,7 @@ class ResFinderRunTest(unittest.TestCase):
 
         # Then she runs run_resfinder with her first isolate.
         cmd_acquired = ("python3 ../run_resfinder.py"
-                        + " -i " + test_data["test1"]
+                        + " -i " + test_data[test_names[0]]
                         + " -o " + test1_blast_dir
                         + " -s e.coli"
                         + " --min_cov 0.6"
@@ -55,6 +55,9 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --acquired")
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
+
+        self.fail("Finish the test for pointmutations")
+        self.fail("Finish the test for phenotypes")
 
 
 if __name__ == "__main__":
