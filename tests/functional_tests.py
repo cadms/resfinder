@@ -1,5 +1,5 @@
 import unittest
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, run
 
 
 class ResFinderRunTest(unittest.TestCase):
@@ -11,8 +11,7 @@ class ResFinderRunTest(unittest.TestCase):
         # She therefore runs resfinder cmd line
 
         # First Maria checks out the documentation
-        procs = Popen("python3 ../run_resfinder.py -h", shell=True) #stdin=PIPE,
-                      # stdout=PIPE, stderr=PIPE)
+        procs = run("python3 ../run_resfinder.py -h", shell=True, stdout=PIPE, stderr=PIPE)
 
         # output = procs.stdout.read().decode()
         outs, errs = procs.communicate()
