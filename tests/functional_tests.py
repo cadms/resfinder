@@ -14,7 +14,7 @@ class ResFinderRunTest(unittest.TestCase):
         procs = Popen("../run_resfinder.py -h", shell=True, stdin=PIPE,
                       stdout=PIPE, stderr=STDOUT, close_fds=True)
 
-        output = p.stdout.read().decode()
+        output = procs.stdout.read().decode()
 
         print("OUT: \n" + output)
 
