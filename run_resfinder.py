@@ -198,8 +198,8 @@ if args.acquired is True:
    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
    out, err = process.communicate()
-   print("ERR: " + err)
-   print("OUT: " + out)
+   print("ERR: " + err.decode())
+   print("OUT: " + out.decode())
 
 if args.point is True:
    db_path_point = args.db_path_point
