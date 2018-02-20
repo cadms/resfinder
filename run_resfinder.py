@@ -13,7 +13,8 @@ from phenotype2genotype.res_sumtable import ResSumTable
 # TODO: Python path
 # TODO: Add input check
 
-python = "/home/data1/tools/bin/anaconda/bin/python"
+# python = "/home/data1/tools/bin/anaconda/bin/python"
+python = "/services/tools/anaconda3/4.0.0/bin/python3"
 
 
 # ########################################################################### #
@@ -197,6 +198,8 @@ if args.acquired is True:
    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
    out, err = process.communicate()
+   print("ERR: " + err)
+   print("OUT: " + out)
 
 if args.point is True:
    db_path_point = args.db_path_point
