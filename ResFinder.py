@@ -184,12 +184,15 @@ with open(db_path + "/notes.txt", 'r') as f:
          tmp = line.split(":")
          phenos[tmp[0]] = "%s %s" % (tmp[1], tmp[2])
 
+blast_run = Blaster(inputfile=inputfile, databases=databases,
+                    db_path=db_path, out_path=out_path,
+                    min_cov=min_cov, threshold=threshold, blast=blast)
 
-# Calling blast and parsing output
-results, query_align, homo_align, sbjct_align = Blaster(inputfile, databases,
-                                                        db_path, out_path,
-                                                        min_cov, threshold,
-                                                        blast)
+results = blast_run.results
+query_align = blast_run.gene_align_query
+homo_align = blast_run.gene_align_homo
+sbjct_align = blast_run.gene_align_sbjct
+
 # Making output files
 tab_file = open(out_path + "/results_tab.txt", 'w')
 table_file = open(out_path + "/results_table.txt", 'w')
