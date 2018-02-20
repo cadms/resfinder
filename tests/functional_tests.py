@@ -53,6 +53,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired")
+        print("CMD: " + cmd_acquired)
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
