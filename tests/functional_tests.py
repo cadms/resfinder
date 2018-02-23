@@ -52,7 +52,8 @@ class ResFinderRunTest(unittest.TestCase):
                         + " -s e.coli"
                         + " --min_cov 0.6"
                         + " -t 0.8"
-                        + " --acquired")
+                        + " --acquired"
+                        + " --databasePath_res ../database")
         print("CMD: " + cmd_acquired)
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
