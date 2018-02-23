@@ -186,7 +186,8 @@ with open(db_path + "/notes.txt", 'r') as f:
 
 blast_run = Blaster(inputfile=inputfile, databases=databases,
                     db_path=db_path, out_path=out_path,
-                    min_cov=min_cov, threshold=threshold, blast=blast)
+                    min_cov=min_cov, threshold=threshold,
+                    blast=args.blast_path)
 
 results = blast_run.results
 query_align = blast_run.gene_align_query
