@@ -188,12 +188,13 @@ if args.acquired is True:
    # Run ResFinder
    # TODO: Python path
    cmd = ("%s %s -i "
-          "%s -o %s -b %s -p %s -d %s -l %f -t %f" % (python, script_resfinder,
-                                                      inputfile,
-                                                      out_res, blast,
-                                                      db_path_res,
-                                                      databases, min_cov,
-                                                      threshold))
+          "%s -o %s -b %s -p %s -l %f -t %f" % (python, script_resfinder,
+                                                inputfile, out_res, blast,
+                                                db_path_res, min_cov,
+                                                threshold))
+   if(args.databases is not None):
+      cmd = cmd + (" -d %s" % (args.databases))
+
    print("Run cmd: " + cmd)
    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                               stderr=subprocess.PIPE)
