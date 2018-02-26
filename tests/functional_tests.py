@@ -78,9 +78,8 @@ class ResFinderRunTest(unittest.TestCase):
 
         with open(res_table, "r") as fh:
             for line in fh:
-                if(line.startswith("Beta-lactam")):
-                    fh.readline()
-                    check_result = fh.readline()
+                if(line.startswith("blaB-2")):
+                    check_result = line
                     break
         self.assertIn("blaB-2_1_AF189300", check_result)
 
