@@ -12,7 +12,6 @@ from phenotype2genotype.res_profile import PhenoDB
 from phenotype2genotype.res_sumtable import ResSumTable
 
 # TODO list:
-# TODO: Python path
 # TODO: Add input check
 
 # python = "/home/data1/tools/bin/anaconda/bin/python"
@@ -204,28 +203,13 @@ if args.acquired is True:
    if not os.path.exists(notes_path):
       sys.exit('Input Error: notes.txt not found! (%s)' % (notes_path))
 
-   # Run ResFinder
-   # TODO: Python path
-   # cmd = ("%s %s -i "
-   #       "%s -o %s -b %s -p %s -l %f -t %f" % (python, script_resfinder,
-   #                                             inputfile, out_res, blast,
-   #                                             db_path_res, min_cov,
-   #                                             threshold))
-   # if(args.databases is not None):
-   #    cmd = cmd + (" -d %s" % (args.databases))
+   # Actually running ResFinder (for acquired resistance)
+   acquired_finder = ResFinder(db_conf_file=db_config_file,
+                               databases=args.databases, db_path=db_path_res,
+                               notes=notes_path)
 
-   # print("Run cmd: " + cmd)
-   # process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-   #                           stderr=subprocess.PIPE)
-   # out, err = process.communicate()
-   # print("ERR: " + err.decode())
-   # print("OUT: " + out.decode())
-
-   finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
-                      db_path=db_path_res, notes=notes_path)
-
-   finder.blast(inputfile=inputfile, out_path=out_res, min_cov=min_cov,
-                threshold=threshold, blast=blast)
+   acquired_finder.blast(inputfile=inputfile, out_path=out_res,
+                         min_cov=min_cov, threshold=threshold, blast=blast)
 
 if args.point is True:
    db_path_point = args.db_path_point
