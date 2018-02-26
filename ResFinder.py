@@ -318,7 +318,7 @@ class ResFinder():
 
             # Check if all db files are present
             for ext in extensions:
-               db = "%s/%s.%s" % (db_path, db_prefix, ext)
+               db = "%s/%s.%s" % (self.db_path, db_prefix, ext)
                if not os.path.exists(db):
                   sys.exit(("Input Error: The database file (%s) "
                             "could not be found!") % (db_path))
