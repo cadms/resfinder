@@ -295,7 +295,7 @@ class ResFinder():
       extensions = []
       with open(db_conf_file) as f:
          for line in f:
-            line = l.strip()
+            line = line.strip()
 
             if not line:
                continue
