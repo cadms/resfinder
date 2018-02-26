@@ -79,7 +79,7 @@ class ResFinderRunTest(unittest.TestCase):
         with open(res_table, "r") as fh:
             for i, line in enumerate(fh):
                 check_result = fh.readline()
-                if(i == 17):
+                if(i == 30):
                     print("RES: " + check_result)
                     break
         self.assertIn("blaB-2_1_AF189300", check_result)
