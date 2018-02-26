@@ -200,7 +200,7 @@ if args.acquired is True:
          sys.exit("Input Error: The database config file could not be found!")
 
    # Check existence of notes file
-   notes_path = "%s/notes.txt" % (args.db_path)
+   notes_path = "%s/notes.txt" % (db_path_res)
    if not os.path.exists(notes_path):
       sys.exit('Input Error: notes.txt not found! (%s)' % (notes_path))
 
