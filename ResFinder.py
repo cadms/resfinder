@@ -414,6 +414,8 @@ if __name__ == '__main__':
    if args.inputfile:
       if not os.path.exists(args.inputfile):
          sys.exit("Input Error: Input file does not exist!\n")
+      else:
+         inputfile = args.inputfile
    else:
       inputfile = None
 
