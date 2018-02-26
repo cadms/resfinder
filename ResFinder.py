@@ -115,7 +115,7 @@ class ResFinder():
                positions_ref = "%s..%s" % (results[db][hit]["sbjct_start"],
                                            results[db][hit]["sbjct_end"])
                contig_name = results[db][hit]["contig_name"]
-               pheno = phenos[gene]
+               pheno = self.phenos[gene]
                pheno = pheno.strip()
 
                if "split_length" in results[db][hit]:
