@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 from tabulate import tabulate
 import collections
 
-from blaster.blaster import Blaster
+from cge.blaster.blaster import Blaster
 
 
 class ResFinder():
