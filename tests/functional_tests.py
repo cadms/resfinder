@@ -22,7 +22,8 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(run_test_dir, exist_ok=False)
 
     def tearDown(self):
-        shutil.rmtree(run_test_dir)
+        # shutil.rmtree(run_test_dir)
+        pass
 
     def test_on_data_with_just_acquired_resgene(self):
         # Maria has an E. coli isolate, with unknown resistance.
