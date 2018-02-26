@@ -60,11 +60,13 @@ class ResFinderRunTest(unittest.TestCase):
                     check=True)
 
         # Expected output files
-        fsa_hit = test1_blast_dir + "/Hit_in_genome_seq.fsa"
-        fsa_res = test1_blast_dir + "/Resistance_gene_seq.fsa"
-        res_table = test1_blast_dir + "/results_table.txt"
-        res_tab = test1_blast_dir + "/results_tab.txt"
-        results = test1_blast_dir + "/results.txt"
+        res_out = test1_blast_dir + "/resfinder_out"
+
+        fsa_hit = res_out + "/Hit_in_genome_seq.fsa"
+        fsa_res = res_out + "/Resistance_gene_seq.fsa"
+        res_table = res_out + "/results_table.txt"
+        res_tab = res_out + "/results_tab.txt"
+        results = res_out + "/results.txt"
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
