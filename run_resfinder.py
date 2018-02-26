@@ -4,6 +4,8 @@ import os
 import subprocess
 from argparse import ArgumentParser
 
+from ResFinder import ResFinder
+
 #  Modules used to create the extended ResFinder output (phenotype output)
 from phenotype2genotype.isolate import Isolate
 from phenotype2genotype.res_profile import PhenoDB
@@ -112,7 +114,7 @@ parser.add_argument("-u", "--unknown_mut",
 parser.add_argument("-db_res", "--databasePath_res",
                     dest="db_path_res",
                     help="Path to the databases for ResFinder",
-                    default='')
+                    default=None)
 parser.add_argument("-d", "--databases",
                     dest="databases",
                     help="Databases chosen to search in - if none is specified\
@@ -185,22 +187,45 @@ if args.acquired is True:
 
    db_path_res = args.db_path_res
 
+   # Check if valid database is provided
+   if db_path_res is None:
+         sys.exit("Input Error: No database directory was provided!\n")
+   elif not os.path.exists(db_path_res):
+      sys.exit("Input Error: The specified database directory does not "
+               "exist!\n")
+   else:
+      # Check existence of config file
+      db_config_file = '%s/config' % (db_path_res)
+      if not os.path.exists(db_config_file):
+         sys.exit("Input Error: The database config file could not be found!")
+
+   # Check existence of notes file
+   notes_path = "%s/notes.txt" % (args.db_path)
+   if not os.path.exists(notes_path):
+      sys.exit('Input Error: notes.txt not found! (%s)' % (notes_path))
+
    # Run ResFinder
    # TODO: Python path
-   cmd = ("%s %s -i "
-          "%s -o %s -b %s -p %s -l %f -t %f" % (python, script_resfinder,
-                                                inputfile, out_res, blast,
-                                                db_path_res, min_cov,
-                                                threshold))
-   if(args.databases is not None):
-      cmd = cmd + (" -d %s" % (args.databases))
+   # cmd = ("%s %s -i "
+   #       "%s -o %s -b %s -p %s -l %f -t %f" % (python, script_resfinder,
+   #                                             inputfile, out_res, blast,
+   #                                             db_path_res, min_cov,
+   #                                             threshold))
+   # if(args.databases is not None):
+   #    cmd = cmd + (" -d %s" % (args.databases))
 
-   print("Run cmd: " + cmd)
-   process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-   out, err = process.communicate()
-   print("ERR: " + err.decode())
-   print("OUT: " + out.decode())
+   # print("Run cmd: " + cmd)
+   # process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+   #                           stderr=subprocess.PIPE)
+   # out, err = process.communicate()
+   # print("ERR: " + err.decode())
+   # print("OUT: " + out.decode())
+
+   finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
+                      db_path=db_path_res, notes=notes_path)
+
+   finder.blast(inputfile=inputfile, out_path=out_res, min_cov=min_cov,
+                threshold=threshold, blast=blast)
 
 if args.point is True:
    db_path_point = args.db_path_point
