@@ -21,8 +21,8 @@ class ResFinderRunTest(unittest.TestCase):
         # Does not allow running two tests in parallel
         os.makedirs(run_test_dir, exist_ok=False)
 
-#    def tearDown(self):
-#        shutil.rmtree(run_test_dir)
+    def tearDown(self):
+        shutil.rmtree(run_test_dir)
 
     def test_on_data_with_just_acquired_resgene(self):
         # Maria has an E. coli isolate, with unknown resistance.
@@ -54,12 +54,49 @@ class ResFinderRunTest(unittest.TestCase):
                         + " -t 0.8"
                         + " --acquired"
                         + " --databasePath_res ../database")
-        print("CMD: " + cmd_acquired)
+
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
-        self.fail("Finish the test for pointmutations")
-        self.fail("Finish the test for phenotypes")
+        # Expected output files
+        fsa_hit = test1_blast_dir + "/Hit_in_genome_seq.fsa"
+        fsa_res = test1_blast_dir + "/Resistance_gene_seq.fsa"
+        res_table = test1_blast_dir + "/results_table.txt"
+        res_tab = test1_blast_dir + "/results_tab.txt"
+        results = test1_blast_dir + "/results.txt"
+
+        with open(fsa_hit, "r") as fh:
+            check_result = fh.readline()
+        self.assertIn("blaB-2_1_AF189300", check_result)
+
+        with open(fsa_res, "r") as fh:
+            check_result = fh.readline()
+        self.assertIn("blaB-2_AF189300", check_result)
+
+        with open(res_table, "r") as fh:
+            for i, line in enumerate(fh):
+                check_result = fh.readline()
+                if(i == 17):
+                    print("RES: " + check_result)
+                    break
+        self.assertIn("blaB-2_1_AF189300", check_result)
+
+        with open(res_tab, "r") as fh:
+            fh.readline()
+            check_result = fh.readline()
+        self.assertIn("blaB-2_1_AF189300", check_result)
+
+        with open(results, "r") as fh:
+            fh.readline()
+            fh.readline()
+            fh.readline()
+            fh.readline()
+            fh.readline()
+            check_result = fh.readline()
+        self.assertIn("blaB-2_1_AF189300", check_result)
+
+        # self.fail("Finish the test for pointmutations")
+        # self.fail("Finish the test for phenotypes")
 
 
 if __name__ == "__main__":
