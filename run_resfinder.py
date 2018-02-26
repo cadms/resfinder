@@ -4,7 +4,7 @@ import os
 import subprocess
 from argparse import ArgumentParser
 
-from ResFinder import ResFinder
+from cge.resfinder import ResFinder
 
 #  Modules used to create the extended ResFinder output (phenotype output)
 from phenotype2genotype.isolate import Isolate
