@@ -293,7 +293,7 @@ class ResFinder():
       """
       """
       extensions = []
-      with open(conf_file) as f:
+      with open(db_conf_file) as f:
          for line in f:
             line = l.strip()
 
@@ -442,8 +442,9 @@ if __name__ == '__main__':
    else:
       out_path = args.out_path
 
-   finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
-                      db_path=db_path, notes=notes_path)
+   if(inputfile is not None):
+      finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
+                         db_path=db_path, notes=notes_path)
 
-   finder.blast(inputfile=inputfile, out_path=out_path, min_cov=min_cov,
-                threshold=threshold, blast=args.blast_path)
+      finder.blast(inputfile=inputfile, out_path=out_path, min_cov=min_cov,
+                   threshold=threshold, blast=args.blast_path)
