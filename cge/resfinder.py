@@ -15,6 +15,11 @@ from cge.blaster.blaster import Blaster
 
 class ResFinder():
 
+   # Variables used by methods to distinguish results created by different
+   # methods.
+   TYPE_BLAST = "blast"
+   TYPE_KMA = "kma"
+
    def __init__(self, db_conf_file, notes, db_path, databases=None):
       """
       """
@@ -173,7 +178,8 @@ class ResFinder():
 
       self.results_to_str(query_align=blast_run.gene_align_query,
                           homo_align=blast_run.gene_align_homo,
-                          sbjct_align=blast_run.gene_align_sbjct)
+                          sbjct_align=blast_run.gene_align_sbjct,
+                          res_type=ResFinder.TYPE_BLAST)
 
       # self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
       self.write_results(out_path=out_path)
@@ -181,8 +187,13 @@ class ResFinder():
    def results_to_str(self, query_align=None, homo_align=None,
                       sbjct_align=None):
 
-      # TODO: Do not use results variable.
-      results = self.blast_results
+      if(res_type == ResFinder.TYPE_BLAST):
+         results = self.blast_results
+      elif(res_type == ResFinder.TYPE_KMA):
+         results = self.kma_results
+      else:
+         sys.exit("resfinder.py error: result method was not provided or not "
+                  "recognized.")
 
       # Write the header for the tab file
       tab_str = ("Resistance gene\tIdentity\tAlignment Length/Gene Length\t"
@@ -265,7 +276,11 @@ class ResFinder():
                                    contig_name, positions_contig, pheno, acc])
 
                # Writing subjet/ref sequence
-               ref_seq = sbjct_align[db][hit]
+               if(res_type == ResFinder.TYPE_BLAST):
+                  ref_seq = sbjct_align[db][hit]
+               elif(res_type == ResFinder.TYPE_KMA):
+                  ref_seq = results[db][hit]["sbjct_string"]
+
                ref_str += (">%s_%s\n" % (gene, acc))
                for i in range(0, len(ref_seq), 60):
                   ref_str += ("%s\n" % (ref_seq[i:i + 60]))
@@ -281,13 +296,22 @@ class ResFinder():
                hit_str += (">%s\n" % text)
 
                # Writing query/hit sequence
-               hit_seq = query_align[db][hit]
+               if(res_type == ResFinder.TYPE_BLAST):
+                  hit_seq = query_align[db][hit]
+               elif(res_type == ResFinder.TYPE_KMA):
+                  hit_seq = results[db][hit]["query_string"]
+
                for i in range(0, len(hit_seq), 60):
                   hit_str += ("%s\n" % (hit_seq[i:i + 60]))
 
                # Saving the output to print the txt result file allignemts
-               txt_file_seq_text[db].append((text, ref_seq,
-                                             homo_align[db][hit], hit_seq))
+               if(res_type == ResFinder.TYPE_BLAST):
+                  txt_file_seq_text[db].append((text, ref_seq,
+                                               homo_align[db][hit], hit_seq))
+               elif(res_type == ResFinder.TYPE_KMA):
+                  txt_file_seq_text[db].append((text, ref_seq,
+                                               results[db][hit]["homology"],
+                                               hit_seq))
 
             for res in split_print:
                gene = split_print[res][0][0]
