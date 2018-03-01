@@ -20,21 +20,32 @@ class ResFinder():
    TYPE_BLAST = "blast"
    TYPE_KMA = "kma"
 
-   def __init__(self, db_conf_file, notes, db_path, databases=None):
+   def __init__(self, db_conf_file, notes, db_path, db_path_kma=None,
+                databases=None):
       """
       """
       self.db_path = db_path
+
+      if(db_path_kma is None):
+         self.db_path_kma = db_path + "/kma_indexing/"
+      else:
+         self.db_path_kma = db_path_kma
+
       self.configured_dbs = dict()
+      self.kma_db_files = None
       self.load_db_config(db_conf_file=db_conf_file)
+
       self.databases = []
       self.load_databases(databases=databases)
+
       self.phenos = dict()
       self.load_notes(notes=notes)
+
       self.blast_results = None
       self.kma_results = None
       self.results = None
 
-   def KMA(self, inputfile_1, databases, db_path, out_path, sample_name,
+   def KMA(self, inputfile_1, databases, db_path_kma, out_path, sample_name,
            min_cov, mapping_path):
       """
          I expect that there will only be one hit pr gene, but if there are
@@ -45,8 +56,7 @@ class ResFinder():
       self.kma_results = dict()
 
       for drug in databases:
-         # TODO: kma database, should probalble be included as an argument
-         kma_db = db_path + "/kma_indexing/" + drug
+         kma_db = db_path_kma + drug
          kma_outfile = out_path + "/kma_" + drug + "_" + sample_name
          kma_cmd = ("%s -i %s -t_db %s -SW -o %s -e 1.0" % (mapping_path,
                     inputfile_1, kma_db, kma_outfile))
@@ -175,14 +185,6 @@ class ResFinder():
                           db_path=self.db_path, out_path=out_path,
                           min_cov=min_cov, threshold=threshold, blast=blast)
       self.blast_results = blast_run.results
-
-      self.results_to_str(res_type=ResFinder.TYPE_BLAST,
-                          query_align=blast_run.gene_align_query,
-                          homo_align=blast_run.gene_align_homo,
-                          sbjct_align=blast_run.gene_align_sbjct)
-
-      # self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
-      self.write_results(out_path=out_path)
 
    def results_to_str(self, res_type, query_align=None, homo_align=None,
                       sbjct_align=None):
@@ -473,6 +475,12 @@ class ResFinder():
          sys.exit("Input Error: No databases were found in the "
                   "database config file!")
 
+      # Loading paths for KMA databases.
+      for drug in self.configured_dbs:
+         kma_db = self.db_path_kma + drug
+         self.kma_db_files = [kma_db + ".b", kma_db + ".length.b",
+                              kma_db + ".name.b", kma_db + ".align.b"]
+
 
 if __name__ == '__main__':
 
@@ -505,6 +513,20 @@ if __name__ == '__main__':
                        dest="db_path",
                        help="Path to the databases",
                        default='')
+
+   parser.add_argument("-k", "--kmaPath",
+                       dest="kma_path",
+                       help="Path to KMA",
+                       default=None)
+   parser.add_argument("-q", "--databasePathKMA",
+                       dest="db_path_kma",
+                       help="Path to the directories containing the KMA \
+                             indexed databases. Defaults to the directory \
+                             'kma_indexing' inside the databasePath \
+                             directory.",
+                       default=None)
+
+
    parser.add_argument("-d", "--databases",
                        dest="databases",
                        help="Databases chosen to search in - if none are \
@@ -586,9 +608,29 @@ if __name__ == '__main__':
    else:
       out_path = args.out_path
 
+   # If input is an assembly, then use BLAST
    if(inputfile is not None):
       finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
                          db_path=db_path, notes=notes_path)
 
       finder.blast(inputfile=inputfile, out_path=out_path, min_cov=min_cov,
                    threshold=threshold, blast=args.blast_path)
+
+      finder.results_to_str(res_type=ResFinder.TYPE_BLAST,
+                            query_align=blast_run.gene_align_query,
+                            homo_align=blast_run.gene_align_homo,
+                            sbjct_align=blast_run.gene_align_sbjct)
+
+      finder.write_results(out_path=out_path)
+
+   # If the input is raw read data, then use KMA
+   elif(input_fastq1 is not None):
+      finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
+                         db_path=db_path, db_path_kma=args.db_path_kma,
+                         notes=notes_path)
+
+      finder.kma()
+
+      finder.results_to_str(res_type=ResFinder.TYPE_KMA)
+
+      finder.write_results(out_path=out_path)
