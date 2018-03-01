@@ -176,15 +176,15 @@ class ResFinder():
                           min_cov=min_cov, threshold=threshold, blast=blast)
       self.blast_results = blast_run.results
 
-      self.results_to_str(query_align=blast_run.gene_align_query,
+      self.results_to_str(res_type=ResFinder.TYPE_BLAST,
+                          query_align=blast_run.gene_align_query,
                           homo_align=blast_run.gene_align_homo,
-                          sbjct_align=blast_run.gene_align_sbjct,
-                          res_type=ResFinder.TYPE_BLAST)
+                          sbjct_align=blast_run.gene_align_sbjct)
 
       # self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
       self.write_results(out_path=out_path)
 
-   def results_to_str(self, query_align=None, homo_align=None,
+   def results_to_str(self, res_type, query_align=None, homo_align=None,
                       sbjct_align=None):
 
       if(res_type == ResFinder.TYPE_BLAST):
