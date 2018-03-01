@@ -175,7 +175,7 @@ class ResFinder():
                           homo_align=blast_run.gene_align_homo,
                           sbjct_align=blast_run.gene_align_sbjct)
 
-      self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
+      # self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
       self.write_results(out_path=out_path)
 
    def results_to_str(self, query_align=None, homo_align=None,
@@ -337,6 +337,8 @@ class ResFinder():
                txt_str += ("%s\n" % (text[2][i:i + 60]))
                txt_str += ("%s\n\n" % (text[3][i:i + 60]))
             txt_str += ("\n")
+
+   self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
 
    @staticmethod
    def text_table(title, headers, rows, table_format='psql'):
