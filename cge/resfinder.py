@@ -338,7 +338,7 @@ class ResFinder():
                txt_str += ("%s\n\n" % (text[3][i:i + 60]))
             txt_str += ("\n")
 
-   self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
+      self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
 
    @staticmethod
    def text_table(title, headers, rows, table_format='psql'):
