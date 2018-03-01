@@ -144,7 +144,7 @@ class ResFinder():
             self.kma_results[drug][hit]["sbjct_end"] = (
                 self.kma_results[drug][hit]["sbjct_length"] - sbjct_start + 1)
 
-   def write_blast_results(self, out_path):
+   def write_results(self, out_path):
       """
       """
       if(self.blast_results is None):
@@ -169,18 +169,20 @@ class ResFinder():
       blast_run = Blaster(inputfile=inputfile, databases=self.databases,
                           db_path=self.db_path, out_path=out_path,
                           min_cov=min_cov, threshold=threshold, blast=blast)
-      results = blast_run.results
+      self.blast_results = blast_run.results
 
-      query_align = blast_run.gene_align_query
-      homo_align = blast_run.gene_align_homo
-      sbjct_align = blast_run.gene_align_sbjct
+      self.results_to_str(query_align=blast_run.gene_align_query,
+                          homo_align=blast_run.gene_align_homo,
+                          sbjct_align=blast_run.gene_align_sbjct)
 
-      # Making output files
-      # tab_file = open(out_path + "/results_tab.txt", 'w')
-      # table_file = open(out_path + "/results_table.txt", 'w')
-      # txt_file = open(out_path + "/results.txt", 'w')
-      # ref_file = open(out_path + "/Resistance_gene_seq.fsa", 'w')
-      # hit_file = open(out_path + "/Hit_in_genome_seq.fsa", 'w')
+      self.results = (tab_str, table_str, txt_str, ref_str, hit_str)
+      self.write_results(out_path=out_path)
+
+   def results_to_str(self, query_align=None, homo_align=None,
+                      sbjct_align=None):
+
+      # TODO: Do not use results variable.
+      results = self.blast_results
 
       # Write the header for the tab file
       tab_str = ("Resistance gene\tIdentity\tAlignment Length/Gene Length\t"
@@ -335,9 +337,6 @@ class ResFinder():
                txt_str += ("%s\n" % (text[2][i:i + 60]))
                txt_str += ("%s\n\n" % (text[3][i:i + 60]))
             txt_str += ("\n")
-
-      self.blast_results = (tab_str, table_str, txt_str, ref_str, hit_str)
-      self.write_blast_results(out_path=out_path)
 
    @staticmethod
    def text_table(title, headers, rows, table_format='psql'):
