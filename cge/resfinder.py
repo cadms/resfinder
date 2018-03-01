@@ -147,20 +147,20 @@ class ResFinder():
    def write_results(self, out_path):
       """
       """
-      if(self.blast_results is None):
+      if(self.results is None):
          sys.exit("The blast method needs to be called before calling this "
                   "method.")
 
       with open(out_path + "/results_tab.txt", "w") as fh:
-         fh.write(self.blast_results[0])
+         fh.write(self.results[0])
       with open(out_path + "/results_table.txt", "w") as fh:
-         fh.write(self.blast_results[1])
+         fh.write(self.results[1])
       with open(out_path + "/results.txt", "w") as fh:
-         fh.write(self.blast_results[2])
+         fh.write(self.results[2])
       with open(out_path + "/Resistance_gene_seq.fsa", "w") as fh:
-         fh.write(self.blast_results[3])
+         fh.write(self.results[3])
       with open(out_path + "/Hit_in_genome_seq.fsa", "w") as fh:
-         fh.write(self.blast_results[4])
+         fh.write(self.results[4])
 
    def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6,
              blast="blastn"):
