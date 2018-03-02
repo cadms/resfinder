@@ -212,7 +212,7 @@ if args.acquired is True:
                                      min_cov=min_cov, threshold=threshold,
                                      blast=blast)
 
-   acquired_finder.write_results(out_path=out_path, result=blast_run,
+   acquired_finder.write_results(out_path=out_res, result=blast_run,
                                  res_type=ResFinder.TYPE_BLAST)
 
 if args.point is True:
