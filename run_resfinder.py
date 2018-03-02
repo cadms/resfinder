@@ -244,7 +244,8 @@ if args.acquired is True:
                                             threshold=threshold,
                                             blast=blast)
 
-      acquired_finder.write_results(out_path=out_res_blast, result=blast_run,
+      acquired_finder.write_results(out_path=out_res_blast,
+                                    result=blast_results,
                                     res_type=ResFinder.TYPE_BLAST)
 
    if(inputfastq):
@@ -253,7 +254,7 @@ if args.acquired is True:
                                         out_path=out_res_kma, min_cov=min_cov,
                                         kma_path=kma)
 
-      acquired_finder.write_results(out_path=out_res_kma, result=blast_run,
+      acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_BLAST)
 
 if args.point is True:
