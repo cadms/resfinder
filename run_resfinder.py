@@ -232,7 +232,7 @@ if args.acquired is True:
    # Actually running ResFinder (for acquired resistance)
    acquired_finder = ResFinder(db_conf_file=db_config_file,
                                databases=args.databases, db_path=db_path_res,
-                               notes=notes_path, db_path_kma=args.db_res_kma)
+                               notes=notes_path, db_path_kma=args.db_path_kma)
 
    blast_results = None
    kma_results = None
