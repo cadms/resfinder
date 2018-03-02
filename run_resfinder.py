@@ -238,7 +238,7 @@ if args.acquired is True:
    kma_results = None
 
    if(args.inputfasta):
-      blast_results = acquired_finder.blast(inputfile=inputfile,
+      blast_results = acquired_finder.blast(inputfile=args.inputfasta,
                                             out_path=out_res,
                                             min_cov=min_cov,
                                             threshold=threshold,
