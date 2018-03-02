@@ -239,7 +239,7 @@ if args.acquired is True:
 
    if(args.inputfasta):
       blast_results = acquired_finder.blast(inputfile=args.inputfasta,
-                                            out_path=out_res,
+                                            out_path=out_res_blast,
                                             min_cov=min_cov,
                                             threshold=threshold,
                                             blast=blast)
@@ -250,7 +250,7 @@ if args.acquired is True:
    if(inputfastq):
       kma_results = acquired_finder.kma(inputfile_1=inputfastq_1,
                                         inputfile_2=inputfastq_2,
-                                        out_path=out_res, min_cov=min_cov,
+                                        out_path=out_res_kma, min_cov=min_cov,
                                         kma_path=kma)
 
       acquired_finder.write_results(out_path=out_res_kma, result=blast_run,
