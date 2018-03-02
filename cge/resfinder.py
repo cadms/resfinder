@@ -45,8 +45,7 @@ class ResFinder():
       # self.kma_results = None
       # self.results = None
 
-   @staticmethod
-   def kma(inputfile_1, out_path,
+   def kma(self, inputfile_1, out_path,
            min_cov, kma_path="cge/kma/kma", sample_name="", inputfile_2=None):
       """
          I expect that there will only be one hit pr gene, but if there are
