@@ -42,24 +42,27 @@ class ResFinder():
       self.load_notes(notes=notes)
 
       self.blast_results = None
-      self.kma_results = None
-      self.results = None
+      # self.kma_results = None
+      # self.results = None
 
-   def KMA(self, inputfile_1, databases, db_path_kma, out_path, sample_name,
-           min_cov, mapping_path):
+   @staticmethod
+   def kma(inputfile_1, out_path,
+           sample_name, min_cov, mapping_path, inputfile_2=None):
       """
          I expect that there will only be one hit pr gene, but if there are
          more, I assume that the sequence of the hits are the same in the res
          file and the aln file.
       """
 
-      self.kma_results = dict()
+      kma_results = dict()
 
-      for drug in databases:
-         kma_db = db_path_kma + drug
+      for drug in self.databases:
+         kma_db = self.db_path_kma + drug
          kma_outfile = out_path + "/kma_" + drug + "_" + sample_name
-         kma_cmd = ("%s -i %s -t_db %s -SW -o %s -e 1.0" % (mapping_path,
-                    inputfile_1, kma_db, kma_outfile))
+         kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (mapping_path,
+                    kma_db, kma_outfile, inputfile_1))
+         if(inputfile_2 is not None):
+            kma_cmd += " " + inputfile_2
 
          print("KMA_cmd: " + kma_cmd)
          # Call KMA
@@ -68,7 +71,7 @@ class ResFinder():
                                     stderr=subprocess.PIPE)
          out, err = process.communicate()
 
-         self.kma_results[drug] = 'No hit found'
+         kma_results[drug] = 'No hit found'
 
          # Fetch kma output files
          align_filename = kma_outfile + ".aln"
@@ -78,8 +81,8 @@ class ResFinder():
          with open(res_filename, "r") as res_file:
             header = res_file.readline()
             for line in res_file:
-               if self.kma_results[drug] == 'No hit found':
-                  self.kma_results[drug] = dict()
+               if kma_results[drug] == 'No hit found':
+                  kma_results[drug] = dict()
                data = [data.strip() for data in line.split("\t")]
                gene = data[0]
                # Check if gene one of the user specified genes
@@ -88,25 +91,25 @@ class ResFinder():
                sbjct_len = int(data[3])
                coverage = float(data[4])
                print(gene)
-               if gene not in self.kma_results[drug]:
+               if gene not in kma_results[drug]:
                   hit = gene
                else:
-                  hit = gene + "_" + str(len(self.kma_results[drug][gene]) + 1)
+                  hit = gene + "_" + str(len(kma_results[drug][gene]) + 1)
 
-               self.kma_results[drug][hit] = dict()
-               self.kma_results[drug][hit]['sbjct_length'] = sbjct_len
-               self.kma_results[drug][hit]['coverage'] = coverage / 100
-               self.kma_results[drug][hit]["sbjct_string"] = []
-               self.kma_results[drug][hit]["query_string"] = []
-               self.kma_results[drug][hit]["homology"] = []
-               self.kma_results[drug][hit]["sbjct_header"] = gene
-               self.kma_results[drug][hit]["split_length"] = 'Not given'
-               self.kma_results[drug][hit]["perc_ident"] = coverage
-               self.kma_results[drug][hit]["query_start"] = 'Not given'
-               self.kma_results[drug][hit]["query_end"] = 'Not given'
-               self.kma_results[drug][hit]["contig_name"] = 'Not given'
+               kma_results[drug][hit] = dict()
+               kma_results[drug][hit]['sbjct_length'] = sbjct_len
+               kma_results[drug][hit]['coverage'] = coverage / 100
+               kma_results[drug][hit]["sbjct_string"] = []
+               kma_results[drug][hit]["query_string"] = []
+               kma_results[drug][hit]["homology"] = []
+               kma_results[drug][hit]["sbjct_header"] = gene
+               kma_results[drug][hit]["split_length"] = 'Not given'
+               kma_results[drug][hit]["perc_ident"] = coverage
+               kma_results[drug][hit]["query_start"] = 'Not given'
+               kma_results[drug][hit]["query_end"] = 'Not given'
+               kma_results[drug][hit]["contig_name"] = 'Not given'
 
-         if self.kma_results[drug] == 'No hit found':
+         if kma_results[drug] == 'No hit found':
             continue
 
          # Open align file
@@ -129,53 +132,61 @@ class ResFinder():
                   else:
                      hit = gene + "_" + hit_no[gene]
 
-                  if hit in self.kma_results[drug]:
+                  if hit in kma_results[drug]:
                      line_data = line.split("\t")[-1].strip()
                      if line.startswith("template"):
-                        self.kma_results[drug][hit]["sbjct_string"] += [line_data]
+                        kma_results[drug][hit]["sbjct_string"] += [line_data]
                      elif line.startswith("query"):
-                        self.kma_results[drug][hit]["query_string"] += [line_data]
+                        kma_results[drug][hit]["query_string"] += [line_data]
                      else:
-                        self.kma_results[drug][hit]["homology"] += [line_data]
+                        kma_results[drug][hit]["homology"] += [line_data]
                   else:
-                     print(hit + " not in results: ", self.kma_results)
+                     print(hit + " not in results: ", kma_results)
 
          # concatinate all sequences lists and find subject start and subject
          # end
          seq_start_search_str = re.compile("^-*(\w+)")
 
-         for hit in self.kma_results[drug]:
-            self.kma_results[drug][hit]['sbjct_string'] = "".join(
-                self.kma_results[drug][hit]['sbjct_string'])
-            self.kma_results[drug][hit]['query_string'] = "".join(
-                self.kma_results[drug][hit]['query_string'])
-            self.kma_results[drug][hit]['homology'] = "".join(
-                self.kma_results[drug][hit]['homology'])
+         for hit in kma_results[drug]:
+            kma_results[drug][hit]['sbjct_string'] = "".join(
+                kma_results[drug][hit]['sbjct_string'])
+            kma_results[drug][hit]['query_string'] = "".join(
+                kma_results[drug][hit]['query_string'])
+            kma_results[drug][hit]['homology'] = "".join(
+                kma_results[drug][hit]['homology'])
 
             seq_start_object = seq_start_search_str.search(
-                self.kma_results[drug][hit]['query_string'])
+                kma_results[drug][hit]['query_string'])
             sbjct_start = seq_start_object.start() + 1
-            self.kma_results[drug][hit]['sbjct_start'] = sbjct_start
-            self.kma_results[drug][hit]["sbjct_end"] = (
-                self.kma_results[drug][hit]["sbjct_length"] - sbjct_start + 1)
+            kma_results[drug][hit]['sbjct_start'] = sbjct_start
+            kma_results[drug][hit]["sbjct_end"] = (
+                kma_results[drug][hit]["sbjct_length"] - sbjct_start + 1)
 
-   def write_results(self, out_path):
+      return kma_results
+
+   def write_results(self, out_path, result, res_type):
       """
       """
-      if(self.results is None):
-         sys.exit("The blast method needs to be called before calling this "
-                  "method.")
+      if(res_type == ResFinder.TYPE_BLAST):
+         result_str = self.results_to_str(res_type=res_type,
+                                          results=result.results,
+                                          query_align=result.gene_align_query,
+                                          homo_align=result.gene_align_homo,
+                                          sbjct_align=result.gene_align_sbjct)
+      elif(res_type == ResFinder.TYPE_KMA):
+         result_str = self.results_to_str(res_type=res_type,
+                                          results=result)
 
       with open(out_path + "/results_tab.txt", "w") as fh:
-         fh.write(self.results[0])
+         fh.write(result_str[0])
       with open(out_path + "/results_table.txt", "w") as fh:
-         fh.write(self.results[1])
+         fh.write(result_str[1])
       with open(out_path + "/results.txt", "w") as fh:
-         fh.write(self.results[2])
+         fh.write(result_str[2])
       with open(out_path + "/Resistance_gene_seq.fsa", "w") as fh:
-         fh.write(self.results[3])
+         fh.write(result_str[3])
       with open(out_path + "/Hit_in_genome_seq.fsa", "w") as fh:
-         fh.write(self.results[4])
+         fh.write(result_str[4])
 
    def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6,
              blast="blastn"):
@@ -185,15 +196,12 @@ class ResFinder():
                           db_path=self.db_path, out_path=out_path,
                           min_cov=min_cov, threshold=threshold, blast=blast)
       self.blast_results = blast_run.results
+      return blast_run
 
-   def results_to_str(self, res_type, query_align=None, homo_align=None,
-                      sbjct_align=None):
+   def results_to_str(self, res_type, results, query_align=None,
+                      homo_align=None, sbjct_align=None):
 
-      if(res_type == ResFinder.TYPE_BLAST):
-         results = self.blast_results
-      elif(res_type == ResFinder.TYPE_KMA):
-         results = self.kma_results
-      else:
+      if(res_type != ResFinder.TYPE_BLAST and res_type != ResFinder.TYPE_KMA):
          sys.exit("resfinder.py error: result method was not provided or not "
                   "recognized.")
 
@@ -613,15 +621,12 @@ if __name__ == '__main__':
       finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
                          db_path=db_path, notes=notes_path)
 
-      finder.blast(inputfile=inputfile, out_path=out_path, min_cov=min_cov,
-                   threshold=threshold, blast=args.blast_path)
+      blast_run = finder.blast(inputfile=inputfile, out_path=out_path,
+                               min_cov=min_cov, threshold=threshold,
+                               blast=args.blast_path)
 
-      finder.results_to_str(res_type=ResFinder.TYPE_BLAST,
-                            query_align=blast_run.gene_align_query,
-                            homo_align=blast_run.gene_align_homo,
-                            sbjct_align=blast_run.gene_align_sbjct)
-
-      finder.write_results(out_path=out_path)
+      finder.write_results(out_path=out_path, result=blast_run,
+                           res_type=ResFinder.TYPE_BLAST)
 
    # If the input is raw read data, then use KMA
    elif(input_fastq1 is not None):
@@ -629,8 +634,8 @@ if __name__ == '__main__':
                          db_path=db_path, db_path_kma=args.db_path_kma,
                          notes=notes_path)
 
-      finder.kma()
+      # if input_fastq2 is None, it is ignored by the kma method.
+      kma_run = finder.kma(inputfile_1=input_fastq1, inputfile_2=input_fastq2)
 
-      finder.results_to_str(res_type=ResFinder.TYPE_KMA)
-
-      finder.write_results(out_path=out_path)
+      finder.write_results(out_path=out_path, result=kma_run,
+                           res_type=ResFinder.TYPE_KMA)
