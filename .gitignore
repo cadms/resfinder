@@ -5,3 +5,4 @@ Output
 *.pyc
 __pycache__
 running_test
+cge/kma
