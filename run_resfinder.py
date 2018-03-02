@@ -208,8 +208,12 @@ if args.acquired is True:
                                databases=args.databases, db_path=db_path_res,
                                notes=notes_path)
 
-   acquired_finder.blast(inputfile=inputfile, out_path=out_res,
-                         min_cov=min_cov, threshold=threshold, blast=blast)
+   blast_run = acquired_finder.blast(inputfile=inputfile, out_path=out_res,
+                                     min_cov=min_cov, threshold=threshold,
+                                     blast=blast)
+
+   acquired_finder.write_results(out_path=out_path, result=blast_run,
+                                 res_type=ResFinder.TYPE_BLAST)
 
 if args.point is True:
    db_path_point = args.db_path_point
