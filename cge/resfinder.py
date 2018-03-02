@@ -47,7 +47,7 @@ class ResFinder():
 
    @staticmethod
    def kma(inputfile_1, out_path,
-           sample_name, min_cov, mapping_path, inputfile_2=None):
+           min_cov, kma_path="cge/kma/kma", sample_name="", inputfile_2=None):
       """
          I expect that there will only be one hit pr gene, but if there are
          more, I assume that the sequence of the hits are the same in the res
@@ -56,11 +56,14 @@ class ResFinder():
 
       kma_results = dict()
 
+      if(sample_name):
+         sample_name = "_" + sample_name
+
       for drug in self.databases:
          kma_db = self.db_path_kma + drug
-         kma_outfile = out_path + "/kma_" + drug + "_" + sample_name
-         kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (mapping_path,
-                    kma_db, kma_outfile, inputfile_1))
+         kma_outfile = out_path + "/kma_" + drug + sample_name
+         kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
+                    kma_outfile, inputfile_1))
          if(inputfile_2 is not None):
             kma_cmd += " " + inputfile_2
 

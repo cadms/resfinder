@@ -60,7 +60,7 @@ class ResFinderRunTest(unittest.TestCase):
                     check=True)
 
         # Expected output files
-        res_out = test1_blast_dir + "/resfinder_out"
+        res_out = test1_blast_dir + "/resfinder_blast"
 
         fsa_hit = res_out + "/Hit_in_genome_seq.fsa"
         fsa_res = res_out + "/Resistance_gene_seq.fsa"

@@ -82,10 +82,16 @@ def create_tab_acquired(isolate, phenodb):
 parser = ArgumentParser()
 
 # General options
-parser.add_argument("-i", "--inputfile",
-                    dest="inputfile",
-                    help="Input file",
-                    default='')
+parser.add_argument("-ifa", "--inputfasta",
+                    help="Input fasta file.",
+                    default=None)
+parser.add_argument("-ifq", "--inputfastq",
+                    help="Input fastq file(s). Assumed to be single-end fastq \
+                          if only one file is provided, and assumed to be \
+                          paired-end data if two files are provided.",
+                    nargs="+",
+                    default=None)
+
 parser.add_argument("-scripts", "--scrtips",
                     dest="scripts",
                     help="Path to ResFinder and PointFinder scritps. Defaults\
@@ -99,6 +105,10 @@ parser.add_argument("-b", "--blastPath",
                     dest="blast_path",
                     help="Path to blast",
                     default='blastn')
+parser.add_argument("-k", "--kmaPath",
+                    dest="kma_path",
+                    help="Path to KMA",
+                    default="cge/kma/kma")
 parser.add_argument("-s", "--species",
                     dest="species",
                     help="Species in the sample")
@@ -113,6 +123,12 @@ parser.add_argument("-u", "--unknown_mut",
 parser.add_argument("-db_res", "--databasePath_res",
                     dest="db_path_res",
                     help="Path to the databases for ResFinder",
+                    default=None)
+parser.add_argument("-db_res_kma", "--databasePath_res_kma",
+                    dest="db_path_kma",
+                    help="Path to the ResFinder databases indexed with KMA. \
+                          Defaults to the 'kma_indexing' directory inside the \
+                          given database directory.",
                     default=None)
 parser.add_argument("-d", "--databases",
                     dest="databases",
@@ -151,11 +167,17 @@ args = parser.parse_args()
 # MAIN
 ##########################################################################
 
-# TODO: Add input check
+# TODO: Add more input checks?
 scripts = args.scripts
-inputfile = args.inputfile
-# path = args.out_path
+if(args.inputfastq):
+   inputfastq_1 = args.inputfastq[0]
+   if(len(args.inputfastq) == 2):
+      inputfastq_2 = args.inputfastq[1]
+   else:
+      inputfastq_2 = None
+
 blast = args.blast_path
+kma = args.kma_path
 species = args.species
 
 # Check output directory
@@ -181,8 +203,12 @@ if args.acquired is True:
    min_cov = float(args.min_cov)
    threshold = float(args.threshold)
 
-   out_res = args.out_path + "/resfinder_out"
-   os.makedirs(out_res, exist_ok=True)
+   if(args.inputfasta):
+      out_res_blast = args.out_path + "/resfinder_blast"
+      os.makedirs(out_res_blast, exist_ok=True)
+   if(args.inputfastq):
+      out_res_kma = args.out_path + "/resfinder_kma"
+      os.makedirs(out_res_kma, exist_ok=True)
 
    db_path_res = args.db_path_res
 
@@ -206,14 +232,29 @@ if args.acquired is True:
    # Actually running ResFinder (for acquired resistance)
    acquired_finder = ResFinder(db_conf_file=db_config_file,
                                databases=args.databases, db_path=db_path_res,
-                               notes=notes_path)
+                               notes=notes_path, db_path_kma=args.db_res_kma)
 
-   blast_run = acquired_finder.blast(inputfile=inputfile, out_path=out_res,
-                                     min_cov=min_cov, threshold=threshold,
-                                     blast=blast)
+   blast_results = None
+   kma_results = None
 
-   acquired_finder.write_results(out_path=out_res, result=blast_run,
-                                 res_type=ResFinder.TYPE_BLAST)
+   if(args.inputfasta):
+      blast_results = acquired_finder.blast(inputfile=inputfile,
+                                            out_path=out_res,
+                                            min_cov=min_cov,
+                                            threshold=threshold,
+                                            blast=blast)
+
+      acquired_finder.write_results(out_path=out_res_blast, result=blast_run,
+                                    res_type=ResFinder.TYPE_BLAST)
+
+   if(inputfastq):
+      kma_results = acquired_finder.kma(inputfile_1=inputfastq_1,
+                                        inputfile_2=inputfastq_2,
+                                        out_path=out_res, min_cov=min_cov,
+                                        kma_path=kma)
+
+      acquired_finder.write_results(out_path=out_res_kma, result=blast_run,
+                                    res_type=ResFinder.TYPE_BLAST)
 
 if args.point is True:
    db_path_point = args.db_path_point
