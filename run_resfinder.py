@@ -248,7 +248,7 @@ if args.acquired is True:
                                     result=blast_results,
                                     res_type=ResFinder.TYPE_BLAST)
 
-   if(inputfastq):
+   if(args.inputfastq):
       kma_results = acquired_finder.kma(inputfile_1=inputfastq_1,
                                         inputfile_2=inputfastq_2,
                                         out_path=out_res_kma, min_cov=min_cov,
