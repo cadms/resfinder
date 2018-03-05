@@ -59,7 +59,8 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --databasePath_res ../database")
+                        + " --databasePath_res ../database"
+                        + " --kmaPath ../cge/kma/kma")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
