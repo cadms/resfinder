@@ -120,7 +120,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --acquired"
                         + " --databasePath_res ../database"
                         + " --kmaPath ../cge/kma/kma")
-        print("CMD: " + cmd_acquired)
+
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
