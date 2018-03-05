@@ -2,6 +2,7 @@ import unittest
 from subprocess import PIPE, run
 import os
 import shutil
+import sys
 
 
 # This is not best practice but for testing, this is the best I could come up
