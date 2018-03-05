@@ -83,6 +83,8 @@ class ResFinder():
          with open(res_filename, "r") as res_file:
             header = res_file.readline()
             for line in res_file:
+# DEBUG
+               print("LINE: " + str(line))
                if kma_results[drug] == 'No hit found':
                   kma_results[drug] = dict()
                data = [data.strip() for data in line.split("\t")]
