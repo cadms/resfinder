@@ -83,14 +83,10 @@ class ResFinder():
          with open(res_filename, "r") as res_file:
             header = res_file.readline()
             for line in res_file:
-# DEBUG
-               print("LINE: " + str(line))
                if kma_results[drug] == 'No hit found':
                   kma_results[drug] = dict()
                data = [data.strip() for data in line.split("\t")]
                gene = data[0]
-# DEBUG
-               print("DATA: " + str(data))
                # Check if gene one of the user specified genes
    #                if gene not in gene_list:
    #                    continue

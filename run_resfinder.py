@@ -255,7 +255,7 @@ if args.acquired is True:
                                         kma_path=kma)
 
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
-                                    res_type=ResFinder.TYPE_BLAST)
+                                    res_type=ResFinder.TYPE_KMA)
 
 if args.point is True:
    db_path_point = args.db_path_point
