@@ -75,7 +75,7 @@ class ResFinderRunTest(unittest.TestCase):
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertIn("blaB-2", check_result)
 
         with open(fsa_res, "r") as fh:
             check_result = fh.readline()
@@ -86,12 +86,12 @@ class ResFinderRunTest(unittest.TestCase):
                 if(line.startswith("blaB-2")):
                     check_result = line
                     break
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertIn("blaB-2", check_result)
 
         with open(res_tab, "r") as fh:
             fh.readline()
             check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertIn("blaB-2", check_result)
 
         with open(results, "r") as fh:
             fh.readline()
@@ -100,7 +100,7 @@ class ResFinderRunTest(unittest.TestCase):
             fh.readline()
             fh.readline()
             check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertIn("blaB-2", check_result)
 
     def test_on_data_with_just_acquired_resgene_using_kma(self):
         # Maria has another E. coli isolate, with unknown resistance.

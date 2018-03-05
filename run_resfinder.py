@@ -12,7 +12,7 @@ from phenotype2genotype.res_profile import PhenoDB
 from phenotype2genotype.res_sumtable import ResSumTable
 
 # TODO list:
-# TODO: Add input check
+# TODO: Add input data check
 
 # python = "/home/data1/tools/bin/anaconda/bin/python"
 python = "/services/tools/anaconda3/4.0.0/bin/python3"
@@ -167,7 +167,7 @@ args = parser.parse_args()
 # MAIN
 ##########################################################################
 
-# TODO: Add more input checks?
+# TODO: Add input data check
 scripts = args.scripts
 if(args.inputfastq):
    inputfastq_1 = args.inputfastq[0]
