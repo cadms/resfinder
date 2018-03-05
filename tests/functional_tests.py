@@ -32,7 +32,7 @@ class ResFinderRunTest(unittest.TestCase):
         # shutil.rmtree(run_test_dir)
         pass
 
-    def paused_test_on_data_with_just_acquired_resgene_using_blast(self):
+    def test_on_data_with_just_acquired_resgene_using_blast(self):
         # Maria has an E. coli isolate, with unknown resistance.
         # At first, she just wants to know which acquired resistance genes are
         # found in the genome.
