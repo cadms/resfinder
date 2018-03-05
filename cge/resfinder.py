@@ -91,7 +91,8 @@ class ResFinder():
    #                if gene not in gene_list:
    #                    continue
                sbjct_len = int(data[3])
-               coverage = float(data[4])
+               sbjct_ident = float(data[4])
+               coverage = float(data[5])
                print(gene)
                if gene not in kma_results[drug]:
                   hit = gene
@@ -106,10 +107,11 @@ class ResFinder():
                kma_results[drug][hit]["homology"] = []
                kma_results[drug][hit]["sbjct_header"] = gene
                kma_results[drug][hit]["split_length"] = 'Not given'
-               kma_results[drug][hit]["perc_ident"] = coverage
+               kma_results[drug][hit]["perc_ident"] = sbjct_ident / 100
                kma_results[drug][hit]["query_start"] = 'Not given'
                kma_results[drug][hit]["query_end"] = 'Not given'
                kma_results[drug][hit]["contig_name"] = 'Not given'
+               kma_results[drug][hit]["HSP_length"] = ""
 
          if kma_results[drug] == 'No hit found':
             continue
