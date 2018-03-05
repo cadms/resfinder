@@ -66,7 +66,6 @@ class ResFinder():
          if(inputfile_2 is not None):
             kma_cmd += " " + inputfile_2
 
-         print("KMA_cmd: " + kma_cmd)
          # Call KMA
          process = subprocess.Popen(kma_cmd, shell=True,
                                     stdout=subprocess.PIPE,
@@ -101,17 +100,17 @@ class ResFinder():
 
                kma_results[drug][hit] = dict()
                kma_results[drug][hit]['sbjct_length'] = sbjct_len
-               kma_results[drug][hit]['coverage'] = coverage / 100
+               kma_results[drug][hit]['coverage'] = coverage
                kma_results[drug][hit]["sbjct_string"] = []
                kma_results[drug][hit]["query_string"] = []
                kma_results[drug][hit]["homology"] = []
                kma_results[drug][hit]["sbjct_header"] = gene
-               kma_results[drug][hit]["split_length"] = 'Not given'
-               kma_results[drug][hit]["perc_ident"] = sbjct_ident / 100
-               kma_results[drug][hit]["query_start"] = 'Not given'
-               kma_results[drug][hit]["query_end"] = 'Not given'
-               kma_results[drug][hit]["contig_name"] = 'Not given'
-               kma_results[drug][hit]["HSP_length"] = ""
+               kma_results[drug][hit]["split_length"] = "NA"
+               kma_results[drug][hit]["perc_ident"] = sbjct_ident
+               kma_results[drug][hit]["query_start"] = "NA"
+               kma_results[drug][hit]["query_end"] = "NA"
+               kma_results[drug][hit]["contig_name"] = "NA"
+               kma_results[drug][hit]["HSP_length"] = "NA"
 
          if kma_results[drug] == 'No hit found':
             continue
