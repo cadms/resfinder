@@ -14,7 +14,7 @@ test_names = ["test1", "test2", "test3"]
 test_data = {
     # Test published resistance
     test_names[0]: "data/test_isolate_01.fa",
-    test_names[1]: "test_isolate_01_1.fq test_isolate_01_2.fq",
+    test_names[1]: "data/test_isolate_01_1.fq data/test_isolate_01_2.fq",
     # test_names[1]: "data/test_isolate_03.fa",  # Test no resistance
 }
 run_test_dir = "running_test"
