@@ -112,6 +112,7 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(test2_dir, exist_ok=False)
 
         # Then she runs run_resfinder with her first isolate.
+        print("CMD: " + cmd_acquired)
         cmd_acquired = ("python3 ../run_resfinder.py"
                         + " -ifq " + test_data[test_names[1]]
                         + " -o " + test2_dir
