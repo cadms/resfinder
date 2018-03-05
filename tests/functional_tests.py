@@ -4,6 +4,11 @@ import os
 import shutil
 
 
+# This is not best practice but for testing, this is the best I could come up
+# with
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+
 test_names = ["test1", "test2", "test3"]
 test_data = {
     # Test published resistance
