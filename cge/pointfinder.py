@@ -1477,5 +1477,5 @@ if __name__ == '__main__':
         results = PointFinder.discard_unwanted_results(
             results=results, wanted=args.specific_gene)
 
-    finder.write_results(out_path=out_path, result=results, res_type=method,
-                         unknown_flag=args.unknown_mutations)
+    finder.write_results(out_path=args.out_path, result=results,
+                         res_type=method, unknown_flag=args.unknown_mutations)
