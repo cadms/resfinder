@@ -425,7 +425,7 @@ class PointFinder():
                     except IndexError:
                         print(line)
                         print(type("-"))
-                        print("pmid not found, %s") % (line)
+                        print("pmid not found, %s" % (line))
                         mut_info[alt_aa[i]] = {"gene_name": gene_name,
                                                "drug": res_drug,
                                                "pmid": "-"}
