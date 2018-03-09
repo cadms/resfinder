@@ -1449,12 +1449,13 @@ if __name__ == '__main__':
             sys.exit("Input Error: Blast was chosen as mapping method only 1 "
                      "input file requied, not %s" % (len(args.inputfiles)))
 
-        results = finder.blast(inputfile=args.inputfiles[0],
-                               out_path=args.out_path,
-                               min_cov=0.01,
-                               threshold=args.threshold,
-                               blast=args.method_path,
-                               cut_off=False)
+        blast_run = finder.blast(inputfile=args.inputfiles[0],
+                                 out_path=args.out_path,
+                                 min_cov=0.01,
+                                 threshold=args.threshold,
+                                 blast=args.method_path,
+                                 cut_off=False)
+        results = blast_run.results
     else:
         inputfile_1 = args.inputfiles[0]
         inputfile_2 = None
