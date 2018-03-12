@@ -93,25 +93,25 @@ class PointFinder():
                 qry_seq = hit['query_string']
 
                 # Find and save mis_matches in gene
-                GENES[gene]['mis_matches'] = find_mismatches(gene, sbjct_start,
+                hit['mis_matches'] = find_mismatches(gene, sbjct_start,
                                                              sbjct_seq, qry_seq)
 
                 # Check if no mutations was found
-                if len(GENES[gene]['mis_matches']) < 1:
+                if len(hit['mis_matches']) < 1:
                     output_strings[1] += (
                         "No mutations found in %s (coverage: %.2f, identity: %.3f)"
-                        ")\n" % (gene_name, GENES[gene]['coverage'],
-                                 GENES[gene]['perc_ident'])
+                        ")\n" % (gene_name, hit['coverage'],
+                                 hit['perc_ident'])
                     )
                 else:
                     # Write mutations found to output file
                     total_unknown_str += (
                         "\n%s (coverage: %.2f, identity: %.3f)\n"
-                        % (gene_name, GENES[gene]['coverage'],
-                           GENES[gene]['perc_ident']))
+                        % (gene_name, hit['coverage'],
+                           hit['perc_ident']))
 
                     str_tuple = self.mut2str(gene, gene_name,
-                                             GENES[gene]['mis_matches'],
+                                             hit['mis_matches'],
                                              unknown_flag, GENES)
 
                     all_results = str_tuple[0]
