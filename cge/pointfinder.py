@@ -312,8 +312,8 @@ class PointFinder():
                       hit = gene + "_" + hit_no[gene]
 
                    if hit in kma_results[db]:
-                       print("DB: " + str(db))
-                       print("HIT: " + str(hit))
+                      print("DB: " + str(db))
+                      print("HIT: " + str(hit))
                       line_data = line.split("\t")[-1].strip()
                       if line.startswith("template"):
                          kma_results[db][hit]["sbjct_string"] += [line_data]
