@@ -93,7 +93,7 @@ class PointFinder():
                 qry_seq = hit['query_string']
 
                 # Find and save mis_matches in gene
-                hit['mis_matches'] = find_mismatches(gene, sbjct_start,
+                hit['mis_matches'] = self.find_mismatches(gene, sbjct_start,
                                                              sbjct_seq, qry_seq)
 
                 # Check if no mutations was found
