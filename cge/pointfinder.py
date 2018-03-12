@@ -151,7 +151,7 @@ class PointFinder():
                     # resistance where found
                     all_genes_found = True
 
-                    for gene in drug_genes[drug]:
+                    for gene in self.drug_genes[drug]:
                         if gene not in GENES:
                             all_genes_found = False
 
