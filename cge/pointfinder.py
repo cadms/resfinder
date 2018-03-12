@@ -85,12 +85,9 @@ class PointFinder():
 
             if isinstance(GENES[gene], str):
                 output_strings[1] += GENES[gene] + "\n"
-                print("Its a str: " + GENES[gene])
                 continue
 
-            print("Type is " + str(type(GENES[gene])))
             print("gene: " + str(gene))
-            print("KEYS: " + GENES[gene])
 
             sbjct_start = GENES[gene]['sbjct_start']
             sbjct_seq = GENES[gene]['sbjct_string']
