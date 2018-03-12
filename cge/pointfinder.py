@@ -88,6 +88,7 @@ class PointFinder():
                 continue
 
             print("gene: " + str(gene))
+            print("KEYS: " + str(list(GENES[gene].keys())))
 
             sbjct_start = GENES[gene]['sbjct_start']
             sbjct_seq = GENES[gene]['sbjct_string']
