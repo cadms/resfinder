@@ -83,6 +83,10 @@ class PointFinder():
 
             output_strings[1] += "\n%s\n" % (gene_name)
 
+            if type(hits) is str:
+                output_strings[1] += GENES[gene] + "\n"
+                continue
+
             print("gene: " + str(gene))
             print("KEYS: " + GENES[gene])
 
