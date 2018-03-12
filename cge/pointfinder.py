@@ -88,6 +88,8 @@ class PointFinder():
                 continue
 
             for hit_id, hit in GENES[gene].items():
+                print("ID: " + str(hit_id))
+                print("HIT: " + str(hit))
                 sbjct_start = hit['sbjct_start']
                 sbjct_seq = hit['sbjct_string']
                 qry_seq = hit['query_string']
