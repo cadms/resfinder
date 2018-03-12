@@ -66,11 +66,16 @@ class PointFinder():
         total_unknown_str = ""
         unique_drug_list = []
 
-        # Only one database exists in PointFinder results.
-        # for db in results:
-        #    GENES = db
-
-        GENES = results
+        if res_type == PointFinder.TYPE_BLAST:
+            GENES = results
+        else:
+            # TODO: Some databases are either genes or species,
+            #       depending on the method applied (BLAST/KMA).
+            GENES = dict()
+            for db in results:
+                if(db != "excluded"):
+                    for gene, vals in results[db].items():
+                        GENES[gene]["dummy_hit_id"] = vals
 
         for gene in GENES:
             print("Any genes?: " + str(gene))
@@ -212,7 +217,7 @@ class PointFinder():
           sample_name = "_" + sample_name
 
        for db in databases:
-          kma_db = db_path_kma + "/" + db + "/" + db
+          kma_db = db_path_kma + "/" + db
           kma_outfile = out_path + "/kma_" + db + sample_name
           kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
                      kma_outfile, inputfile_1))
@@ -1460,7 +1465,9 @@ if __name__ == '__main__':
     if sample_name == "":
         sample_name = filename
 
-    finder = PointFinder(db_path=args.db_path, species=args.species,
+    kma_db_path = args.db_path + "/" + args.species
+
+    finder = PointFinder(db_path=kma_db_path, species=args.species,
                          gene_list=args.specific_gene)
 
     if method == PointFinder.TYPE_BLAST:
