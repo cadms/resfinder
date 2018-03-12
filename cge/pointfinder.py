@@ -75,6 +75,7 @@ class PointFinder():
             for db in results:
                 if(db != "excluded"):
                     for gene, vals in results[db].items():
+                        GENES[gene] = dict()
                         GENES[gene]["dummy_hit_id"] = vals
 
         for gene in GENES:
