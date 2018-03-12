@@ -212,7 +212,6 @@ class PointFinder():
           kma_outfile = out_path + "/kma_" + db + sample_name
           kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
                      kma_outfile, inputfile_1))
-          print("CMD: " + kma_cmd)
           if(inputfile_2 is not None):
              kma_cmd += " " + inputfile_2
           if(kma_mrs is not None):
@@ -227,6 +226,8 @@ class PointFinder():
               kma_cmd += " -penalty " + str(kma_penalty)
           if(kma_reward is not None):
               kma_cmd += " -reward " + str(kma_reward)
+
+          print("CMD: " + kma_cmd)
 
           # Call KMA
           process = subprocess.Popen(kma_cmd, shell=True,
@@ -1466,8 +1467,7 @@ if __name__ == '__main__':
     else:
         inputfile_1 = args.inputfiles[0]
         inputfile_2 = None
-        print("In files: " + str(args.inputfiles))
-        print("In length: " + str(len(args.inputfiles)))
+
         if(len(args.inputfiles) == 2):
             inputfile_2 = args.inputfiles[1]
 
