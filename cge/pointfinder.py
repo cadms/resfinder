@@ -1192,7 +1192,7 @@ class PointFinder():
                 aa_change = "Promoter mutations"
 
             # Check if mutation is known
-            gene_mut_name, resistence, pmid = PointFinder.look_up_known_muts(
+            gene_mut_name, resistence, pmid = self.look_up_known_muts(
                 gene, look_up_pos, look_up_mut, m_type, gene_name)
 
             gene_mut_name = gene_mut_name + " " + mut_name
@@ -1292,8 +1292,7 @@ class PointFinder():
                     return line_lst[0][0]
         return line_lst
 
-    @staticmethod
-    def look_up_known_muts(gene, pos, found_mut, mut, gene_name):
+    def look_up_known_muts(self, gene, pos, found_mut, mut, gene_name):
         """
             This function uses the known_mutations dictionay, a gene a
             string with the gene key name, a gene position as integer,
