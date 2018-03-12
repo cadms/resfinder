@@ -253,7 +253,7 @@ class PointFinder():
              for line in res_file:
 
                 if kma_results[db] == 'No hit found':
-                   # kma_results[db] = dict()
+                   kma_results[db] = dict()
                    # kma_results[db]["excluded"] = dict()
                    continue
 
