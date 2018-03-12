@@ -208,7 +208,7 @@ class PointFinder():
           sample_name = "_" + sample_name
 
        for db in databases:
-          kma_db = db_path_kma + db
+          kma_db = db_path_kma + "/" + db + "/" + db
           kma_outfile = out_path + "/kma_" + db + sample_name
           kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
                      kma_outfile, inputfile_1))
