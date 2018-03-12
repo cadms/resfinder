@@ -87,7 +87,7 @@ class PointFinder():
                 output_strings[1] += GENES[gene] + "\n"
                 continue
 
-            for hit in GENES[gene]:
+            for hit_id, hit in GENES[gene].items():
                 sbjct_start = hit['sbjct_start']
                 sbjct_seq = hit['sbjct_string']
                 qry_seq = hit['query_string']
