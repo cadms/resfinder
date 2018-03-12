@@ -1466,6 +1466,8 @@ if __name__ == '__main__':
     else:
         inputfile_1 = args.inputfiles[0]
         inputfile_2 = None
+        print("In files: " + str(args.inputfiles))
+        print("In length: " + str(len(args.inputfiles)))
         if(len(args.inputfiles) == 2):
             inputfile_2 = args.inputfiles[1]
 
