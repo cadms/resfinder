@@ -244,15 +244,16 @@ class PointFinder():
           # Open res file, find coverage and the gene names of genes found
           with open(res_filename, "r") as res_file:
              header = res_file.readline()
+
              for line in res_file:
+
                 if kma_results[db] == 'No hit found':
                    kma_results[db] = dict()
                    kma_results[db]["excluded"] = dict()
+
                 data = [data.strip() for data in line.split("\t")]
                 gene = data[0]
-                # Check if gene one of the user specified genes
-    #                if gene not in gene_list:
-    #                    continue
+
                 sbjct_len = int(data[3])
                 sbjct_ident = float(data[4])
                 coverage = float(data[5])
@@ -311,6 +312,8 @@ class PointFinder():
                       hit = gene + "_" + hit_no[gene]
 
                    if hit in kma_results[db]:
+                       print("DB: " + str(db))
+                       print("HIT: " + str(hit))
                       line_data = line.split("\t")[-1].strip()
                       if line.startswith("template"):
                          kma_results[db][hit]["sbjct_string"] += [line_data]
