@@ -26,7 +26,7 @@ class PointFinder():
         """
         """
         self.species = species
-        self.specie_path = db_path + "/" + species
+        self.specie_path = db_path
 
         self.gene_list = PointFinder.get_file_content(
             self.specie_path + "/genes.txt")
