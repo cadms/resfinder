@@ -1495,7 +1495,7 @@ if __name__ == '__main__':
         results = finder.kma(inputfile_1=inputfile_1,
                              inputfile_2=inputfile_2,
                              out_path=args.out_path,
-                             db_path_kma=args.db_path,
+                             db_path_kma=kma_db_path,
                              databases=[args.species],
                              min_cov=args.min_cov,
                              threshold=args.threshold,
