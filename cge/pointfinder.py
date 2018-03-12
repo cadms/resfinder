@@ -87,82 +87,80 @@ class PointFinder():
                 output_strings[1] += GENES[gene] + "\n"
                 continue
 
-            print("gene: " + str(gene))
-            print("KEYS: " + str(list(GENES[gene].keys())))
+            for hit in GENES[gene]:
+                sbjct_start = hit['sbjct_start']
+                sbjct_seq = hit['sbjct_string']
+                qry_seq = hit['query_string']
 
-            sbjct_start = GENES[gene]['sbjct_start']
-            sbjct_seq = GENES[gene]['sbjct_string']
-            qry_seq = GENES[gene]['query_string']
+                # Find and save mis_matches in gene
+                GENES[gene]['mis_matches'] = find_mismatches(gene, sbjct_start,
+                                                             sbjct_seq, qry_seq)
 
-            # Find and save mis_matches in gene
-            GENES[gene]['mis_matches'] = find_mismatches(gene, sbjct_start,
-                                                         sbjct_seq, qry_seq)
-
-            # Check if no mutations was found
-            if len(GENES[gene]['mis_matches']) < 1:
-                output_strings[1] += (
-                    "No mutations found in %s (coverage: %.2f, identity: %.3f)"
-                    ")\n" % (gene_name, GENES[gene]['coverage'],
-                             GENES[gene]['perc_ident'])
-                )
-            else:
-                # Write mutations found to output file
-                total_unknown_str += (
-                    "\n%s (coverage: %.2f, identity: %.3f)\n"
-                    % (gene_name, GENES[gene]['coverage'],
-                       GENES[gene]['perc_ident']))
-
-                str_tuple = self.mut2str(gene, gene_name,
-                                         GENES[gene]['mis_matches'],
-                                         unknown_flag, GENES)
-
-                all_results = str_tuple[0]
-                total_known = str_tuple[1]
-                total_unknown = str_tuple[2]
-                drug_list = str_tuple[3]
-
-                # Add results to output strings
-                output_strings[0] += "\n" + all_results
-                output_strings[1] += total_known + "\n"
-
-                # Add unknown mutations the total results of unknown mutations
-                total_unknown_str += total_unknown + "\n"
-
-                # Add drugs to druglist
-                unique_drug_list += drug_list
-
-        # Store hits that was excluded
-        for gene in GENES["excluded"]:
-            output_strings[1] += "\n%s\n" % (gene_name)
-            output_strings[1] += " ".join(GENES["excluded"][gene]) + "\n"
-
-        if unknown_flag is True:
-            output_strings[1] += "\n\nUnknown Mutations \n" + total_unknown_str
-
-        # Make Resistance Prediction output
-
-        # Go throug all drugs in the database and see if prediction can
-        # be called.
-        pred_output = []
-        for drug in drug_lst:
-            # Check if resistance to drug was found
-            if drug in unique_drug_list:
-                pred_output.append("1")
-            else:
-                # Check at all genes associated with the drug
-                # resistance where found
-                all_genes_found = True
-
-                for gene in drug_genes[drug]:
-                    if gene not in GENES:
-                        all_genes_found = False
-
-                if all_genes_found is False:
-                    pred_output.append("?")
+                # Check if no mutations was found
+                if len(GENES[gene]['mis_matches']) < 1:
+                    output_strings[1] += (
+                        "No mutations found in %s (coverage: %.2f, identity: %.3f)"
+                        ")\n" % (gene_name, GENES[gene]['coverage'],
+                                 GENES[gene]['perc_ident'])
+                    )
                 else:
-                    pred_output.append("0")
+                    # Write mutations found to output file
+                    total_unknown_str += (
+                        "\n%s (coverage: %.2f, identity: %.3f)\n"
+                        % (gene_name, GENES[gene]['coverage'],
+                           GENES[gene]['perc_ident']))
 
-        output_strings[2] += "\t".join(pred_output) + "\n"
+                    str_tuple = self.mut2str(gene, gene_name,
+                                             GENES[gene]['mis_matches'],
+                                             unknown_flag, GENES)
+
+                    all_results = str_tuple[0]
+                    total_known = str_tuple[1]
+                    total_unknown = str_tuple[2]
+                    drug_list = str_tuple[3]
+
+                    # Add results to output strings
+                    output_strings[0] += "\n" + all_results
+                    output_strings[1] += total_known + "\n"
+
+                    # Add unknown mutations the total results of unknown mutations
+                    total_unknown_str += total_unknown + "\n"
+
+                    # Add drugs to druglist
+                    unique_drug_list += drug_list
+
+            # Store hits that was excluded
+            for gene in GENES["excluded"]:
+                output_strings[1] += "\n%s\n" % (gene_name)
+                output_strings[1] += " ".join(GENES["excluded"][gene]) + "\n"
+
+            if unknown_flag is True:
+                output_strings[1] += "\n\nUnknown Mutations \n" + total_unknown_str
+
+            # Make Resistance Prediction output
+
+            # Go throug all drugs in the database and see if prediction can
+            # be called.
+            pred_output = []
+            for drug in drug_lst:
+                # Check if resistance to drug was found
+                if drug in unique_drug_list:
+                    pred_output.append("1")
+                else:
+                    # Check at all genes associated with the drug
+                    # resistance where found
+                    all_genes_found = True
+
+                    for gene in drug_genes[drug]:
+                        if gene not in GENES:
+                            all_genes_found = False
+
+                    if all_genes_found is False:
+                        pred_output.append("?")
+                    else:
+                        pred_output.append("0")
+
+            output_strings[2] += "\t".join(pred_output) + "\n"
 
         return output_strings
 
