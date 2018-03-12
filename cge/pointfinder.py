@@ -205,6 +205,7 @@ class PointFinder():
        """
 
        kma_results = dict()
+       kma_results["excluded"] = dict()
 
        if(sample_name):
           sample_name = "_" + sample_name
@@ -250,8 +251,9 @@ class PointFinder():
              for line in res_file:
 
                 if kma_results[db] == 'No hit found':
-                   kma_results[db] = dict()
-                   kma_results[db]["excluded"] = dict()
+                   # kma_results[db] = dict()
+                   # kma_results[db]["excluded"] = dict()
+                   continue
 
                 data = [data.strip() for data in line.split("\t")]
                 gene = data[0]
@@ -272,7 +274,8 @@ class PointFinder():
                     exclude_reasons.append("identity: " + str(sbjct_ident))
 
                 if(exclude_reasons):
-                    kma_results[db]["excluded"][hit] = exclude_reasons
+                    # kma_results[db]["excluded"][hit] = exclude_reasons
+                    kma_results["excluded"][hit] = exclude_reasons
 
                 kma_results[db][hit] = dict()
                 kma_results[db][hit]['sbjct_length'] = sbjct_len
@@ -333,8 +336,8 @@ class PointFinder():
           seq_start_search_str = re.compile("^-*(\w+)")
 
           for hit in kma_results[db]:
-             if(hit == "excluded"):
-                 continue
+             # if(hit == "excluded"):
+             # continue
              kma_results[db][hit]['sbjct_string'] = "".join(
                  kma_results[db][hit]['sbjct_string'])
              kma_results[db][hit]['query_string'] = "".join(
