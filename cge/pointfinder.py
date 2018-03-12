@@ -73,6 +73,7 @@ class PointFinder():
         GENES = results
 
         for gene in GENES:
+            print("Any genes?: " + str(gene))
             # Start writing output string (to HTML tab file)
             gene_name = gene
             regex = r"promoter_size_(\d+)(?:bp)"
