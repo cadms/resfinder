@@ -212,7 +212,7 @@ class PointFinder():
           kma_outfile = out_path + "/kma_" + db + sample_name
           kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
                      kma_outfile, inputfile_1))
-          print("CMD: " kma_cmd)
+          print("CMD: " + kma_cmd)
           if(inputfile_2 is not None):
              kma_cmd += " " + inputfile_2
           if(kma_mrs is not None):
