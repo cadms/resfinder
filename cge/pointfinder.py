@@ -88,7 +88,7 @@ class PointFinder():
                 print("Its a str: " + GENES[gene])
                 continue
 
-            print("Type is " + type(GENES[gene]))
+            print("Type is " + str(type(GENES[gene])))
             print("gene: " + str(gene))
             print("KEYS: " + GENES[gene])
 
