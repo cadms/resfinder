@@ -331,8 +331,8 @@ class PointFinder():
           seq_start_search_str = re.compile("^-*(\w+)")
 
           for hit in kma_results[db]:
-             print("DB: " + str(db))
-             print("HIT: " + str(hit))
+             if(hit == "excluded"):
+                 continue
              kma_results[db][hit]['sbjct_string'] = "".join(
                  kma_results[db][hit]['sbjct_string'])
              kma_results[db][hit]['query_string'] = "".join(
