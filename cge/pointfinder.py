@@ -83,7 +83,7 @@ class PointFinder():
 
             output_strings[1] += "\n%s\n" % (gene_name)
 
-            if GENES[gene] is str:
+            if isinstance(GENES[gene], str):
                 output_strings[1] += GENES[gene] + "\n"
                 print("Its a str: " + GENES[gene])
                 continue
