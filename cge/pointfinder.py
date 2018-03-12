@@ -295,6 +295,10 @@ class PointFinder():
              gene = ""
              # Parse through alignments
              for line in align_file:
+                # Skip empty lines
+                if(not line.strip()):
+                     continue
+
                 # Check when a new gene alignment start
                 if line.startswith("#"):
                    gene = line[1:].strip()
