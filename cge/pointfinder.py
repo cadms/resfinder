@@ -110,9 +110,9 @@ class PointFinder():
                         % (gene_name, hit['coverage'],
                            hit['perc_ident']))
 
-                    str_tuple = self.mut2str(gene, gene_name,
-                                             hit['mis_matches'],
-                                             unknown_flag, GENES)
+                    str_tuple = PointFinder.mut2str(gene, gene_name,
+                                                    hit['mis_matches'],
+                                                    unknown_flag, GENES)
 
                     all_results = str_tuple[0]
                     total_known = str_tuple[1]
@@ -1133,6 +1133,7 @@ class PointFinder():
 
         return mis_matches
 
+    @staticmethod
     def mut2str(gene, gene_name, mis_matches, unknown_flag, GENES):
         """
             This function takes a gene name a list of mis matches found
