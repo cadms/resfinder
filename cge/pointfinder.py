@@ -67,8 +67,10 @@ class PointFinder():
         unique_drug_list = []
 
         # Only one database exists in PointFinder results.
-        for db in results:
-            GENES = db
+        # for db in results:
+        #    GENES = db
+
+        GENES = results
 
         for gene in GENES:
             # Start writing output string (to HTML tab file)
