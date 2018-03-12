@@ -261,7 +261,7 @@ class PointFinder():
                 if kma_results[db] == 'No hit found':
                    kma_results[db] = dict()
                    # kma_results[db]["excluded"] = dict()
-                   continue
+                   # continue
 
                 data = [data.strip() for data in line.split("\t")]
                 gene = data[0]
