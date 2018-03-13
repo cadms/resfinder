@@ -8,15 +8,12 @@ from cge.resfinder import ResFinder
 from cge.pointfinder import PointFinder
 
 #  Modules used to create the extended ResFinder output (phenotype output)
-from phenotype2genotype.isolate import Isolate
-from phenotype2genotype.res_profile import PhenoDB
-from phenotype2genotype.res_sumtable import ResSumTable
+from cge.phenotype2genotype.isolate import Isolate
+from cge.phenotype2genotype.res_profile import PhenoDB
+from cge.phenotype2genotype.res_sumtable import ResSumTable
 
 # TODO list:
 # TODO: Add input data check
-
-# python = "/home/data1/tools/bin/anaconda/bin/python"
-python = "/services/tools/anaconda3/4.0.0/bin/python3"
 
 
 # ########################################################################### #
