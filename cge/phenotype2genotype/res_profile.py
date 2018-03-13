@@ -48,8 +48,9 @@ class PhenoDB(dict):
             for line in fh:
                 try:
                     line_counter += 1
+                    eprint("Line " + str(line_counter))
                     # line = line.encode("latin_1")
-                    # line = line.rstrip()
+                    line = line.rstrip()
                     line_list = line.split("\t")
                     line_list = list(map(str.rstrip, line_list))
 
