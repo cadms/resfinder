@@ -202,7 +202,7 @@ else:
    script_resfinder = scritps + "/ResFinder.py"
    script_pointfinder = scritps + "/PointFinder.py"
 
-if args.acquired is False and args.pont is False:
+if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
 
