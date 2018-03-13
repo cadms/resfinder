@@ -174,7 +174,7 @@ class ResFinderRunTest(unittest.TestCase):
 
         # Then she runs run_resfinder with her first isolate.
         cmd_point = ("python3 ../run_resfinder.py"
-                     + " -ifa " + test_data[test_names[0]]
+                     + " -ifa " + test_data[test_names[2]]
                      + " -o " + test3_dir
                      + " -s e.coli"
                      + " --min_cov 0.6"
