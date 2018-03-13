@@ -5,6 +5,7 @@ import subprocess
 from argparse import ArgumentParser
 
 from cge.resfinder import ResFinder
+from cge.pointfinder import PointFinder
 
 #  Modules used to create the extended ResFinder output (phenotype output)
 from phenotype2genotype.isolate import Isolate
@@ -112,18 +113,20 @@ parser.add_argument("-k", "--kmaPath",
 parser.add_argument("-s", "--species",
                     dest="species",
                     help="Species in the sample")
-parser.add_argument("-u", "--unknown_mut",
-                    dest="unknown_mutations",
-                    action="store_true",
-                    help="Show all mutations found even if in unknown to the\
-                          resistance database",
-                    default=False)
+parser.add_argument("-l", "--min_cov",
+                    dest="min_cov",
+                    help="Minimum coverage",
+                    default=0.60)
+parser.add_argument("-t", "--threshold",
+                    dest="threshold",
+                    help="Blast threshold for identity",
+                    default=0.90)
 
 # Acquired resistance options
 parser.add_argument("-db_res", "--databasePath_res",
                     dest="db_path_res",
                     help="Path to the databases for ResFinder",
-                    default=None)
+                    default="database")
 parser.add_argument("-db_res_kma", "--databasePath_res_kma",
                     dest="db_path_kma",
                     help="Path to the ResFinder databases indexed with KMA. \
@@ -135,14 +138,6 @@ parser.add_argument("-d", "--databases",
                     help="Databases chosen to search in - if none is specified\
                           all is used",
                     default=None)
-parser.add_argument("-l", "--min_cov",
-                    dest="min_cov",
-                    help="Minimum coverage",
-                    default=0.60)
-parser.add_argument("-t", "--threshold",
-                    dest="threshold",
-                    help="Blast threshold for identity",
-                    default=0.90)
 parser.add_argument("-acq", "--acquired",
                     action="store_true",
                     dest="acquired",
@@ -158,7 +153,20 @@ parser.add_argument("-c", "--point",
 parser.add_argument("-db_point", "--databasePath_point",
                     dest="db_path_point",
                     help="Path to the databases for PointFinder",
-                    default='')
+                    default='database_pointfinder')
+parser.add_argument("-g",
+                    dest="specific_gene",
+                    nargs='+',
+                    help="Specify genes existing in the database to \
+                          search for - if none is specified all genes are \
+                          included in the search.",
+                    default=None)
+parser.add_argument("-u", "--unknown_mut",
+                    dest="unknown_mutations",
+                    action="store_true",
+                    help="Show all mutations found even if in unknown to the\
+                          resistance database",
+                    default=False)
 
 args = parser.parse_args()
 
@@ -260,20 +268,50 @@ if args.acquired is True:
 if args.point is True:
    db_path_point = args.db_path_point
 
-   out_point = args.out_path + "/pointfinder_out"
-   os.makedirs(out_point, exist_ok=True)
+   if(args.inputfasta):
+      out_point = args.out_path + "/resfinder_blast"
+      os.makedirs(out_point, exist_ok=True)
+   if(args.inputfastq):
+      out_point = args.out_path + "/resfinder_kma"
+      os.makedirs(out_point, exist_ok=True)
 
-   # Run PointFinder
-   # TODO: Python path
-   cmd = ("%s %s "
-          "-i %s -o %s -s %s -p %s -b %s" % (python, script_pointfinder,
-                                             inputfile, out_point, species,
-                                             db_path_point, blast))
-   # Add -u if unknown mutations should be included in the output
-   if args.unknown_mutations is True:
-      cmd = cmd + ' -u'
+   db_path = args.db_path_point + "/" + args.species
 
-   print(cmd)
-   process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
-   out, err = process.communicate()
+   finder = PointFinder(db_path=db_path, species=args.species,
+                        gene_list=args.specific_gene)
+
+   if(args.inputfasta):
+
+      blast_run = finder.blast(inputfile=args.inputfasta,
+                               out_path=out_point,
+                               min_cov=args.min_cov,
+                               threshold=args.threshold,
+                               blast=blast,
+                               cut_off=False)
+      results = blast_run.results
+
+   # Note: ResFinder is able to do a fasta and a fastq call, hence its
+   #       two if statements. PointFinder can only handle eiter fasta
+   #       or fastq, hence the if-else statement.
+   else(args.inputfastq):
+
+      results = finder.kma(inputfile_1=inputfile_1,
+                           inputfile_2=inputfile_2,
+                           out_path=out_point,
+                           db_path_kma=db_path,
+                           databases=[args.species],
+                           min_cov=args.min_cov,
+                           threshold=args.threshold,
+                           kma_path=kma,
+                           sample_name="",
+                           kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
+                           kma_penalty=-3, kma_reward=1)
+
+   if(args.specific_gene):
+      results = PointFinder.discard_unwanted_results(results=results,
+                                                     wanted=args.specific_gene)
+
+   finder.write_results(out_path=args.out_path, result=results,
+                        res_type=method, unknown_flag=args.unknown_mutations)
+
+sys.exit()

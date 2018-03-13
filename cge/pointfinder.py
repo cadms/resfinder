@@ -104,14 +104,14 @@ class PointFinder():
 
                 # Find and save mis_matches in gene
                 hit['mis_matches'] = self.find_mismatches(gene, sbjct_start,
-                                                             sbjct_seq, qry_seq)
+                                                          sbjct_seq, qry_seq)
 
                 # Check if no mutations was found
                 if len(hit['mis_matches']) < 1:
                     output_strings[1] += (
-                        "No mutations found in %s (coverage: %.2f, identity: %.3f)"
-                        ")\n" % (gene_name, hit['coverage'],
-                                 hit['perc_ident'])
+                        "No mutations found in %s (coverage: %.2f, identity: "
+                        "%.3f))\n" % (gene_name, hit['coverage'],
+                                      hit['perc_ident'])
                     )
                 else:
                     # Write mutations found to output file
@@ -133,7 +133,8 @@ class PointFinder():
                     output_strings[0] += "\n" + all_results
                     output_strings[1] += total_known + "\n"
 
-                    # Add unknown mutations the total results of unknown mutations
+                    # Add unknown mutations the total results of
+                    # unknown mutations
                     total_unknown_str += total_unknown + "\n"
 
                     # Add drugs to druglist
@@ -145,12 +146,13 @@ class PointFinder():
                 output_strings[1] += " ".join(GENES["excluded"][gene]) + "\n"
 
             if unknown_flag is True:
-                output_strings[1] += "\n\nUnknown Mutations \n" + total_unknown_str
+                output_strings[1] += ("\n\nUnknown Mutations \n"
+                                      + total_unknown_str)
 
             # Make Resistance Prediction output
 
-            # Go throug all drugs in the database and see if prediction can
-            # be called.
+            # Go throug all drugs in the database and see if prediction
+            # can be called.
             pred_output = []
             for drug in drug_lst:
                 # Check if resistance to drug was found
@@ -1467,6 +1469,7 @@ if __name__ == '__main__':
     if sample_name == "":
         sample_name = filename
 
+    # TODO: Change ilogocal var name
     kma_db_path = args.db_path + "/" + args.species
 
     finder = PointFinder(db_path=kma_db_path, species=args.species,
