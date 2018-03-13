@@ -12,7 +12,7 @@ import math
 import argparse
 import subprocess
 
-from blaster.blaster import Blaster
+from cge.blaster.blaster import Blaster
 
 
 class PointFinder():
