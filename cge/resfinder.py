@@ -226,6 +226,9 @@ class ResFinder():
       split_print = collections.defaultdict(list)
 
       for db in results:
+         if(db == "excluded"):
+             continue
+
          profile = str(self.configured_dbs[db][0])
          if results[db] == "No hit found":
             table_str += ("%s\n%s\n\n" % (profile, results[db]))

@@ -188,7 +188,7 @@ class PointFinder():
           fh.write(result_str[0])
        with open(out_path + "/PointFinder_table.txt", "w") as fh:
           fh.write(result_str[1])
-       with open(out_path + "PointFinder_prediction.txt", "w") as fh:
+       with open(out_path + "/PointFinder_prediction.txt", "w") as fh:
           fh.write(result_str[2])
 
     @staticmethod

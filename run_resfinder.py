@@ -269,10 +269,10 @@ if args.point is True:
    db_path_point = args.db_path_point
 
    if(args.inputfasta):
-      out_point = args.out_path + "/resfinder_blast"
+      out_point = args.out_path + "/pointfinder_blast"
       os.makedirs(out_point, exist_ok=True)
    if(args.inputfastq):
-      out_point = args.out_path + "/resfinder_kma"
+      out_point = args.out_path + "/pointfinder_kma"
       os.makedirs(out_point, exist_ok=True)
 
    db_path = args.db_path_point + "/" + args.species
