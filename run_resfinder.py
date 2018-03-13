@@ -169,11 +169,6 @@ parser.add_argument("-u", "--unknown_mut",
 
 args = parser.parse_args()
 
-
-##########################################################################
-# MAIN
-##########################################################################
-
 # TODO: Add input data check
 scripts = args.scripts
 if(args.inputfastq):
@@ -204,6 +199,10 @@ else:
 if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
+
+##########################################################################
+# ResFinder
+##########################################################################
 
 if args.acquired is True:
    databases = args.databases
@@ -264,6 +263,10 @@ if args.acquired is True:
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_KMA)
 
+##########################################################################
+# PointFinder
+##########################################################################
+
 if args.point is True:
    db_path = os.path.abspath(args.db_path_point + "/" + args.species)
 
@@ -315,4 +318,29 @@ if args.point is True:
    finder.write_results(out_path=args.out_path, result=results,
                         res_type=method, unknown_flag=args.unknown_mutations)
 
+##########################################################################
+# Phenotype to genotype
+##########################################################################
+
+if(args.acquired):
+   pass
+   # Load genotype to phenotype database
+   #input_for_pheno_db = ("/home/data1/services/%s/database_pheno/"
+   #                      "interpreter_db.txt" % (service))
+   #res_pheno_db = PhenoDB(input_for_pheno_db)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
 sys.exit()
