@@ -167,7 +167,19 @@ parser.add_argument("-u", "--unknown_mut",
                           resistance database",
                     default=False)
 
+# Phemotype2genotype options pheno_db_path
+parser.add_argument("-db_pheno", "--databasePath_pheno",
+                    dest="pheno_db_path",
+                    help="Path to phenotype database.",
+                    default="database_pheno")
+
 args = parser.parse_args()
+
+# Create a "sample" name
+if(args.inputfasta):
+   sample_name = os.path.basename(args.inputfasta)
+else:
+   sample_name = os.path.basename(args.inputfastq[0])
 
 # TODO: Add input data check
 scripts = args.scripts
@@ -322,21 +334,29 @@ if args.point is True:
 # Phenotype to genotype
 ##########################################################################
 
+pheno_db_path = os.path.abspath(args.db_pheno)
+
 if(args.acquired):
-   pass
+
    # Load genotype to phenotype database
-   #input_for_pheno_db = ("/home/data1/services/%s/database_pheno/"
-   #                      "interpreter_db.txt" % (service))
-   #res_pheno_db = PhenoDB(input_for_pheno_db)
+   res_pheno_db = PhenoDB(pheno_db_path + "/acquired_db.txt")
 
+   # Isolate object stores results
+   isolate = Isolate(name=sample_name)
 
+   isolate.load_resfinder_tab(out_res_blast + "/results_table.txt")
+   isolate.calc_res_profile(res_pheno_db)
 
+   # Create and write the downloadable tab file
+   pheno_profile_str = isolate.profile_to_str_table(with_header=True)
 
+   with open(out_res_blast + 'pheno_table.txt', 'w') as fh:
+      fh.write(pheno_profile_str)
 
-
-
-
-
+   # Load AMR panels
+   input_amr_panels = pheno_db_path + "/amr_panels.txt"
+   res_sum_table = ResSumTable(pheno_profile_str)
+   res_sum_table.load_amr_panels(input_amr_panels)
 
 
 
