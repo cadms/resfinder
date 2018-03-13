@@ -51,7 +51,7 @@ class PhenoDB(dict):
                     # line = line.encode("latin_1")
                     # line = line.rstrip()
                     line_list = line.split("\t")
-                    line_list = map(str.rstrip, line_list)
+                    line_list = list(map(str.rstrip, line_list))
 
                     # ID in DB is <gene>_<group>_<acc>. Ex: blaB-2_1_AF189300.
                     # The acc should be unique and is used here.
@@ -133,7 +133,7 @@ class PhenoDB(dict):
                     line_counter += 1
 
                     line_list = line.split("\t")
-                    line_list = map(str.rstrip, line_list)
+                    line_list = list(map(str.rstrip, line_list))
 
                     # ID in DB is just Gene ID and is not unique
                     phenodb_id = line_list[0]
