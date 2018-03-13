@@ -186,7 +186,7 @@ class ResFinderRunTest(unittest.TestCase):
                     check=True)
 
         # Expected output files
-        res_out = test1_dir + "/resfinder_blast"
+        res_out = test3_dir + "/pointfinder_blast"
 
         pf_pred = res_out + "/PointFinder_prediction.txt"
         pf_res = res_out + "/PointFinder_results.txt"
