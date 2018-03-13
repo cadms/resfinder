@@ -266,16 +266,14 @@ if args.acquired is True:
                                     res_type=ResFinder.TYPE_KMA)
 
 if args.point is True:
-   db_path_point = args.db_path_point
+   db_path = os.path.abspath(args.db_path_point + "/" + args.species)
 
    if(args.inputfasta):
-      out_point = args.out_path + "/pointfinder_blast"
+      out_point = os.path.abspath(args.out_path + "/pointfinder_blast")
       os.makedirs(out_point, exist_ok=True)
    if(args.inputfastq):
-      out_point = args.out_path + "/pointfinder_kma"
+      out_point = os.path.abspath(args.out_path + "/pointfinder_kma")
       os.makedirs(out_point, exist_ok=True)
-
-   db_path = args.db_path_point + "/" + args.species
 
    finder = PointFinder(db_path=db_path, species=args.species,
                         gene_list=args.specific_gene)

@@ -30,9 +30,10 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(run_test_dir, exist_ok=False)
 
     def tearDown(self):
-        shutil.rmtree(run_test_dir)
+        # shutil.rmtree(run_test_dir)
+        pass
 
-    def test_on_data_with_just_acquired_resgene_using_blast(self):
+    def p_test_on_data_with_just_acquired_resgene_using_blast(self):
         # Maria has an E. coli isolate, with unknown resistance.
         # At first, she just wants to know which acquired resistance genes are
         # found in the genome.
@@ -102,7 +103,7 @@ class ResFinderRunTest(unittest.TestCase):
             check_result = fh.readline()
         self.assertIn("blaB-2_1_AF189300", check_result)
 
-    def test_on_data_with_just_acquired_resgene_using_kma(self):
+    def p_test_on_data_with_just_acquired_resgene_using_kma(self):
         # Maria has another E. coli isolate, with unknown resistance.
         # This time she does not have an assembly, but only raw data.
         # She therefore runs resfinder cmd line using KMA.
@@ -163,7 +164,7 @@ class ResFinderRunTest(unittest.TestCase):
             check_result = fh.readline()
         self.assertIn("blaB-2", check_result)
 
-    def p_test_on_data_with_just_acquired_resgene_using_blast(self):
+    def test_on_data_with_just_point_mut_using_blast(self):
         # Maria also wants to check her assembled E. coli isolate for
         # resistance caused by point mutations.
 
@@ -172,16 +173,16 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(test3_dir)
 
         # Then she runs run_resfinder with her first isolate.
-        cmd_acquired = ("python3 ../run_resfinder.py"
-                        + " -ifa " + test_data[test_names[0]]
-                        + " -o " + test1_dir
-                        + " -s e.coli"
-                        + " --min_cov 0.6"
-                        + " -t 0.8"
-                        + " --point"
-                        + " --databasePath_res ../database")
+        cmd_point = ("python3 ../run_resfinder.py"
+                     + " -ifa " + test_data[test_names[0]]
+                     + " -o " + test3_dir
+                     + " -s e.coli"
+                     + " --min_cov 0.6"
+                     + " --threshold 0.8"
+                     + " --point"
+                     + " --databasePath_point ../database_pointfinder")
 
-        procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
+        procs = run(cmd_point, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
         # Expected output files
@@ -221,6 +222,7 @@ class ResFinderRunTest(unittest.TestCase):
             fh.readline()
             check_result = fh.readline()
         self.assertIn("blaB-2_1_AF189300", check_result)
+
 
 if __name__ == "__main__":
     unittest.main()
