@@ -297,8 +297,8 @@ if args.point is True:
 
       method = PointFinder.TYPE_KMA
 
-      results = finder.kma(inputfile_1=inputfile_1,
-                           inputfile_2=inputfile_2,
+      results = finder.kma(inputfile_1=inputfastq_1,
+                           inputfile_2=inputfastq_2,
                            out_path=out_point,
                            db_path_kma=db_path,
                            databases=[args.species],
