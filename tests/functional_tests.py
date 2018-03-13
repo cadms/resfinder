@@ -193,7 +193,6 @@ class ResFinderRunTest(unittest.TestCase):
         with open(pf_pred, "r") as fh:
             fh.readline()
             fh.readline()
-            fh.readline()
             pred_line = fh.readline()
         pred_lst = pred_line.split()
         print("LIST: " + str(pred_lst))
