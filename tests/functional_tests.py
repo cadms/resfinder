@@ -31,10 +31,9 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(run_test_dir, exist_ok=False)
 
     def tearDown(self):
-        # shutil.rmtree(run_test_dir)
-        pass
+        shutil.rmtree(run_test_dir)
 
-    def p_test_on_data_with_just_acquired_resgene_using_blast(self):
+    def test_on_data_with_just_acquired_resgene_using_blast(self):
         # Maria has an E. coli isolate, with unknown resistance.
         # At first, she just wants to know which acquired resistance genes are
         # found in the genome.
@@ -104,7 +103,7 @@ class ResFinderRunTest(unittest.TestCase):
             check_result = fh.readline()
         self.assertIn("blaB-2_1_AF189300", check_result)
 
-    def p_test_on_data_with_just_acquired_resgene_using_kma(self):
+    def test_on_data_with_just_acquired_resgene_using_kma(self):
         # Maria has another E. coli isolate, with unknown resistance.
         # This time she does not have an assembly, but only raw data.
         # She therefore runs resfinder cmd line using KMA.
@@ -165,7 +164,7 @@ class ResFinderRunTest(unittest.TestCase):
             check_result = fh.readline()
         self.assertIn("blaB-2", check_result)
 
-    def p_test_on_data_with_just_point_mut_using_blast(self):
+    def test_on_data_with_just_point_mut_using_blast(self):
         # Maria also wants to check her assembled E. coli isolate for
         # resistance caused by point mutations.
 
