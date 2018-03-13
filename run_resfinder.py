@@ -334,7 +334,7 @@ if args.point is True:
 # Phenotype to genotype
 ##########################################################################
 
-pheno_db_path = os.path.abspath(args.db_pheno_path)
+pheno_db_path = os.path.abspath(args.pheno_db_path)
 
 # Load genotype to phenotype database
 res_pheno_db = PhenoDB(pheno_db_path + "/acquired_db.txt")
