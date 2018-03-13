@@ -116,10 +116,12 @@ parser.add_argument("-s", "--species",
 parser.add_argument("-l", "--min_cov",
                     dest="min_cov",
                     help="Minimum coverage",
+                    type=float,
                     default=0.60)
 parser.add_argument("-t", "--threshold",
                     dest="threshold",
                     help="Blast threshold for identity",
+                    type=float,
                     default=0.90)
 
 # Acquired resistance options
