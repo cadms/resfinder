@@ -10,13 +10,14 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 
-test_names = ["test1", "test2", "test3"]
+test_names = ["test1", "test2", "test3", "test4"]
 test_data = {
     # Test published acquired resistance
     test_names[0]: "data/test_isolate_01.fa",
     test_names[1]: "data/test_isolate_01_1.fq data/test_isolate_01_2.fq",
     # Test published point mut resistance
     test_names[2]: "data/test_isolate_05.fa",
+    test_names[3]: "data/test_isolate_05_1.fq data/test_isolate_05_2.fq",
 }
 run_test_dir = "running_test"
 
@@ -164,7 +165,7 @@ class ResFinderRunTest(unittest.TestCase):
             check_result = fh.readline()
         self.assertIn("blaB-2", check_result)
 
-    def test_on_data_with_just_point_mut_using_blast(self):
+    def p_test_on_data_with_just_point_mut_using_blast(self):
         # Maria also wants to check her assembled E. coli isolate for
         # resistance caused by point mutations.
 
@@ -189,6 +190,59 @@ class ResFinderRunTest(unittest.TestCase):
         pf_pred = test3_dir + "/PointFinder_prediction.txt"
         pf_res = test3_dir + "/PointFinder_results.txt"
         pf_table = test3_dir + "/PointFinder_table.txt"
+
+        # TODO: Figure out how the pred file should be interpreted.
+        # with open(pf_pred, "r") as fh:
+        #    fh.readline()
+        #    fh.readline()
+        #    pred_line = fh.readline()
+        # pred_lst = pred_line.split()
+        # print("LIST: " + str(pred_lst))
+        # self.assertEqual("1", pred_lst[13])
+        # self.assertEqual("1", pred_lst[17])
+
+        with open(pf_res, "r") as fh:
+            fh.readline()
+            check_result = fh.readline()
+        self.assertIn("gyrA", check_result)
+        self.assertIn("p.S83A", check_result)
+
+        point_mut_found = False
+        with open(pf_table, "r") as fh:
+            for line in fh:
+                if(line.startswith("gyrA p.S83A")):
+                    check_result = line
+                    point_mut_found = True
+                    break
+        self.assertEqual(point_mut_found, True)
+
+    def test_on_data_with_just_point_mut_using_kma(self):
+        # Maria has another E. coli isolate, with unknown resistance.
+        # This time she does not have an assembly, but only raw data.
+        # She therefore runs resfinder cmd line using KMA.
+
+        # First she creates a few directories to store her output.
+        test4_dir = run_test_dir + "/" + test_names[3]
+        os.makedirs(test4_dir, exist_ok=False)
+
+        # Then she runs run_resfinder with her first isolate.
+        cmd_acquired = ("python3 ../run_resfinder.py"
+                        + " -ifq " + test_data[test_names[3]]
+                        + " -o " + test4_dir
+                        + " -s e.coli"
+                        + " --min_cov 0.6"
+                        + " --threshold 0.8"
+                        + " --point"
+                        + " --databasePath_point ../database_pointfinder"
+                        + " --kmaPath ../cge/kma/kma")
+
+        procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
+                    check=True)
+
+        # Expected output files
+        pf_pred = test4_dir + "/PointFinder_prediction.txt"
+        pf_res = test4_dir + "/PointFinder_results.txt"
+        pf_table = test4_dir + "/PointFinder_table.txt"
 
         # TODO: Figure out how the pred file should be interpreted.
         # with open(pf_pred, "r") as fh:
