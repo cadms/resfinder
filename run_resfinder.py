@@ -282,6 +282,8 @@ if args.point is True:
 
    if(args.inputfasta):
 
+      method = PointFinder.TYPE_BLAST
+
       blast_run = finder.blast(inputfile=args.inputfasta,
                                out_path=out_point,
                                min_cov=args.min_cov,
@@ -294,6 +296,8 @@ if args.point is True:
    #       two if statements. PointFinder can only handle eiter fasta
    #       or fastq, hence the if-else statement.
    else:
+
+      method = PointFinder.TYPE_KMA
 
       results = finder.kma(inputfile_1=inputfile_1,
                            inputfile_2=inputfile_2,
