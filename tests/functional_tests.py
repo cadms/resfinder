@@ -196,6 +196,7 @@ class ResFinderRunTest(unittest.TestCase):
             fh.readline()
             pred_line = fh.readline()
         pred_lst = pred_line.split()
+        print("LIST: " + str(pred_lst))
         self.assertEqual(1 == pred_lst[14])
         self.assertEqual(1 == pred_lst[15])
 
