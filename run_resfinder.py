@@ -293,7 +293,7 @@ if args.point is True:
    # Note: ResFinder is able to do a fasta and a fastq call, hence its
    #       two if statements. PointFinder can only handle eiter fasta
    #       or fastq, hence the if-else statement.
-   else(args.inputfastq):
+   else:
 
       results = finder.kma(inputfile_1=inputfile_1,
                            inputfile_2=inputfile_2,
