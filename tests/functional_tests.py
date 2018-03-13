@@ -207,13 +207,13 @@ class ResFinderRunTest(unittest.TestCase):
         self.assertIn("p.S83A", check_result)
 
         point_mut_found = False
-        with open(res_table, "r") as fh:
+        with open(pf_table, "r") as fh:
             for line in fh:
                 if(line.startswith("gyrA p.S83A")):
                     check_result = line
                     point_mut_found = True
                     break
-        self.assertEqual(point_mut_found is True)
+        self.assertEqual(point_mut_found, True)
 
 
 if __name__ == "__main__":
