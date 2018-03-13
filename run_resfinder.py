@@ -171,7 +171,7 @@ parser.add_argument("-u", "--unknown_mut",
 parser.add_argument("-db_pheno", "--databasePath_pheno",
                     dest="pheno_db_path",
                     help="Path to phenotype database.",
-                    default="database_pheno")
+                    default="database_phenotype")
 
 args = parser.parse_args()
 
