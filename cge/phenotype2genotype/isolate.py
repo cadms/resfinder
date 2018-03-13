@@ -33,14 +33,14 @@ class Isolate(dict):
                     continue
 
                 db_name = line
-                second_line = fh.next().rstrip()
+                second_line = fh.readline().rstrip()
 
                 if(second_line == "No hit found"):
                     continue
 
                 # At this point second line must be headers, and are skipped.
 
-                res_hit = fh.next().rstrip()
+                res_hit = fh.readline().rstrip()
 
                 while(res_hit):
                     hit_list = res_hit.split("\t")
@@ -64,7 +64,7 @@ class Isolate(dict):
                     else:
                         self[hit_list[7]] = [gene_feat]
 
-                    res_hit = fh.next().rstrip()
+                    res_hit = fh.readline().rstrip()
 
     def load_pointfinder_tab(self, tabbed_output):
         with open(tabbed_output, "r") as fh:
@@ -76,7 +76,7 @@ class Isolate(dict):
 
                 headers = line
 
-                point_hit = fh.next().rstrip()
+                point_hit = fh.readline().rstrip()
 
                 while(point_hit):
                     hit_list = point_hit.split("\t")
@@ -106,7 +106,7 @@ class Isolate(dict):
                         self[unique_id] = [mut_feat]
 
                     try:
-                        point_hit = fh.next().rstrip()
+                        point_hit = fh.readline().rstrip()
                     except StopIteration:
                         point_hit = None
 
