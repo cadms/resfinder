@@ -186,11 +186,9 @@ class ResFinderRunTest(unittest.TestCase):
                     check=True)
 
         # Expected output files
-        res_out = test3_dir + "/pointfinder_blast"
-
-        pf_pred = res_out + "/PointFinder_prediction.txt"
-        pf_res = res_out + "/PointFinder_results.txt"
-        pf_table = res_out + "/PointFinder_table.txt"
+        pf_pred = test3_dir + "/PointFinder_prediction.txt"
+        pf_res = test3_dir + "/PointFinder_results.txt"
+        pf_table = test3_dir + "/PointFinder_table.txt"
 
         with open(pf_pred, "r") as fh:
             fh.readline()
