@@ -402,7 +402,10 @@ class PointFinder():
         indelflag = False
 
         # Go throug mutation file line by line
-        drugfile = open(mut_db_path, "r")
+
+        with open(mut_db_path, "r") as fh:
+            drugfile = fh.readlines()
+        drugfile = [line.strip() for line in drugfile]
 
         for line in drugfile:
             # Ignore headers and check where the indel section starts
@@ -412,7 +415,7 @@ class PointFinder():
                 continue
 
             # Assert that all lines have the correct set of columns
-            mutation = [data.strip() for data in line.strip().split("\t")]
+            mutation = [data.strip() for data in line.split("\t")]
             assert len(mutation) == 9, ("mutation overview file (%s) must have"
                                         " 9 columns, %s" % (mut_db_path,
                                                             mutation))
@@ -480,7 +483,6 @@ class PointFinder():
                     known_mutations[gene_ID][mutation_type][mut_pos][amino] = (
                         mut_info[amino])
 
-        drugfile.close()
         # Check that all genes in the gene list has known mutations
         for gene in gene_list:
             if gene not in known_mutations:
