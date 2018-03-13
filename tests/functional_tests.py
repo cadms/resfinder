@@ -188,40 +188,33 @@ class ResFinderRunTest(unittest.TestCase):
         # Expected output files
         res_out = test1_dir + "/resfinder_blast"
 
-        fsa_hit = res_out + "/Hit_in_genome_seq.fsa"
-        fsa_res = res_out + "/Resistance_gene_seq.fsa"
-        res_table = res_out + "/results_table.txt"
-        res_tab = res_out + "/results_tab.txt"
-        results = res_out + "/results.txt"
+        pf_pred = res_out + "/PointFinder_prediction.txt"
+        pf_res = res_out + "/PointFinder_results.txt"
+        pf_table = res_out + "/PointFinder_table.txt"
 
-        with open(fsa_hit, "r") as fh:
+        with open(pf_pred, "r") as fh:
+            fh.readline()
+            fh.readline()
+            fh.readline()
+            pred_line = fh.readline()
+        pred_lst = pred_line.split()
+        self.assertEqual(1 == pred_lst[14])
+        self.assertEqual(1 == pred_lst[15])
+
+        with open(pf_res, "r") as fh:
+            fh.readline()
             check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertIn("gyrA", check_result)
+        self.assertIn("p.S83A", check_result)
 
-        with open(fsa_res, "r") as fh:
-            check_result = fh.readline()
-        self.assertIn("blaB-2_AF189300", check_result)
-
+        point_mut_found = False
         with open(res_table, "r") as fh:
             for line in fh:
-                if(line.startswith("blaB-2")):
+                if(line.startswith("gyrA p.S83A")):
                     check_result = line
+                    point_mut_found = True
                     break
-        self.assertIn("blaB-2_1_AF189300", check_result)
-
-        with open(res_tab, "r") as fh:
-            fh.readline()
-            check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
-
-        with open(results, "r") as fh:
-            fh.readline()
-            fh.readline()
-            fh.readline()
-            fh.readline()
-            fh.readline()
-            check_result = fh.readline()
-        self.assertIn("blaB-2_1_AF189300", check_result)
+        self.assertEqual(point_mut_found is True)
 
 
 if __name__ == "__main__":
