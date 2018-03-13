@@ -80,7 +80,6 @@ class PointFinder():
             GENES["excluded"] = results["excluded"]
 
         for gene in GENES:
-            print("Any genes?: " + str(gene))
             # Start writing output string (to HTML tab file)
             gene_name = gene
             regex = r"promoter_size_(\d+)(?:bp)"
@@ -96,8 +95,6 @@ class PointFinder():
                 continue
 
             for hit_id, hit in GENES[gene].items():
-                print("ID: " + str(hit_id))
-                print("HIT: " + str(hit))
                 sbjct_start = hit['sbjct_start']
                 sbjct_seq = hit['sbjct_string']
                 qry_seq = hit['query_string']
@@ -239,8 +236,6 @@ class PointFinder():
               kma_cmd += " -penalty " + str(kma_penalty)
           if(kma_reward is not None):
               kma_cmd += " -reward " + str(kma_reward)
-
-          print("CMD: " + kma_cmd)
 
           # Call KMA
           process = subprocess.Popen(kma_cmd, shell=True,
