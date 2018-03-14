@@ -367,7 +367,10 @@ if(args.amr_panel is not None):
    panel_profile_str = res_sum_table.get_amr_panel_str(
        panel_name=args.amr_panel, header=True)
 
-   panel_tabel_file = pheno_table_file[:-4] + args.amr_panel + ".txt"
+   amr_panel_filename = args.amr_panel.replace(".", "")
+   amr_panel_filename = args.amr_panel.replace(" ", "")
+
+   panel_tabel_file = pheno_table_file[:-4] + "_" + amr_panel_filename + ".txt"
    with open(panel_tabel_file, "w") as fh:
       fh.write(panel_profile_str)
 
