@@ -118,7 +118,7 @@ class Isolate(dict):
         features = list(chain.from_iterable(features))
         self.resprofile = ResProfile(features, phenodb)
 
-    def profile_to_str_table(self, with_header=False):
+    def profile_to_str_table(self, header=False):
         """
         """
         output_str = ""

@@ -94,6 +94,42 @@ class ResSumTable(dict):
         self._merge_inclusions()
         self._remove_redundancy()
 
+    def get_amr_panel_str(self, panel_name, with_header=False):
+        """
+        """
+        output_str = ""
+
+        if(with_header):
+            output_str = (
+                "# ResFinder phenotype results for " + panel_name + ".\n"
+                "# \n"
+                "# The phenotype 'No resistance' should be interpreted with\n"
+                "# caution, as it only means that nothing in the used\n"
+                "# database indicate resistance, but resistance could exist\n"
+                "# from 'unknown' or not yet implemented sources.\n"
+                "# \n"
+                "# The 'Match' column stores one of the integers 0, 1, 2, 3.\n"
+                "#      0: No match found\n"
+                "#      1: Match < 100% ID AND match length < ref length\n"
+                "#      2: Match = 100% ID AND match length < ref length\n"
+                "#      3: Match = 100% ID AND match length = ref length\n"
+                "# If several hits causing the same resistance are found,\n"
+                "# the highest number will be stored in the 'Match' column.\n"
+                "\n"
+            )
+            output_str += ("Antimicrobial\t"
+                           "Class\t"
+                           "WGS-predicted phenotype\t"
+                           "Match\t"
+                           "Genetic background\n")
+
+        for ab in self.panels[panel_name]:
+            na_list = [ab, "NA", "NA", "NA", "Not in database"]
+            ab_list = self.get(ab, na_list)
+            output_str += "\t".join(ab_list)
+
+        return output_str
+
     def get_html_panel_table(self, panel_name, panel_id, indent='      '):
         beg = Template(
             '$indent<div id="$panel_name" class="tabcontent">\n'

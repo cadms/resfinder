@@ -172,14 +172,20 @@ parser.add_argument("-db_pheno", "--databasePath_pheno",
                     dest="pheno_db_path",
                     help="Path to phenotype database.",
                     default="database_phenotype")
+parser.add_argument("--amr_panel",
+                    help="Name of AMR panel to apply. If None is specified all\
+                          possible phenotypes are reported.",
+                    default=None)
 
 args = parser.parse_args()
 
 # Create a "sample" name
 if(args.inputfasta):
    sample_name = os.path.basename(args.inputfasta)
+   method = PointFinder.TYPE_BLAST
 else:
    sample_name = os.path.basename(args.inputfastq[0])
+   method = PointFinder.TYPE_KMA
 
 # TODO: Add input data check
 scripts = args.scripts
@@ -293,9 +299,6 @@ if args.point is True:
                         gene_list=args.specific_gene)
 
    if(args.inputfasta):
-
-      method = PointFinder.TYPE_BLAST
-
       blast_run = finder.blast(inputfile=args.inputfasta,
                                out_path=out_point,
                                min_cov=args.min_cov,
@@ -343,23 +346,29 @@ res_pheno_db = PhenoDB(pheno_db_path + "/acquired_db.txt")
 isolate = Isolate(name=sample_name)
 
 if(args.acquired):
-   isolate.load_resfinder_tab(out_res_blast + "/results_table.txt")
+   if(method == PointFinder.TYPE_BLAST):
+      isolate.load_resfinder_tab(out_res_blast + "/results_table.txt")
+   else:
+      isolate.load_resfinder_tab(out_res_kma + "/results_table.txt")
    isolate.calc_res_profile(res_pheno_db)
 
 # Create and write the downloadable tab file
-pheno_profile_str = isolate.profile_to_str_table(with_header=True)
+pheno_profile_str = isolate.profile_to_str_table(header=True)
 
-with open(out_res_blast + 'pheno_table.txt', 'w') as fh:
+pheno_table_file = args.out_path + '/pheno_table.txt'
+with open(pheno_table_file, 'w') as fh:
    fh.write(pheno_profile_str)
 
-# Load AMR panels
-# input_amr_panels = pheno_db_path + "/amr_panels.txt"
-# res_sum_table = ResSumTable(pheno_profile_str)
-# res_sum_table.load_amr_panels(input_amr_panels)
+if(args.amr_panel is not None):
+   # Apply AMR panel
+   input_amr_panels = pheno_db_path + "/amr_panels.txt"
+   res_sum_table = ResSumTable(pheno_profile_str)
+   res_sum_table.load_amr_panels(input_amr_panels)
+   panel_profile_str = res_sum_table.get_amr_panel_str(
+       panel_name=args.amr_panel, header=True)
 
+   panel_tabel_file = pheno_table_file[:-4] + args.amr_panel + ".txt"
+   with open(panel_tabel_file, "w") as fh:
+      fh.write(panel_profile_str)
 
-
-
-
-#
 sys.exit()
