@@ -235,13 +235,13 @@ class ResFinder():
          else:
             titles[db] = "%s" % (profile)
             headers[db] = ["Resistance gene", "Identity",
-                           "Alignment Length/Gene Length",
+                           "Alignment Length/Gene Length", "Coverage",
                            "Position in reference", "Contig",
                            "Position in contig", "Phenotype",
                            "Accession no."]
             table_str += ("%s\n" % (profile))
             table_str += ("Resistance gene\tIdentity\t"
-                          "Alignment Length/Gene Length\t"
+                          "Alignment Length/Gene Length\tCoverage\t"
                           "Position in reference\tContig\tPosition in contig\t"
                           "Phenotype\tAccession no.\n")
 
@@ -254,6 +254,7 @@ class ResFinder():
                gene = tmp[0]
                acc = tmp[2]
                ID = results[db][hit]["perc_ident"]
+               coverage = results[db][hit]["coverage"]
                sbjt_length = results[db][hit]["sbjct_length"]
                HSP = results[db][hit]["HSP_length"]
                positions_contig = "%s..%s" % (results[db][hit]["query_start"],
@@ -267,29 +268,33 @@ class ResFinder():
                if "split_length" in results[db][hit]:
                   total_HSP = results[db][hit]["split_length"]
                   split_print[res_header].append([gene, ID, total_HSP,
-                                                  sbjt_length, positions_ref,
-                                                  contig_name,
+                                                  sbjt_length, coverage,
+                                                  positions_ref, contig_name,
                                                   positions_contig, pheno,
                                                   acc])
-                  tab_str += ("%s\t%s\t%s/%s\t%s\t%s\t%s\t%s\t%s\n"
-                              % (gene, ID, HSP, sbjt_length, positions_ref,
-                                 contig_name, positions_contig, pheno, acc)
+                  tab_str += ("%s\t%s\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                              % (gene, ID, HSP, sbjt_length, coverage,
+                                 positions_ref, contig_name, positions_contig,
+                                 pheno, acc)
                               )
                else:
                   # Write tabels
-                  table_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\n"
-                                % (gene, ID, HSP, sbjt_length, positions_ref,
-                                   contig_name, positions_contig, pheno, acc)
+                  table_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                                % (gene, ID, HSP, sbjt_length, coverage,
+                                   positions_ref, contig_name,
+                                   positions_contig, pheno, acc)
                                 )
-                  tab_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\n"
-                              % (gene, ID, HSP, sbjt_length, positions_ref,
-                                 contig_name, positions_contig, pheno, acc)
+                  tab_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                              % (gene, ID, HSP, sbjt_length, coverage,
+                                 positions_ref, contig_name, positions_contig,
+                                 pheno, acc)
                               )
 
                   # Saving the output to write the txt result table
                   hsp_length = "%s/%s" % (HSP, sbjt_length)
-                  rows[db].append([gene, ID, hsp_length, positions_ref,
-                                   contig_name, positions_contig, pheno, acc])
+                  rows[db].append([gene, ID, hsp_length, coverage,
+                                  positions_ref, contig_name, positions_contig,
+                                  pheno, acc])
 
                # Writing subjet/ref sequence
                if(res_type == ResFinder.TYPE_BLAST):
@@ -305,8 +310,9 @@ class ResFinder():
                sbjct_start = results[db][hit]["sbjct_start"]
                sbjct_end = results[db][hit]["sbjct_end"]
                text = ("%s, ID: %.2f %%, Alignment Length/Gene Length: %s/%s, "
+                       "Coverage: %s, "
                        "Positions in reference: %s..%s, Contig name: %s, "
-                       "Position: %s" % (gene, ID, HSP, sbjt_length,
+                       "Position: %s" % (gene, ID, HSP, sbjt_length, coverage,
                                          sbjct_start, sbjct_end, contig_name,
                                          positions_contig))
                hit_str += (">%s\n" % text)
@@ -347,14 +353,15 @@ class ResFinder():
                   positions_contig = (positions_contig + ", "
                                       + split_print[res][i][6])
 
-               table_str += ("%s\t%s\t%s/%s\t%s\t%s\t%s\t%s\t%s\n"
-                             % (gene, ID, HSP, sbjt_length, positions_ref,
-                                contig_name, positions_contig, pheno, acc)
+               table_str += ("%s\t%s\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                             % (gene, ID, HSP, sbjt_length, coverage,
+                                positions_ref, contig_name, positions_contig,
+                                pheno, acc)
                              )
 
                hsp_length = "%s/%s" % (HSP, sbjt_length)
 
-               rows[db].append([gene, ID, hsp_length, positions_ref,
+               rows[db].append([gene, ID, hsp_length, coverage, positions_ref,
                                 contig_name, positions_contig, pheno, acc])
 
             table_str += ("\n")

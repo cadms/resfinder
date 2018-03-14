@@ -15,14 +15,18 @@ class DBHit():
                  end_ref, acc, db=None):
         self.name = name
         self.identity = float(identity)
-        self.match_length = int(match_length)
+        if(match_length == "NA"):
+            self.match_length = None
+        else:
+            self.match_length = int(match_length)
         self.ref_length = int(ref_length)
         self.start_ref = int(start_ref)
         self.end_ref = int(end_ref)
         self.acc = acc
         self.db = db
 
-        if(self.ref_length != self.match_length):
+        if(self.match_length is not None
+           and self.ref_length != self.match_length):
             self.match_category = 1
         elif(self.identity < 100.0):
             self.match_category = 2
