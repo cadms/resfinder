@@ -94,12 +94,12 @@ class ResSumTable(dict):
         self._merge_inclusions()
         self._remove_redundancy()
 
-    def get_amr_panel_str(self, panel_name, with_header=False):
+    def get_amr_panel_str(self, panel_name, header=False):
         """
         """
         output_str = ""
 
-        if(with_header):
+        if(header):
             output_str = (
                 "# ResFinder phenotype results for " + panel_name + ".\n"
                 "# \n"
