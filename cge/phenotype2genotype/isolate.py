@@ -20,7 +20,6 @@ class Isolate(dict):
     """ An isolate class is a dict of Features.
     """
     def __init__(self, name):
-        print("Isolate loaded")
         self.name = name
         self.resprofile = None
 

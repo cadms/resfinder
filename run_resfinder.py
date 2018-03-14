@@ -368,7 +368,7 @@ if(args.amr_panel is not None):
        panel_name=args.amr_panel, header=True)
 
    amr_panel_filename = args.amr_panel.replace(".", "")
-   amr_panel_filename = args.amr_panel.replace(" ", "")
+   amr_panel_filename = amr_panel_filename.replace(" ", "")
 
    panel_tabel_file = pheno_table_file[:-4] + "_" + amr_panel_filename + ".txt"
    with open(panel_tabel_file, "w") as fh:

@@ -126,7 +126,7 @@ class ResSumTable(dict):
         for ab in self.panels[panel_name]:
             na_list = [ab, "NA", "NA", "NA", "Not in database"]
             ab_list = self.get(ab, na_list)
-            output_str += "\t".join(ab_list)
+            output_str += "\t".join(ab_list) + "\n"
 
         return output_str
 
