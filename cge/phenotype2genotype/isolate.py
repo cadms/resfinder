@@ -123,7 +123,7 @@ class Isolate(dict):
         """
         output_str = ""
 
-        if(with_header):
+        if(header):
             output_str = (
                 "# ResFinder phenotype results.\n"
                 "# \n"
