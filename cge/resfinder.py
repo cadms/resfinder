@@ -210,8 +210,8 @@ class ResFinder():
 
       # Write the header for the tab file
       tab_str = ("Resistance gene\tIdentity\tAlignment Length/Gene Length\t"
-                 "Position in reference\tContig\tPosition in contig\t"
-                 "Phenotype\tAccession no.\n")
+                 "Coverage\tPosition in reference\tContig\t"
+                 "Position in contig\tPhenotype\tAccession no.\n")
 
       table_str = ""
       txt_str = ""
@@ -279,11 +279,21 @@ class ResFinder():
                               )
                else:
                   # Write tabels
+                  print("TABLE: %s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                                % (gene, ID, HSP, sbjt_length, coverage,
+                                   positions_ref, contig_name,
+                                   positions_contig, pheno, acc)
+                                )
                   table_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                                 % (gene, ID, HSP, sbjt_length, coverage,
                                    positions_ref, contig_name,
                                    positions_contig, pheno, acc)
                                 )
+                  print("TAB: %s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                              % (gene, ID, HSP, sbjt_length, coverage,
+                                 positions_ref, contig_name, positions_contig,
+                                 pheno, acc)
+                              )
                   tab_str += ("%s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                               % (gene, ID, HSP, sbjt_length, coverage,
                                  positions_ref, contig_name, positions_contig,

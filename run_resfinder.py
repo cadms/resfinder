@@ -278,7 +278,6 @@ if args.acquired is True:
                                         out_path=out_res_kma, min_cov=min_cov,
                                         kma_path=kma)
 
-      print("RES: " + str(kma_results))
 
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_KMA)
