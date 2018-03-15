@@ -44,7 +44,7 @@ class Isolate(dict):
                 while(res_hit):
                     hit_list = res_hit.split("\t")
                     match_length, ref_length = hit_list[2].split("/")
-                    start_ref, end_ref = hit_list[3].split("..")
+                    start_ref, end_ref = hit_list[4].split("..")
                     hit = DBHit(name=hit_list[0], identity=hit_list[1],
                                 match_length=match_length,
                                 ref_length=ref_length, start_ref=start_ref,
