@@ -48,20 +48,20 @@ class Isolate(dict):
                     hit = DBHit(name=hit_list[0], identity=hit_list[1],
                                 match_length=match_length,
                                 ref_length=ref_length, start_ref=start_ref,
-                                end_ref=end_ref, acc=hit_list[7],
+                                end_ref=end_ref, acc=hit_list[8],
                                 db="resfinder")
 
-                    start_feat, end_feat = hit_list[5].split("..")
-                    gene_feat = Gene(unique_id=hit_list[7],
-                                     seq_region=hit_list[4],
+                    start_feat, end_feat = hit_list[6].split("..")
+                    gene_feat = Gene(unique_id=hit_list[8],
+                                     seq_region=hit_list[5],
                                      start=start_feat, end=end_feat, hit=hit)
 
-                    if(hit_list[7] in self):
-                        temp_list = self[hit_list[7]]
+                    if(hit_list[8] in self):
+                        temp_list = self[hit_list[8]]
                         temp_list.append(gene_feat)
-                        self[hit_list[7]] = temp_list
+                        self[hit_list[8]] = temp_list
                     else:
-                        self[hit_list[7]] = [gene_feat]
+                        self[hit_list[8]] = [gene_feat]
 
                     res_hit = fh.readline().rstrip()
 
