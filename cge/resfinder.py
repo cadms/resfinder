@@ -277,6 +277,11 @@ class ResFinder():
                                  positions_ref, contig_name, positions_contig,
                                  pheno, acc)
                               )
+                  print("TAB SPLIT: %s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
+                              % (gene, ID, HSP, sbjt_length, coverage,
+                                 positions_ref, contig_name, positions_contig,
+                                 pheno, acc)
+                              )
                else:
                   # Write tabels
                   print("TABLE: %s\t%.2f\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
