@@ -106,7 +106,7 @@ class ResFinder():
                kma_results[drug][hit]["query_string"] = []
                kma_results[drug][hit]["homology"] = []
                kma_results[drug][hit]["sbjct_header"] = gene
-               kma_results[drug][hit]["split_length"] = "NA"
+               # kma_results[drug][hit]["split_length"] = "NA"
                kma_results[drug][hit]["perc_ident"] = sbjct_ident
                kma_results[drug][hit]["query_start"] = "NA"
                kma_results[drug][hit]["query_end"] = "NA"
