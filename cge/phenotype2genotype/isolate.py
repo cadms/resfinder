@@ -52,6 +52,11 @@ class Isolate(dict):
                                 db="resfinder")
 
                     start_feat, end_feat = hit_list[6].split("..")
+
+                    if(start_feat == "NA"):
+                        start_feat = None
+                        end_feat = None
+
                     gene_feat = Gene(unique_id=hit_list[8],
                                      seq_region=hit_list[5],
                                      start=start_feat, end=end_feat, hit=hit)

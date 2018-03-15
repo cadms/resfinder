@@ -24,7 +24,10 @@ class Feature():
         self.id = unique_id
         self.unique_id = unique_id
         self.seq_region = seq_region
-        self.start = int(start)
+        if(start):
+            self.start = int(start)
+        else:
+            self.start = None
         self.hit = hit
 
 
@@ -34,7 +37,10 @@ class Gene(Feature):
     def __init__(self, unique_id, seq_region=None, start=None, end=None,
                  hit=None):
         Feature.__init__(self, unique_id, seq_region, start, hit)
-        self.end = int(end)
+        if(end):
+            self.end = int(end)
+        else:
+            self.end = None
 
 
 class Mutation(Feature):
