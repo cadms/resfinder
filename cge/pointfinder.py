@@ -284,13 +284,11 @@ class PointFinder():
 
                 kma_results[db][hit] = dict()
                 kma_results[db][hit]['sbjct_length'] = sbjct_len
-                # kma_results[db][hit]['coverage'] = coverage
                 kma_results[drug][hit]["perc_coverage"] = coverage
                 kma_results[db][hit]["sbjct_string"] = []
                 kma_results[db][hit]["query_string"] = []
                 kma_results[db][hit]["homology"] = []
                 kma_results[db][hit]["sbjct_header"] = gene
-                # kma_results[db][hit]["split_length"] = "NA"
                 kma_results[db][hit]["perc_ident"] = sbjct_ident
                 kma_results[db][hit]["query_start"] = "NA"
                 kma_results[db][hit]["query_end"] = "NA"
