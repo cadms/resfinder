@@ -100,7 +100,8 @@ class ResFinder():
 
                kma_results[drug][hit] = dict()
                kma_results[drug][hit]['sbjct_length'] = sbjct_len
-               kma_results[drug][hit]['coverage'] = coverage
+               # kma_results[drug][hit]["coverage"] = coverage
+               kma_results[drug][hit]["perc_coverage"] = coverage
                kma_results[drug][hit]["sbjct_string"] = []
                kma_results[drug][hit]["query_string"] = []
                kma_results[drug][hit]["homology"] = []
@@ -254,7 +255,7 @@ class ResFinder():
                gene = tmp[0]
                acc = tmp[2]
                ID = results[db][hit]["perc_ident"]
-               coverage = results[db][hit]["coverage"]
+               coverage = results[db][hit]["perc_coverage"]
                sbjt_length = results[db][hit]["sbjct_length"]
                HSP = results[db][hit]["HSP_length"]
                positions_contig = "%s..%s" % (results[db][hit]["query_start"],
@@ -355,18 +356,22 @@ class ResFinder():
                ID = split_print[res][0][1]
                HSP = split_print[res][0][2]
                sbjt_length = split_print[res][0][3]
-               positions_ref = split_print[res][0][4]
-               contig_name = split_print[res][0][5]
-               positions_contig = split_print[res][0][6]
-               pheno = split_print[res][0][7]
-               acc = split_print[res][0][8]
+               coverage = split_print[res][0][4]
+               positions_ref = split_print[res][0][5]
+               contig_name = split_print[res][0][6]
+               positions_contig = split_print[res][0][7]
+               pheno = split_print[res][0][8]
+               acc = split_print[res][0][9]
+
+               total_coverage = 0
 
                for i in range(1, len(split_print[res])):
                   ID = "%s, %.2f" % (ID, split_print[res][i][1])
-                  positions_ref = positions_ref + ", " + split_print[res][i][4]
-                  contig_name = contig_name + ", " + split_print[res][i][5]
+                  total_coverage += split_print[res][i][4]
+                  positions_ref = positions_ref + ", " + split_print[res][i][5]
+                  contig_name = contig_name + ", " + split_print[res][i][6]
                   positions_contig = (positions_contig + ", "
-                                      + split_print[res][i][6])
+                                      + split_print[res][i][7])
 
                table_str += ("%s\t%s\t%s/%s\t%s\t%s\t%s\t%s\t%s\t%s\n"
                              % (gene, ID, HSP, sbjt_length, coverage,

@@ -107,14 +107,14 @@ class PointFinder():
                 if len(hit['mis_matches']) < 1:
                     output_strings[1] += (
                         "No mutations found in %s (coverage: %.2f, identity: "
-                        "%.3f))\n" % (gene_name, hit['coverage'],
+                        "%.3f))\n" % (gene_name, hit['perc_coverage'],
                                       hit['perc_ident'])
                     )
                 else:
                     # Write mutations found to output file
                     total_unknown_str += (
                         "\n%s (coverage: %.2f, identity: %.3f)\n"
-                        % (gene_name, hit['coverage'],
+                        % (gene_name, hit['perc_coverage'],
                            hit['perc_ident']))
 
                     str_tuple = self.mut2str(gene, gene_name,
@@ -284,7 +284,8 @@ class PointFinder():
 
                 kma_results[db][hit] = dict()
                 kma_results[db][hit]['sbjct_length'] = sbjct_len
-                kma_results[db][hit]['coverage'] = coverage
+                # kma_results[db][hit]['coverage'] = coverage
+                kma_results[drug][hit]["perc_coverage"] = coverage
                 kma_results[db][hit]["sbjct_string"] = []
                 kma_results[db][hit]["query_string"] = []
                 kma_results[db][hit]["homology"] = []
