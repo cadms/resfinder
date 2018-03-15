@@ -278,6 +278,8 @@ if args.acquired is True:
                                         out_path=out_res_kma, min_cov=min_cov,
                                         kma_path=kma)
 
+      print("RES: " + str(kma_results))
+
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_KMA)
 
@@ -329,8 +331,6 @@ if args.point is True:
    if(args.specific_gene):
       results = PointFinder.discard_unwanted_results(results=results,
                                                      wanted=args.specific_gene)
-
-   print("RES: " + str(results))
 
    finder.write_results(out_path=args.out_path, result=results,
                         res_type=method, unknown_flag=args.unknown_mutations)
