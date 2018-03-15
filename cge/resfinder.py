@@ -552,7 +552,6 @@ if __name__ == '__main__':
                              directory.",
                        default=None)
 
-
    parser.add_argument("-d", "--databases",
                        dest="databases",
                        help="Databases chosen to search in - if none are \
