@@ -330,6 +330,8 @@ if args.point is True:
       results = PointFinder.discard_unwanted_results(results=results,
                                                      wanted=args.specific_gene)
 
+   print("RES: " + str(results))
+
    finder.write_results(out_path=args.out_path, result=results,
                         res_type=method, unknown_flag=args.unknown_mutations)
 
