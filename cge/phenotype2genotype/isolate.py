@@ -84,6 +84,7 @@ class Isolate(dict):
 
                 while(point_hit):
                     hit_list = point_hit.split("\t")
+                    print("LIST: " + str(hit_list))
 
                     # First and last chars are ref and mut. Ex.: S83A
                     pos = hit_list[1][3:-1]
