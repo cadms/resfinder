@@ -179,18 +179,10 @@ class PhenoDB(dict):
                             else:
                                 self.antibiotics[_class] = {}
                                 self.antibiotics[_class][ab] = True
-                    for ab in susceptibile:
-                        for _class in ab_class:
-                            if(_class in self.antibiotics):
-                                self.antibiotics[_class][ab] = True
-                            else:
-                                self.antibiotics[_class] = {}
-                                self.antibiotics[_class][ab] = True
 
                     pheno = Phenotype(unique_id, phenotype, ab_class,
                                       sug_phenotype, pub_phenotype, pmid,
-                                      susceptibile=susceptibile, notes=notes,
-                                      res_mechanics=res_mechanics)
+                                      notes=notes, res_mechanics=res_mechanics)
 
                     self[unique_id] = pheno
 
