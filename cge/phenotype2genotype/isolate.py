@@ -96,6 +96,9 @@ class Isolate(dict):
 
                     unique_id = hit_list[0] + "_" + pos + "_" + mut_aa
 
+                    print("POS: " + str(pos))
+                    print("REF_C: " + ref_codon)
+                    print("MUR_C: " + mut_codon)
                     mut_feat = Mutation(unique_id=unique_id,
                                         seq_region=hit_list[0],
                                         pos=pos, ref_codon=ref_codon,
