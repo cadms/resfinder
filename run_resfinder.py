@@ -352,7 +352,7 @@ if(args.acquired):
    else:
       isolate.load_resfinder_tab(out_res_kma + "/results_table.txt")
 if(args.point):
-   isolate.load_pointfinder_tab(out_point + "/PointFinder_results.txt")
+   isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt")
 
 isolate.calc_res_profile(res_pheno_db)
 
