@@ -85,23 +85,24 @@ class Isolate(dict):
                 while(point_hit):
                     hit_list = point_hit.split("\t")
                     print("LIST: " + str(hit_list))
+                    mutation_list = hit_list[0].split(" ")
 
                     # First and last chars are ref and mut. Ex.: S83A
-                    pos = hit_list[1][3:-1]
-                    ref_aa = hit_list[1][2:3].lower()
-                    mut_aa = hit_list[1][-1:].lower()
+                    pos = mutation_list[1][3:-1]
+                    ref_aa = mutation_list[1][2:3].lower()
+                    mut_aa = mutation_list[1][-1:].lower()
 
                     # Codon field looks like: "TCG -> GCG"
-                    ref_codon = hit_list[2][:3].lower()
-                    mut_codon = hit_list[2][-3:].lower()
+                    ref_codon = hit_list[1][:3].lower()
+                    mut_codon = hit_list[1][-3:].lower()
 
-                    unique_id = hit_list[0] + "_" + pos + "_" + mut_aa
+                    unique_id = mutation_list[0] + "_" + pos + "_" + mut_aa
 
                     print("POS: " + str(pos))
                     print("REF_C: " + ref_codon)
                     print("MUR_C: " + mut_codon)
                     mut_feat = Mutation(unique_id=unique_id,
-                                        seq_region=hit_list[0],
+                                        seq_region=mutation_list[0],
                                         pos=pos, ref_codon=ref_codon,
                                         mut_codon=mut_codon, ref_aa=ref_aa,
                                         mut_aa=mut_aa)
