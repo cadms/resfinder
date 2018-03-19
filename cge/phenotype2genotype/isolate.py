@@ -84,7 +84,7 @@ class Isolate(dict):
 
                 while(point_hit):
                     hit_list = point_hit.split("\t")
-                    print("LIST: " + str(hit_list))
+
                     mutation_list = hit_list[0].split(" ")
 
                     # First and last chars are ref and mut. Ex.: S83A
@@ -98,9 +98,6 @@ class Isolate(dict):
 
                     unique_id = mutation_list[0] + "_" + pos + "_" + mut_aa
 
-                    print("POS: " + str(pos))
-                    print("REF_C: " + ref_codon)
-                    print("MUR_C: " + mut_codon)
                     mut_feat = Mutation(unique_id=unique_id,
                                         seq_region=mutation_list[0],
                                         pos=pos, ref_codon=ref_codon,
