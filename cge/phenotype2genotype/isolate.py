@@ -86,8 +86,8 @@ class Isolate(dict):
                     hit_list = point_hit.split("\t")
 
                     # First and last chars are ref and mut. Ex.: S83A
-                    pos = hit_list[1][1:-1]
-                    ref_aa = hit_list[1][:1].lower()
+                    pos = hit_list[1][3:-1]
+                    ref_aa = hit_list[1][2:3].lower()
                     mut_aa = hit_list[1][-1:].lower()
 
                     # Codon field looks like: "TCG -> GCG"

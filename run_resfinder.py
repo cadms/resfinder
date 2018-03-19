@@ -340,7 +340,8 @@ if args.point is True:
 pheno_db_path = os.path.abspath(args.pheno_db_path)
 
 # Load genotype to phenotype database
-res_pheno_db = PhenoDB(pheno_db_path + "/acquired_db.txt")
+res_pheno_db = PhenoDB(acquired_file=pheno_db_path + "/acquired_db.txt",
+                       point_file=pheno_db_path + "/point_db.txt")
 
 # Isolate object stores results
 isolate = Isolate(name=sample_name)
@@ -350,7 +351,10 @@ if(args.acquired):
       isolate.load_resfinder_tab(out_res_blast + "/results_table.txt")
    else:
       isolate.load_resfinder_tab(out_res_kma + "/results_table.txt")
-   isolate.calc_res_profile(res_pheno_db)
+if(args.point):
+   isolate.load_pointfinder_tab(out_point + "/PointFinder_results.txt")
+
+isolate.calc_res_profile(res_pheno_db)
 
 # Create and write the downloadable tab file
 pheno_profile_str = isolate.profile_to_str_table(header=True)

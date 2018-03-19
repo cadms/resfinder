@@ -167,12 +167,7 @@ class PhenoDB(dict):
                         res_mechanics = None
 
                     if(len(line_list) > 12 and line_list[12]):
-                        susceptibile = self.get_csv_tuple(line_list[12])
-                    else:
-                        susceptibile = ()
-
-                    if(len(line_list) > 13 and line_list[13]):
-                        notes = line_list[13]
+                        notes = line_list[12]
                     else:
                         notes = ""
 
