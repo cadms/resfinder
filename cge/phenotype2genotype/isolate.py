@@ -132,6 +132,7 @@ class Isolate(dict):
         if(header):
             output_str = (
                 "# ResFinder phenotype results.\n"
+                "# Sample: " + self.name + "\n"
                 "# \n"
                 "# The phenotype 'No resistance' should be interpreted with\n"
                 "# caution, as it only means that nothing in the used\n"

@@ -13,11 +13,14 @@ class ResSumTable(dict):
         """
         self.panels = {}
         self.inclusions = {}
+        self.name = ""
 
         for line in text.splitlines():
 
             # Skip Comments
             if(line.startswith("#")):
+                if(line.startswith("# Sample: ")):
+                    self.name = line[10:].strip()
                 continue
 
             # Skip empty lines
@@ -102,6 +105,7 @@ class ResSumTable(dict):
         if(header):
             output_str = (
                 "# ResFinder phenotype results for " + panel_name + ".\n"
+                "# Sample: " + self.name + "\n"
                 "# \n"
                 "# The phenotype 'No resistance' should be interpreted with\n"
                 "# caution, as it only means that nothing in the used\n"
