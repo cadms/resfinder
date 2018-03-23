@@ -221,7 +221,7 @@ class Isolate(dict):
                 if(feature.hit is None):
                     output_str += "\t"
                 else:
-                    output_str += str(feature.hit.db) + "\t" + feature.name
+                    output_str += str(feature.hit.db) + "\t" + feature.hit.name
 
                 output_str += "\n"
 
