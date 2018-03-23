@@ -147,7 +147,7 @@ class ResSumTable(dict):
             output_str += "\t".join(ab_list) + "\n"
 
         if(self.missing_features):
-            output_str += "\n" + "".join(self.missing_features)
+            output_str += "\n" + "\n".join(self.missing_features)
 
         return output_str
 
