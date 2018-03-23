@@ -171,7 +171,7 @@ parser.add_argument("-u", "--unknown_mut",
 parser.add_argument("-db_pheno", "--databasePath_pheno",
                     dest="pheno_db_path",
                     help="Path to phenotype database.",
-                    default="database_phenotype")
+                    default=None)
 parser.add_argument("--amr_panel",
                     help="Name of AMR panel to apply. If None is specified all\
                           possible phenotypes are reported.",
@@ -217,6 +217,16 @@ else:
 if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
+
+# Check pheotype database
+if(args.db_pheno is None):
+   pheno_db_path = os.path.dirname(
+       os.path.realpath(__file__)) + "/database_phenotype"
+   pheno_db_path = os.path.abspath(pheno_db_path)
+
+if not os.path.exists(pheno_db_path):
+   sys.exit("Input Error: The specified phenotype database directory does not "
+            "exist!\nProvided path: " + str(pheno_db_path))
 
 ##########################################################################
 # ResFinder
@@ -338,8 +348,6 @@ if args.point is True:
 ##########################################################################
 # Phenotype to genotype
 ##########################################################################
-
-pheno_db_path = os.path.abspath(args.pheno_db_path)
 
 # Load genotype to phenotype database
 res_pheno_db = PhenoDB(acquired_file=pheno_db_path + "/acquired_db.txt",
