@@ -391,12 +391,14 @@ class ResProfile():
         self.resistance = {}
         self.susceptibile = {}
         self.resistance_classes = {}
+        self.missing_db_features = []
 
         for feature in features:
             if(feature.unique_id in phenodb):
                 self.add_feature(feature, update=False)
             else:
-                print("Not found in PhenoDB: " + feature.unique_id)
+                eprint("Not found in PhenoDB: " + feature.unique_id)
+                self.missing_db_features.append(feature)
         self.update_profile()
 
     def add_feature(self, feature, update=True):

@@ -209,4 +209,20 @@ class Isolate(dict):
                 else:
                     output_str += "\tNo resistance\t0\t\n"
 
+        if(self.resprofile.missing_db_features):
+            output_str += ("\n# WARNING: Missing features from phenotype "
+                           "database:")
+            output_str += "# Feature_ID\tRegion\tDatabase\tHit\n"
+
+            for feature in self.resprofile.missing_db_features:
+                output_str += (feature.unique_id + "\t"
+                               + feature.seq_region + "\t")
+
+                if(feature.hit is None):
+                    output_str += "\t"
+                else:
+                    output_str += str(feature.hit.db) + "\t" + feature.name
+
+                output_str += "\n"
+
         return output_str
