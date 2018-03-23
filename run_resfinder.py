@@ -125,7 +125,7 @@ parser.add_argument("-t", "--threshold",
 parser.add_argument("-db_res", "--databasePath_res",
                     dest="db_path_res",
                     help="Path to the databases for ResFinder",
-                    default="database")
+                    default=None)
 parser.add_argument("-db_res_kma", "--databasePath_res_kma",
                     dest="db_path_kma",
                     help="Path to the ResFinder databases indexed with KMA. \
@@ -224,11 +224,7 @@ if args.acquired is False and args.point is False:
 
 if args.acquired is True:
 
-   if(args.databases is None):
-      databases = os.path.realpath(__file__) + "/database"
-   else:
-      databases = args.databases
-
+   databases = args.databases
    min_cov = float(args.min_cov)
    threshold = float(args.threshold)
 
@@ -242,9 +238,10 @@ if args.acquired is True:
    db_path_res = args.db_path_res
 
    # Check if valid database is provided
-   if db_path_res is None:
-         sys.exit("Input Error: No database directory was provided!\n")
-   elif not os.path.exists(db_path_res):
+   if(db_path_res is None):
+      db_path_res = os.path.realpath(__file__) + "/database"
+
+   if not os.path.exists(db_path_res):
       sys.exit("Input Error: The specified database directory does not "
                "exist!\n")
    else:
