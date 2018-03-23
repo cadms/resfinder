@@ -223,7 +223,12 @@ if args.acquired is False and args.point is False:
 ##########################################################################
 
 if args.acquired is True:
-   databases = args.databases
+
+   if(databases is None):
+      databases = os.path.realpath(__file__) + "/database"
+   else:
+      databases = args.databases
+
    min_cov = float(args.min_cov)
    threshold = float(args.threshold)
 

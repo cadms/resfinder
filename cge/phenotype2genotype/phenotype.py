@@ -1,19 +1,5 @@
 #! /tools/bin/python3
 
-from __future__ import print_function
-import argparse
-import os.path
-import re
-import shutil
-from signal import *
-import tempfile
-import sys
-import subprocess
-
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
 
 class Phenotype():
     """ A Phenotype object describes the antibiotics a feature/gene causes
