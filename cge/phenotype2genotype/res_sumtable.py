@@ -52,10 +52,10 @@ class ResSumTable(dict):
             include_list = self.inclusions[panel]
             include_abs = []
             for incl_panel in include_list:
-                include_abs.append(self.panels[incl_panel])
+                include_abs = include_abs + self.panels[incl_panel]
             print("I ABS" + str(include_abs))
             print("I LST" + str(include_list))
-            self.panels[panel] = panel_list + include_list
+            self.panels[panel] = panel_list + include_abs
 
     def _remove_redundancy(self):
         for panel in self.panels:
