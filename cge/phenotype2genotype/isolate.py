@@ -148,7 +148,7 @@ class Isolate(dict):
                 "# the highest number will be stored in the 'Match' column.\n"
                 "\n"
             )
-            output_str += ("Antimicrobial\t"
+            output_str += ("# Antimicrobial\t"
                            "Class\t"
                            "WGS-predicted phenotype\t"
                            "Match\t"
@@ -211,7 +211,7 @@ class Isolate(dict):
 
         if(self.resprofile.missing_db_features):
             output_str += ("\n# WARNING: Missing features from phenotype "
-                           "database:")
+                           "database:\n")
             output_str += "# Feature_ID\tRegion\tDatabase\tHit\n"
 
             for feature in self.resprofile.missing_db_features:

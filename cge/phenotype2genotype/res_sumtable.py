@@ -15,20 +15,34 @@ class ResSumTable(dict):
         self.inclusions = {}
         self.name = ""
 
+        has_missing_features = False
+        self.missing_features = []
+
         for line in text.splitlines():
 
             # Skip Comments
             if(line.startswith("#")):
+                # Storing missing feature headers
+                if(has_missing_features):
+                    self.missing_features.append(line)
+
                 if(line.startswith("# Sample: ")):
                     self.name = line[10:].strip()
+                # Only exists if the table has a missing feature warning
+                elif(line.startswith("# WARNING")):
+                    has_missing_features = True
+                    self.missing_features.append(line)
                 continue
 
             # Skip empty lines
             if(not line):
                 continue
 
-            line_list = line.split("\t")
-            self[line_list[0]] = line_list
+            if(has_missing_features):
+                self.missing_features.append(line)
+            else:
+                line_list = line.split("\t")
+                self[line_list[0]] = line_list
 
     def _merge_inclusions(self):
         """
@@ -121,7 +135,7 @@ class ResSumTable(dict):
                 "# the highest number will be stored in the 'Match' column.\n"
                 "\n"
             )
-            output_str += ("Antimicrobial\t"
+            output_str += ("# Antimicrobial\t"
                            "Class\t"
                            "WGS-predicted phenotype\t"
                            "Match\t"
@@ -131,6 +145,9 @@ class ResSumTable(dict):
             na_list = [ab, "NA", "NA", "NA", "Not in database"]
             ab_list = self.get(ab, na_list)
             output_str += "\t".join(ab_list) + "\n"
+
+        if(self.missing_features):
+            output_str += "\n" + "".join(self.missing_features)
 
         return output_str
 
