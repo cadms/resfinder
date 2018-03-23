@@ -239,7 +239,7 @@ if args.acquired is True:
 
    # Check if valid database is provided
    if(db_path_res is None):
-      db_path_res = os.path.realpath(__file__) + "/database"
+      db_path_res = os.path.dirname(os.path.realpath(__file__)) + "/database"
 
    if not os.path.exists(db_path_res):
       sys.exit("Input Error: The specified database directory does not "
