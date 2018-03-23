@@ -224,7 +224,7 @@ if args.acquired is False and args.point is False:
 
 if args.acquired is True:
 
-   if(databases is None):
+   if(args.databases is None):
       databases = os.path.realpath(__file__) + "/database"
    else:
       databases = args.databases
