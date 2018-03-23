@@ -219,7 +219,7 @@ if args.acquired is False and args.point is False:
             "chromosomal mutaitons or both!\n")
 
 # Check pheotype database
-if(args.db_pheno is None):
+if(args.pheno_db_path is None):
    pheno_db_path = os.path.dirname(
        os.path.realpath(__file__)) + "/database_phenotype"
    pheno_db_path = os.path.abspath(pheno_db_path)
