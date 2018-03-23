@@ -243,7 +243,7 @@ if args.acquired is True:
 
    if not os.path.exists(db_path_res):
       sys.exit("Input Error: The specified database directory does not "
-               "exist!\n")
+               "exist!\nProvided path: " + str(db_path_res))
    else:
       # Check existence of config file
       db_config_file = '%s/config' % (db_path_res)
