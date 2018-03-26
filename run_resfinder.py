@@ -73,6 +73,10 @@ def create_tab_acquired(isolate, phenodb):
    return output_str
 
 
+species_transl = ["C. jejuni": "campylobacter",
+                  "E. coli": "e.coli",
+                  ]
+
 ##########################################################################
 # PARSE COMMAND LINE OPTIONS
 ##########################################################################
@@ -152,7 +156,7 @@ parser.add_argument("-c", "--point",
 parser.add_argument("-db_point", "--databasePath_point",
                     dest="db_path_point",
                     help="Path to the databases for PointFinder",
-                    default='database_pointfinder')
+                    default=None)
 parser.add_argument("-g",
                     dest="specific_gene",
                     nargs='+',
@@ -218,13 +222,18 @@ if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
 
-# Check pheotype database
+# Check Poinfinder database
+if(args.db_path_point is None and args.point):
+   db_path_point = (os.path.dirname(
+       os.path.realpath(__file__)) + "/database_pointfinder/"
+       + species_transl[args.species])
+   db_path_point = os.path.abspath(db_path_point)
+
+# Check phenotype database
 if(args.pheno_db_path is None):
    pheno_db_path = os.path.dirname(
        os.path.realpath(__file__)) + "/database_phenotype"
    pheno_db_path = os.path.abspath(pheno_db_path)
-
-pheno_db_path += "/" + args.species
 
 if not os.path.exists(pheno_db_path):
    sys.exit("Input Error: The specified phenotype database directory does not "
@@ -300,7 +309,6 @@ if args.acquired is True:
 ##########################################################################
 
 if args.point is True:
-   # db_path = os.path.abspath(args.db_path_point + "/" + args.species)
 
    if(args.inputfasta):
       out_point = os.path.abspath(args.out_path + "/pointfinder_blast")
@@ -309,7 +317,7 @@ if args.point is True:
       out_point = os.path.abspath(args.out_path + "/pointfinder_kma")
       os.makedirs(out_point, exist_ok=True)
 
-   finder = PointFinder(db_path=pheno_db_path, species=args.species,
+   finder = PointFinder(db_path=db_path_point, species=args.species,
                         gene_list=args.specific_gene)
 
    if(args.inputfasta):
@@ -331,7 +339,7 @@ if args.point is True:
       results = finder.kma(inputfile_1=inputfastq_1,
                            inputfile_2=inputfastq_2,
                            out_path=out_point,
-                           db_path_kma=pheno_db_path,
+                           db_path_kma=db_path_point,
                            databases=[args.species],
                            min_cov=args.min_cov,
                            threshold=args.threshold,
