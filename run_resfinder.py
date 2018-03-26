@@ -73,9 +73,9 @@ def create_tab_acquired(isolate, phenodb):
    return output_str
 
 
-species_transl = ["C. jejuni": "campylobacter",
+species_transl = {"C. jejuni": "campylobacter",
                   "E. coli": "e.coli",
-                  ]
+                  }
 
 ##########################################################################
 # PARSE COMMAND LINE OPTIONS
