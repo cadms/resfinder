@@ -224,6 +224,8 @@ if(args.pheno_db_path is None):
        os.path.realpath(__file__)) + "/database_phenotype"
    pheno_db_path = os.path.abspath(pheno_db_path)
 
+pheno_db_path += "/" + args.species
+
 if not os.path.exists(pheno_db_path):
    sys.exit("Input Error: The specified phenotype database directory does not "
             "exist!\nProvided path: " + str(pheno_db_path))
@@ -298,7 +300,7 @@ if args.acquired is True:
 ##########################################################################
 
 if args.point is True:
-   db_path = os.path.abspath(args.db_path_point + "/" + args.species)
+   # db_path = os.path.abspath(args.db_path_point + "/" + args.species)
 
    if(args.inputfasta):
       out_point = os.path.abspath(args.out_path + "/pointfinder_blast")
@@ -307,7 +309,7 @@ if args.point is True:
       out_point = os.path.abspath(args.out_path + "/pointfinder_kma")
       os.makedirs(out_point, exist_ok=True)
 
-   finder = PointFinder(db_path=db_path, species=args.species,
+   finder = PointFinder(db_path=pheno_db_path, species=args.species,
                         gene_list=args.specific_gene)
 
    if(args.inputfasta):
@@ -329,7 +331,7 @@ if args.point is True:
       results = finder.kma(inputfile_1=inputfastq_1,
                            inputfile_2=inputfastq_2,
                            out_path=out_point,
-                           db_path_kma=db_path,
+                           db_path_kma=pheno_db_path,
                            databases=[args.species],
                            min_cov=args.min_cov,
                            threshold=args.threshold,
