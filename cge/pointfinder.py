@@ -119,7 +119,7 @@ class PointFinder():
 
                     str_tuple = self.mut2str(gene, gene_name,
                                              hit['mis_matches'],
-                                             unknown_flag, GENES)
+                                             unknown_flag, hit)
 
                     all_results = str_tuple[0]
                     total_known = str_tuple[1]
@@ -1153,7 +1153,7 @@ class PointFinder():
 
         return mis_matches
 
-    def mut2str(self, gene, gene_name, mis_matches, unknown_flag, GENES):
+    def mut2str(self, gene, gene_name, mis_matches, unknown_flag, hit):
         """
             This function takes a gene name a list of mis matches found
             between subject and query of this gene, the dictionary of
@@ -1161,8 +1161,8 @@ class PointFinder():
             telling weather the user wants unknown mutations to be
             reported. All mis matches are looked up in the known
             mutation dict to se if the mutation is known, and in this
-            case what drug resistence it causes. The funtions returns 3
-            trings that are used as output to the users. One string is
+            case what drug resistence it causes. The funtions return 3
+            strings that are used as output to the users. One string is
             only tab seperated and contains the mutations listed line
             by line. If the unknown flag is set to true it will contain
             both known and unknown mutations. The next string contains
@@ -1257,9 +1257,9 @@ class PointFinder():
                             all_results_lst = all_results_lst[:-1]
 
             if "Premature stop codon" in mut_name:
-                print("GENE DB:\n" + str(GENES))
+                print("GENE DB:\n" + str(hit))
                 print("SBJ LENGTH GENE: " + gene)
-                sbjct_len = GENES[gene]['sbjct_length']
+                sbjct_len = hit['sbjct_length']
                 qry_len = pos * 3
                 prec_truckat = round(
                     ((float(sbjct_len) - qry_len)
