@@ -1269,6 +1269,8 @@ class PointFinder():
                                    % (gene, prec_truckat, perc))
 
         # Creat final strings
+        # DEBUG
+        print("all_results_lst: " + str(all_results_lst))
         all_results = "\n".join(all_results_lst)
         total_known_str = ""
         total_unknown_str = ""
