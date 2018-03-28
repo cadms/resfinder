@@ -32,10 +32,10 @@ class PhenoDB(dict):
             eprint("ERROR: No pheotype database files where specified.")
             quit(1)
 
-        if(acquired_file is not None):
+        if(acquired_file):
             self.load_acquired_db(acquired_file)
 
-        if(point_file is not None):
+        if(point_file):
             self.load_point_db(point_file)
 
     def load_acquired_db(self, txt_file):
@@ -185,6 +185,10 @@ class PhenoDB(dict):
                                       notes=notes, res_mechanics=res_mechanics)
 
                     self[unique_id] = pheno
+
+                    # DEBUG
+                    print("Loaded " + unique_id)
+                    print("\tPhenotype: " + str(phenotype))
 
                     # A pointmutation with several different res codons will
                     # never be found using all the res_codons. Instead it will
