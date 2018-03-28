@@ -127,7 +127,8 @@ class PointFinder():
                     drug_list = str_tuple[3]
 
                     # Add results to output strings
-                    output_strings[0] += "\n" + all_results
+                    if(all_results):
+                        output_strings[0] += "\n" + all_results
                     output_strings[1] += total_known + "\n"
 
                     # Add unknown mutations the total results of
