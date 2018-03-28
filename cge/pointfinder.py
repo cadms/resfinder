@@ -1257,8 +1257,6 @@ class PointFinder():
                             all_results_lst = all_results_lst[:-1]
 
             if "Premature stop codon" in mut_name:
-                print("GENE DB:\n" + str(hit))
-                print("SBJ LENGTH GENE: " + gene)
                 sbjct_len = hit['sbjct_length']
                 qry_len = pos * 3
                 prec_truckat = round(
