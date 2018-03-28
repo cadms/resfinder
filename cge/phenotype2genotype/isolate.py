@@ -105,7 +105,7 @@ class Isolate(dict):
                                         mut_aa=mut_aa)
                     # DEBUG
                     print("Found mutation: " + unique_id)
-                    print("\tmut: " ref_aa + str(pos) + mut_aa)
+                    print("\tmut: " + ref_aa + str(pos) + mut_aa)
 
                     if(unique_id in self):
                         temp_list = self[unique_id]
