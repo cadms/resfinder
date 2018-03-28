@@ -1271,7 +1271,11 @@ class PointFinder():
         # Creat final strings
         # DEBUG
         print("all_results_lst: " + str(all_results_lst))
-        all_results = "\n".join(all_results_lst)
+        if(all_results_lst):
+            all_results = "\n".join(all_results_lst)
+        else:
+            all_results = ""
+        print("all_results: " + str(all_results))
         total_known_str = ""
         total_unknown_str = ""
 
