@@ -186,10 +186,6 @@ class PhenoDB(dict):
 
                     self[unique_id] = pheno
 
-                    # DEBUG
-                    print("Loaded " + unique_id)
-                    print("\tPhenotype: " + str(phenotype))
-
                     # A pointmutation with several different res codons will
                     # never be found using all the res_codons. Instead it will
                     # be found with just one.
