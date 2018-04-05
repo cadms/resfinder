@@ -71,27 +71,33 @@ class PhenoDB(dict):
                     phenotype = list(pub_phenotype)
 
                     if(len(line_list) > 4 and line_list[4]):
-                        sug_phenotype = self.get_csv_tuple(line_list[4])
+                        res_mechanics = line_list[4].lower()
+                    else:
+                        res_mechanics = ""
+
+                    if(len(line_list) > 5 and line_list[5]):
+                        notes = line_list[5]
+                    else:
+                        notes = ""
+
+                    if(len(line_list) > 6 and line_list[6]):
+                        sug_phenotype = self.get_csv_tuple(line_list[6])
                         for p in sug_phenotype:
                             if p not in pub_phenotype:
                                 phenotype.append(p)
                     else:
                         sug_phenotype = ()
 
-                    if(len(line_list) > 5 and line_list[5]):
-                        gene_class = line_list[5].lower()
+                    if(len(line_list) > 7 and line_list[7]):
+                        gene_class = line_list[7].lower()
                     else:
                         gene_class = None
-                    if(len(line_list) > 6 and line_list[6]):
+                    if(len(line_list) > 8 and line_list[8]):
                         susceptibile = self.get_csv_tuple(line_list[6])
                     else:
                         susceptibile = ()
-                    if(len(line_list) > 7 and line_list[7]):
-                        notes = line_list[7]
-                    else:
-                        notes = ""
-                    if(len(line_list) > 8 and line_list[8]):
-                        species = line_list[8].lower()
+                    if(len(line_list) > 9 and line_list[9]):
+                        species = line_list[9].lower()
                     else:
                         species = None
 
