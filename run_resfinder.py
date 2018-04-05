@@ -223,6 +223,12 @@ if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
 
+# Check ResFinder KMA database
+if(args.db_path_kma is None and args.acquired):
+   db_path_kma = (os.path.dirname(
+       os.path.realpath(__file__)) + "/database/kma_indexing/")
+   db_path_kma = os.path.abspath(db_path_kma)
+
 # Check Poinfinder database
 if(args.db_path_point is None and args.point):
    db_path_point = (os.path.dirname(

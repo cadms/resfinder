@@ -66,6 +66,8 @@ class ResFinder():
          if(inputfile_2 is not None):
             kma_cmd += " " + inputfile_2
 
+         print("KMA CMD:\n" + kma_cmd)
+
          # Call KMA
          process = subprocess.Popen(kma_cmd, shell=True,
                                     stdout=subprocess.PIPE,
