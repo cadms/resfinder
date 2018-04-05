@@ -111,7 +111,7 @@ parser.add_argument("-b", "--blastPath",
 parser.add_argument("-k", "--kmaPath",
                     dest="kma_path",
                     help="Path to KMA",
-                    default="cge/kma/kma")
+                    default=None)
 parser.add_argument("-s", "--species",
                     dest="species",
                     help="Species in the sample")
@@ -202,8 +202,13 @@ if(args.inputfastq):
       inputfastq_2 = None
 
 blast = args.blast_path
-kma = args.kma_path
 species = args.species
+
+# Check KMA path cge/kma/kma
+if(args.inputfastq and args.kma_path is None):
+   kma = (os.path.dirname(
+       os.path.realpath(__file__)) + "cge/kma/kma")
+   kma = os.path.abspath(kma)
 
 # Check output directory
 args.out_path = os.path.abspath(args.out_path)
@@ -286,7 +291,7 @@ if args.acquired is True:
    # Actually running ResFinder (for acquired resistance)
    acquired_finder = ResFinder(db_conf_file=db_config_file,
                                databases=args.databases, db_path=db_path_res,
-                               notes=notes_path, db_path_kma=args.db_path_kma)
+                               notes=notes_path, db_path_kma=db_path_kma)
 
    blast_results = None
    kma_results = None
