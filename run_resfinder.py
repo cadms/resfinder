@@ -207,7 +207,7 @@ species = args.species
 # Check KMA path cge/kma/kma
 if(args.inputfastq and args.kma_path is None):
    kma = (os.path.dirname(
-       os.path.realpath(__file__)) + "cge/kma/kma")
+       os.path.realpath(__file__)) + "/cge/kma/kma")
    kma = os.path.abspath(kma)
 
 # Check output directory
