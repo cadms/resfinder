@@ -66,19 +66,22 @@ class ResFinder():
          if(inputfile_2 is not None):
             kma_cmd += " " + inputfile_2
 
-         print("KMA CMD:\n" + kma_cmd)
-
-         # Call KMA
-         process = subprocess.Popen(kma_cmd, shell=True,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
-         out, err = process.communicate()
-
-         kma_results[drug] = 'No hit found'
-
-         # Fetch kma output files
+         # kma output files
          align_filename = kma_outfile + ".aln"
          res_filename = kma_outfile + ".res"
+
+         # If .res file exists then skip mapping
+         if(os.path.exists(res_filename)):
+            print("Found " + res_filename + " skipping DB.")
+         else:
+            print("KMA CMD:\n" + kma_cmd)
+            # Call KMA
+            process = subprocess.Popen(kma_cmd, shell=True,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            out, err = process.communicate()
+
+         kma_results[drug] = 'No hit found'
 
          # Open res file, find coverage and the gene names of genes found
          with open(res_filename, "r") as res_file:
@@ -440,6 +443,9 @@ class ResFinder():
             else:
                tmp = line.split(":")
                self.phenos[tmp[0]] = "%s %s" % (tmp[1], tmp[2])
+
+               if(tmp[2].startswith("Alternate name; ")):
+                  self.phenos[tmp[2][16:]] = "%s %s" % (tmp[1], tmp[2])
 
    def load_databases(self, databases):
       """
