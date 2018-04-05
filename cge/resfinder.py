@@ -268,7 +268,9 @@ class ResFinder():
                positions_ref = "%s..%s" % (results[db][hit]["sbjct_start"],
                                            results[db][hit]["sbjct_end"])
                contig_name = results[db][hit]["contig_name"]
-               pheno = self.phenos[gene]
+               pheno = self.phenos.get(gene, "Warning: gene is missing from "
+                                       "Notes file. Please inform curator.")
+
                pheno = pheno.strip()
 
                if "split_length" in results[db][hit]:
@@ -442,6 +444,7 @@ class ResFinder():
                continue
             else:
                tmp = line.split(":")
+
                self.phenos[tmp[0]] = "%s %s" % (tmp[1], tmp[2])
 
                if(tmp[2].startswith("Alternate name; ")):
