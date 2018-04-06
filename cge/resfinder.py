@@ -11,6 +11,7 @@ from tabulate import tabulate
 import collections
 
 from cge.blaster.blaster import Blaster
+from cge.cgefinder import CGEFinder
 
 
 class ResFinder():
@@ -46,7 +47,7 @@ class ResFinder():
       # self.results = None
 
    def kma(self, inputfile_1, out_path,
-           min_cov, kma_path="cge/kma/kma", sample_name="", inputfile_2=None):
+           min_cov, kma_path="kma", sample_name="", inputfile_2=None):
       """
          I expect that there will only be one hit pr gene, but if there are
          more, I assume that the sequence of the hits are the same in the res
