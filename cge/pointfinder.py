@@ -76,10 +76,6 @@ class PointFinder(CGEFinder):
                         GENES[gene]["dummy_hit_id"] = vals
             excluded_hits = results["excluded"]
 
-        # DEBUG
-        print("EXCLUDED: \n" + str(excluded_hits))
-        print("GENES: \n" + str(GENES))
-
         for gene in GENES:
             # Start writing output string (to HTML tab file)
             gene_name = gene
@@ -96,6 +92,10 @@ class PointFinder(CGEFinder):
                 continue
 
             for hit_id, hit in GENES[gene].items():
+                # Ignore excluded genes
+                if(gene in excluded_hits):
+                    continue
+
                 sbjct_start = hit['sbjct_start']
                 sbjct_seq = hit['sbjct_string']
                 qry_seq = hit['query_string']
@@ -140,9 +140,9 @@ class PointFinder(CGEFinder):
                     unique_drug_list += drug_list
 
             # Store hits that was excluded
-            for gene in GENES["excluded"]:
+            for gene in excluded_hits:
                 output_strings[1] += "\n%s\n" % (gene_name)
-                output_strings[1] += " ".join(GENES["excluded"][gene]) + "\n"
+                output_strings[1] += " ".join(excluded_hits[gene]) + "\n"
 
             if unknown_flag is True:
                 output_strings[1] += ("\n\nUnknown Mutations \n"
