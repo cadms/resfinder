@@ -240,7 +240,7 @@ if(args.db_path_kma is None and args.acquired):
 if(args.db_path_point is None and args.point):
    db_path_point = (os.path.dirname(
        os.path.realpath(__file__)) + "/database_pointfinder/"
-       + species_transl[args.species])
+       + args.species)
    db_path_point = os.path.abspath(db_path_point)
 
 # Check phenotype database
