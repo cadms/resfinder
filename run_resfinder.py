@@ -75,7 +75,9 @@ def create_tab_acquired(isolate, phenodb):
 
 # TODO: Add fix species choice
 species_transl = {"C. jejuni": "campylobacter",
+                  "C. jejuni": "C. jejuni",
                   "E. coli": "e.coli",
+                  "E. coli": "E. coli",
                   }
 
 ##########################################################################
