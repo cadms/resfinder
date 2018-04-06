@@ -98,6 +98,7 @@ class CGEFinder():
                     if(exclude_reasons):
                         # kma_results[db]["excluded"][hit] = exclude_reasons
                         kma_results["excluded"][hit] = exclude_reasons
+                        continue
 
                     kma_results[db][hit] = dict()
                     kma_results[db][hit]['sbjct_length'] = sbjct_len
