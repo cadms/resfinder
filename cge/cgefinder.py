@@ -23,6 +23,8 @@ class CGEFinder():
            more, I assume that the sequence of the hits are the same in the res
            file and the aln file.
         """
+        threshold = threshold * 100
+        min_cov = min_cov * 100
 
         kma_results = dict()
         kma_results["excluded"] = dict()
