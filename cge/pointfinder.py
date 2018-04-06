@@ -505,9 +505,9 @@ class PointFinder():
 
         # Find mis matches in RNA genes
         if gene in self.RNA_gene_list:
-            mis_matches += self.find_nucleotid_mismatches(sbjct_start,
-                                                          sbjct_seq,
-                                                          qry_seq)
+            mis_matches += PointFinder.find_nucleotid_mismatches(sbjct_start,
+                                                                 sbjct_seq,
+                                                                 qry_seq)
         else:
             # Check if the gene sequence is with a promoter
             regex = r"promoter_size_(\d+)(?:bp)"
@@ -547,7 +547,7 @@ class PointFinder():
                     qry_promtr_seq = qry_seq[:promtr_end]
 
                     # For promoter part find nucleotide mis matches
-                    mis_matches += find_nucleotid_mismatches(
+                    mis_matches += PointFinder.find_nucleotid_mismatches(
                         promtr_sbjct_start, sbjct_promtr_seq, qry_promtr_seq,
                         promoter=True)
 
