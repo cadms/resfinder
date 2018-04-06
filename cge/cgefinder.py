@@ -93,10 +93,9 @@ class CGEFinder():
 
                     exclude_reasons = []
 
-                    if(coverage < min_cov):
-                        exclude_reasons.append("coverage: " + str(coverage))
-                    elif(sbjct_ident < threshold):
-                        exclude_reasons.append("identity: " + str(sbjct_ident))
+                    if(coverage < min_cov or sbjct_ident < threshold):
+                        exclude_reasons.append(coverage)
+                        exclude_reasons.append(sbjct_ident)
 
                     if(exclude_reasons):
                         # kma_results[db]["excluded"][hit] = exclude_reasons

@@ -140,9 +140,12 @@ class PointFinder(CGEFinder):
                     unique_drug_list += drug_list
 
             # Store hits that was excluded
-            for gene in excluded_hits:
+            for gene, exclude_reasons in excluded_hits.items():
                 output_strings[1] += "\n%s\n" % (gene_name)
-                output_strings[1] += " ".join(excluded_hits[gene]) + "\n"
+                output_strings[1] += (
+                    "No mutations found in %s (coverage: %.2f, identity: "
+                    "%.3f))\n" % (gene_name, exclude_reasons[0],
+                                  exclude_reasons[1]))
 
             if unknown_flag is True:
                 output_strings[1] += ("\n\nUnknown Mutations \n"
