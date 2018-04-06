@@ -90,10 +90,11 @@ class CGEFinder():
                         hit = gene + "_" + str(len(kma_results[db][gene]) + 1)
 
                     exclude_reasons = []
+                    # DEBUG
+                    print(str(coverage) + "<" + str(min_cov))
+                    print(str(sbjct_ident) + "<" + str(threshold))
                     if(coverage < min_cov):
                         exclude_reasons.append("coverage: " + str(coverage))
-                    # DEBUG
-                    print(str(sbjct_ident) + "<" + str(threshold))
                     elif(sbjct_ident < threshold):
                         exclude_reasons.append("identity: " + str(sbjct_ident))
 
