@@ -1,6 +1,7 @@
 #!/home/data1/tools/bin/anaconda/bin/python
 import subprocess
 import re
+import os.path
 
 from cge.blaster.blaster import Blaster
 
