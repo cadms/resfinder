@@ -1,5 +1,6 @@
 #!/home/data1/tools/bin/anaconda/bin/python
 import subprocess
+import re
 
 
 class CGEFinder():
