@@ -61,6 +61,7 @@ class PointFinder(CGEFinder):
         # Define variables to write temperary output into
         total_unknown_str = ""
         unique_drug_list = []
+        excluded_hits = {}
 
         if res_type == PointFinder.TYPE_BLAST:
             GENES = results
@@ -73,7 +74,11 @@ class PointFinder(CGEFinder):
                     for gene, vals in results[db].items():
                         GENES[gene] = dict()
                         GENES[gene]["dummy_hit_id"] = vals
-            GENES["excluded"] = results["excluded"]
+            excluded_hits = results["excluded"]
+
+        # DEBUG
+        print("EXCLUDED: \n" + str(excluded_hits))
+        print("GENES: \n" + str(GENES))
 
         for gene in GENES:
             # Start writing output string (to HTML tab file)
