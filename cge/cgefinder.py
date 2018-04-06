@@ -33,8 +33,8 @@ class CGEFinder():
         for db in databases:
             kma_db = db_path_kma + "/" + db
             kma_outfile = out_path + "/kma_" + db + sample_name
-            kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
-                       kma_outfile, inputfile_1))
+            kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path,
+                       kma_db, kma_outfile, inputfile_1))
             if(inputfile_2 is not None):
                kma_cmd += " " + inputfile_2
             if(kma_mrs is not None):
@@ -144,9 +144,11 @@ class CGEFinder():
                         if hit in kma_results[db]:
                             line_data = line.split("\t")[-1].strip()
                             if line.startswith("template"):
-                                kma_results[db][hit]["sbjct_string"] += [line_data]
+                                kma_results[db][hit]["sbjct_string"] += (
+                                    [line_data])
                             elif line.startswith("query"):
-                                kma_results[db][hit]["query_string"] += [line_data]
+                                kma_results[db][hit]["query_string"] += (
+                                    [line_data])
                             else:
                                 kma_results[db][hit]["homology"] += [line_data]
                         else:
