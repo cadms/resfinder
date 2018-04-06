@@ -92,6 +92,8 @@ class CGEFinder():
                     exclude_reasons = []
                     if(coverage < min_cov):
                         exclude_reasons.append("coverage: " + str(coverage))
+                    # DEBUG
+                    print(str(sbjct_ident) + "<" + str(threshold))
                     elif(sbjct_ident < threshold):
                         exclude_reasons.append("identity: " + str(sbjct_ident))
 
