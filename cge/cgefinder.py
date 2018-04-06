@@ -49,17 +49,21 @@ class CGEFinder():
             if(kma_reward is not None):
                 kma_cmd += " -reward " + str(kma_reward)
 
-            # Call KMA
-            process = subprocess.Popen(kma_cmd, shell=True,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            out, err = process.communicate()
-
-            kma_results[db] = 'No hit found'
-
-            # Fetch kma output files
+            # kma output files
             align_filename = kma_outfile + ".aln"
             res_filename = kma_outfile + ".res"
+
+            # If .res file exists then skip mapping
+            if(os.path.exists(res_filename)):
+                print("Found " + res_filename + " skipping DB.")
+            else:
+                # Call KMA
+                process = subprocess.Popen(kma_cmd, shell=True,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE)
+                out, err = process.communicate()
+
+            kma_results[db] = 'No hit found'
 
             # Open res file, find coverage and the gene names of genes found
             with open(res_filename, "r") as res_file:
