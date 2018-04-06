@@ -2,6 +2,8 @@
 import subprocess
 import re
 
+from cge.blaster.blaster import Blaster
+
 
 class CGEFinder():
 

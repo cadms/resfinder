@@ -312,8 +312,16 @@ if args.acquired is True:
    if(args.inputfastq):
       kma_results = acquired_finder.kma(inputfile_1=inputfastq_1,
                                         inputfile_2=inputfastq_2,
-                                        out_path=out_res_kma, min_cov=min_cov,
-                                        kma_path=kma)
+                                        out_path=out_res_kma,
+                                        db_path_kma=db_path_kma,
+                                        databases=acquired_finder.databases,
+                                        min_cov=min_cov,
+                                        threshold=args.threshold,
+                                        kma_path=kma,
+                                        sample_name="",
+                                        kma_mrs=0.5, kma_gapopen=-3,
+                                        kma_gapextend=-1, kma_penalty=-2,
+                                        kma_reward=1)
 
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_KMA)

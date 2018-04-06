@@ -14,12 +14,7 @@ from cge.blaster.blaster import Blaster
 from cge.cgefinder import CGEFinder
 
 
-class ResFinder():
-
-   # Variables used by methods to distinguish results created by different
-   # methods.
-   TYPE_BLAST = "blast"
-   TYPE_KMA = "kma"
+class ResFinder(CGEFinder):
 
    def __init__(self, db_conf_file, notes, db_path, db_path_kma=None,
                 databases=None):
@@ -45,134 +40,6 @@ class ResFinder():
       self.blast_results = None
       # self.kma_results = None
       # self.results = None
-
-   def kma(self, inputfile_1, out_path,
-           min_cov, kma_path="kma", sample_name="", inputfile_2=None):
-      """
-         I expect that there will only be one hit pr gene, but if there are
-         more, I assume that the sequence of the hits are the same in the res
-         file and the aln file.
-      """
-
-      kma_results = dict()
-
-      if(sample_name):
-         sample_name = "_" + sample_name
-
-      for drug in self.databases:
-         kma_db = self.db_path_kma + "/" + drug
-         kma_outfile = out_path + "/kma_" + drug + sample_name
-         kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path, kma_db,
-                    kma_outfile, inputfile_1))
-         if(inputfile_2 is not None):
-            kma_cmd += " " + inputfile_2
-
-         # kma output files
-         align_filename = kma_outfile + ".aln"
-         res_filename = kma_outfile + ".res"
-
-         # If .res file exists then skip mapping
-         if(os.path.exists(res_filename)):
-            print("Found " + res_filename + " skipping DB.")
-         else:
-            print("KMA CMD:\n" + kma_cmd)
-            # Call KMA
-            process = subprocess.Popen(kma_cmd, shell=True,
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)
-            out, err = process.communicate()
-
-         kma_results[drug] = 'No hit found'
-
-         # Open res file, find coverage and the gene names of genes found
-         with open(res_filename, "r") as res_file:
-            header = res_file.readline()
-            for line in res_file:
-               if kma_results[drug] == 'No hit found':
-                  kma_results[drug] = dict()
-               data = [data.strip() for data in line.split("\t")]
-               gene = data[0]
-               # Check if gene one of the user specified genes
-   #                if gene not in gene_list:
-   #                    continue
-               sbjct_len = int(data[3])
-               sbjct_ident = float(data[4])
-               coverage = float(data[5])
-               print(gene)
-               if gene not in kma_results[drug]:
-                  hit = gene
-               else:
-                  hit = gene + "_" + str(len(kma_results[drug][gene]) + 1)
-
-               kma_results[drug][hit] = dict()
-               kma_results[drug][hit]['sbjct_length'] = sbjct_len
-               # kma_results[drug][hit]["coverage"] = coverage
-               kma_results[drug][hit]["perc_coverage"] = coverage
-               kma_results[drug][hit]["sbjct_string"] = []
-               kma_results[drug][hit]["query_string"] = []
-               kma_results[drug][hit]["homology"] = []
-               kma_results[drug][hit]["sbjct_header"] = gene
-               # kma_results[drug][hit]["split_length"] = "NA"
-               kma_results[drug][hit]["perc_ident"] = sbjct_ident
-               kma_results[drug][hit]["query_start"] = "NA"
-               kma_results[drug][hit]["query_end"] = "NA"
-               kma_results[drug][hit]["contig_name"] = "NA"
-               kma_results[drug][hit]["HSP_length"] = "NA"
-
-         if kma_results[drug] == 'No hit found':
-            continue
-
-         # Open align file
-         with open(align_filename, "r") as align_file:
-            hit_no = dict()
-            gene = ""
-            for line in align_file:
-               if line.startswith("#"):
-                  gene = line[1:].strip()
-
-                  if gene not in hit_no:
-                     hit_no[gene] = str(1)
-                  else:
-                     hit_no[gene] += str(int(hit_no[gene]) + 1)
-
-               else:
-                  # Check if gene one of the user specified genes
-                  if hit_no[gene] == '1':
-                     hit = gene
-                  else:
-                     hit = gene + "_" + hit_no[gene]
-
-                  if hit in kma_results[drug]:
-                     line_data = line.split("\t")[-1].strip()
-                     if line.startswith("template"):
-                        kma_results[drug][hit]["sbjct_string"] += [line_data]
-                     elif line.startswith("query"):
-                        kma_results[drug][hit]["query_string"] += [line_data]
-                     else:
-                        kma_results[drug][hit]["homology"] += [line_data]
-                  else:
-                     print(hit + " not in results: ", kma_results)
-
-         # concatinate all sequences lists and find subject start and subject
-         # end
-         seq_start_search_str = re.compile("^-*(\w+)")
-
-         for hit in kma_results[drug]:
-            kma_results[drug][hit]['sbjct_string'] = "".join(
-                kma_results[drug][hit]['sbjct_string'])
-            kma_results[drug][hit]['query_string'] = "".join(
-                kma_results[drug][hit]['query_string'])
-            kma_results[drug][hit]['homology'] = "".join(
-                kma_results[drug][hit]['homology'])
-
-            seq_start_object = seq_start_search_str.search(
-                kma_results[drug][hit]['query_string'])
-            sbjct_start = seq_start_object.start() + 1
-            kma_results[drug][hit]['sbjct_start'] = sbjct_start
-            kma_results[drug][hit]["sbjct_end"] = (
-                kma_results[drug][hit]["sbjct_length"] - sbjct_start + 1)
-
-      return kma_results
 
    def write_results(self, out_path, result, res_type):
       """
