@@ -103,6 +103,15 @@ class ResFinder(CGEFinder):
          if(db == "excluded"):
              continue
 
+         # Clean up dbs with only excluded hits
+         no_hits = True
+         for hit in results[db]:
+             if(hit not in results["excluded"]):
+                 no_hits = False
+                 break
+         if(no_hits):
+             results[db] == "No hit found"
+
          profile = str(self.configured_dbs[db][0])
          if results[db] == "No hit found":
             table_str += ("%s\n%s\n\n" % (profile, results[db]))
@@ -123,7 +132,6 @@ class ResFinder(CGEFinder):
             txt_file_seq_text[db] = list()
 
             for hit in results[db]:
-               print(str(hit) + "in" + str(results["excluded"]))
                if(hit in results["excluded"]):
                    continue
 
