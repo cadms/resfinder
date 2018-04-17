@@ -123,7 +123,7 @@ class ResFinder(CGEFinder):
             txt_file_seq_text[db] = list()
 
             for hit in results[db]:
-               print(str(hit) + "in" str(results["excluded"]))
+               print(str(hit) + "in" + str(results["excluded"]))
                if(hit in results["excluded"]):
                    continue
 
