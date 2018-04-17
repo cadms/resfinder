@@ -123,6 +123,10 @@ class ResFinder(CGEFinder):
             txt_file_seq_text[db] = list()
 
             for hit in results[db]:
+               print(str(hit) + "in" str(results["excluded"]))
+               if(hit in results["excluded"]):
+                   continue
+
                res_header = results[db][hit]["sbjct_header"]
                tmp = res_header.split("_")
                gene = tmp[0]
