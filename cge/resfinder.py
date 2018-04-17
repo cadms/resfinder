@@ -107,9 +107,12 @@ class ResFinder(CGEFinder):
          no_hits = True
          for hit in results[db]:
              if(hit not in results["excluded"]):
+                 print("hit not excluded: " + str(hit))
+                 print("\tIn DB: " + str(db))
                  no_hits = False
                  break
          if(no_hits):
+             print("Not hits in: " + str(db))
              results[db] == "No hit found"
 
          profile = str(self.configured_dbs[db][0])
