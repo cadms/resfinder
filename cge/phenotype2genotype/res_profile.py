@@ -97,7 +97,7 @@ class PhenoDB(dict):
                     else:
                         susceptibile = ()
                     if(len(line_list) > 9 and line_list[9]):
-                        species = line_list[9].lower()
+                        species = self.get_csv_tuple(line_list[9])
                     else:
                         species = None
 
@@ -151,31 +151,31 @@ class PhenoDB(dict):
 
                     ab_class = self.get_csv_tuple(line_list[7].lower())
 
-                    pub_phenotype = self.get_csv_tuple(line_list[8].lower())
+                    pub_phenotype = self.get_csv_tuple(line_list[7].lower())
                     if("unknown" in pub_phenotype or "none" in pub_phenotype):
                         pub_phenotype = ()
 
-                    pmid = self.get_csv_tuple(line_list[9].lower())
+                    pmid = self.get_csv_tuple(line_list[8].lower())
 
                     phenotype = list(pub_phenotype)
 
-                    if(len(line_list) > 10 and line_list[10]):
-                        sug_phenotype = self.get_csv_tuple(line_list[10])
-                        for p in sug_phenotype:
-                            if p not in pub_phenotype:
-                                phenotype.append(p)
-                    else:
-                        sug_phenotype = ()
+                    # TODO: Remove this tuple and its dependencies.
+                    sug_phenotype = ()
 
-                    if(len(line_list) > 11 and line_list[11]):
-                        res_mechanics = line_list[11]
+                    if(line_list[9]):
+                        res_mechanics = line_list[9]
                     else:
                         res_mechanics = None
 
-                    if(len(line_list) > 12 and line_list[12]):
-                        notes = line_list[12]
+                    if(len(line_list) > 10 and line_list[10]):
+                        notes = line_list[10]
                     else:
                         notes = ""
+
+                    if(len(line_list) > 11 and line_list[11]):
+                        species = self.get_csv_tuple(line_list[11])
+                    else:
+                        species = ()
 
                     # Create non-redundant complete list of antibiotics in DB.
                     for ab in phenotype:
@@ -188,7 +188,8 @@ class PhenoDB(dict):
 
                     pheno = Phenotype(unique_id, phenotype, ab_class,
                                       sug_phenotype, pub_phenotype, pmid,
-                                      notes=notes, res_mechanics=res_mechanics)
+                                      notes=notes, res_mechanics=res_mechanics,
+                                      species=species)
 
                     self[unique_id] = pheno
 
@@ -262,8 +263,7 @@ class Phenotype():
                         susceptibil towards.
         gene_class: resistance gene class (e.g. class D)
         notes: String containing other information on the resistance gene.
-        species: Species exceptions, where resistance is not observed. NOTE:
-                 This information is not yet used for anything.
+        species: not used.
     """
     def __init__(self, unique_id, phenotype, ab_class, sug_phenotype,
                  pub_phenotype, pmid, susceptibile=(), gene_class=None,
@@ -278,7 +278,6 @@ class Phenotype():
         self.susceptibile = susceptibile
         self.gene_class = gene_class
         self.notes = notes
-        self.species = species
         self.res_mechanics = res_mechanics
 
 

@@ -19,9 +19,10 @@ from .dbhit import DBHit
 class Isolate(dict):
     """ An isolate class is a dict of Features.
     """
-    def __init__(self, name):
+    def __init__(self, name, species=None):
         self.name = name
         self.resprofile = None
+        self.species = None
 
     def load_resfinder_tab(self, tabbed_output):
         with open(tabbed_output, "r") as fh:
@@ -102,7 +103,8 @@ class Isolate(dict):
                                         seq_region=mutation_list[0],
                                         pos=pos, ref_codon=ref_codon,
                                         mut_codon=mut_codon, ref_aa=ref_aa,
-                                        mut_aa=mut_aa)
+                                        mut_aa=mut_aa,
+                                        isolate=self)
 
                     if(unique_id in self):
                         temp_list = self[unique_id]

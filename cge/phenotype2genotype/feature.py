@@ -20,7 +20,8 @@ class Feature():
         (e.g. 'partial_gene'). It is also suggested that features describing a
         part of the genome without anotations/function is named 'region'.
     """
-    def __init__(self, unique_id, seq_region=None, start=None, hit=None):
+    def __init__(self, unique_id, seq_region=None, start=None, hit=None,
+                 isolate=None):
         self.id = unique_id
         self.unique_id = unique_id
         self.seq_region = seq_region
@@ -29,6 +30,7 @@ class Feature():
         else:
             self.start = None
         self.hit = hit
+        self.isolate = isolate
 
 
 class Gene(Feature):
