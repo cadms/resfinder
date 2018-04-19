@@ -383,7 +383,7 @@ if args.point is True:
 
 # Load genotype to phenotype database
 res_pheno_db = PhenoDB(acquired_file=pheno_db_path + "/acquired_db.txt",
-                       point_file=pheno_db_path + "/point_db.txt")
+                       point_file=db_path_point + "/resistens-overview.txt")
 
 # Isolate object stores results
 isolate = Isolate(name=sample_name)
