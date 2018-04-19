@@ -42,9 +42,10 @@ class PhenoDB(dict):
 
         # Test file for illegal encodings
         with open(txt_file, "r") as fh:
+            line_counter = 1
             try:
                 for line in fh:
-                    pass
+                    line_counter += 1
             except UnicodeDecodeError:
                 eprint("Error in line " + str(line_counter))
                 eprint("\t\"" + line + "\"")
