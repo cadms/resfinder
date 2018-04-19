@@ -37,8 +37,8 @@ class Gene(Feature):
     """
     """
     def __init__(self, unique_id, seq_region=None, start=None, end=None,
-                 hit=None):
-        Feature.__init__(self, unique_id, seq_region, start, hit)
+                 hit=None, isolate=None):
+        Feature.__init__(self, unique_id, seq_region, start, hit, isolate)
         if(end):
             self.end = int(end)
         else:
@@ -49,8 +49,9 @@ class Mutation(Feature):
     """
     """
     def __init__(self, unique_id, seq_region=None, pos=None, hit=None,
-                 ref_codon=None, mut_codon=None, ref_aa=None, mut_aa=None):
-        Feature.__init__(self, unique_id, seq_region, pos, hit)
+                 ref_codon=None, mut_codon=None, ref_aa=None, mut_aa=None,
+                 isolate=None):
+        Feature.__init__(self, unique_id, seq_region, pos, hit, isolate)
         if(pos is not None):
             self.pos = int(pos)
         self.ref_codon = ref_codon
