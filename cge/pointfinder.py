@@ -262,7 +262,7 @@ class PointFinder(CGEFinder):
 
             # Assert that all lines have the correct set of columns
             mutation = [data.strip() for data in line.split("\t")]
-            assert len(mutation) == 9, ("mutation overview file (%s) must have"
+            assert len(mutation) >= 9, ("mutation overview file (%s) must have"
                                         " 9 columns, %s" % (mut_db_path,
                                                             mutation))
 
@@ -282,6 +282,7 @@ class PointFinder(CGEFinder):
 
                 # Add genes associated with drug resistance to drug_genes dict
                 drug_lst = res_drug.split(",")
+                drug_lst = [d.strip().lower() for d in drug_lst]
                 for drug in drug_lst:
                     if drug not in drug_genes:
                         drug_genes[drug] = []
