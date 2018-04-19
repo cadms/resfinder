@@ -40,6 +40,16 @@ class PhenoDB(dict):
 
     def load_acquired_db(self, txt_file):
 
+        # Test file for illegal encodings
+        with open(txt_file, "r") as fh:
+            try:
+                for line in fh:
+                    pass
+            except UnicodeDecodeError:
+                eprint("Error in line " + str(line_counter))
+                eprint("\t\"" + line + "\"")
+                sys.exit("UnicodeDecodeError")
+
         with open(txt_file, "r") as fh:
             # Skip headers
             fh.readline()
@@ -127,10 +137,6 @@ class PhenoDB(dict):
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
-                except UnicodeDecodeError:
-                    eprint("Error in line " + str(line_counter))
-                    eprint("\t\"" + line + "\"")
-                    sys.exit("UnicodeDecodeError")
 
     def load_point_db(self, txt_file):
 
