@@ -127,6 +127,10 @@ class PhenoDB(dict):
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
+                except UnicodeDecodeError:
+                    eprint("Error in line " + str(line_counter))
+                    eprint("\t\"" + line + "\"")
+                    sys.exit("UnicodeDecodeError")
 
     def load_point_db(self, txt_file):
 
