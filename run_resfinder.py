@@ -124,9 +124,9 @@ parser.add_argument("-l", "--min_cov",
                     default=0.60)
 parser.add_argument("-t", "--threshold",
                     dest="threshold",
-                    help="Blast threshold for identity",
+                    help="Threshold for identity",
                     type=float,
-                    default=0.90)
+                    default=0.80)
 
 # Acquired resistance options
 parser.add_argument("-db_res", "--databasePath_res",
