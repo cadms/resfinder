@@ -1,10 +1,10 @@
-
 #!/bin/env bash
 #
 
 PERLBREW='http://install.perlbrew.pl'
-BLASTLINUX='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.6.0+-x64-linux.tar.gz'
-BLASTMAC='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/ncbi-blast-2.6.0+-x64-macosx.tar.gz'
+BLASTLINUX='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz'
+BLASTMAC='ftp://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-universal-macosx.tar.gz'
+
 BLASTFOLDER=blast
 
 # PerlBrew needs to be installed to manage isolated perl environemnts if missing
@@ -23,11 +23,18 @@ command -v perlbrew >/dev/null 2>&1 || {
 }
 
 perlbrew init
+echo 'Upgrading batchperl'
+perlbrew install-patchperl
+
 echo "Do you want to install a local perl? [Y]/[N]"
 read answer
 if  [ $answer == 'Y' ]; then
-    echo 'Installing perl-5.10.0 ...';
-    perlbrew install perl-5.10.0
+    echo 'Installing perl-5.22.0 ...';
+    #perlbrew install perl-5.22.0
+    perlbrew --force install perl-5.22.0
+    perlbrew switch perl-5.22.0
+    #cd /root/perl5/perlbrew/build/perl-5.22.0/perl-5.22.0
+    #make intall
 else
     echo 'Local perl will be used ...';
 fi
@@ -52,6 +59,13 @@ fi
 # Installing NCBI Blast tools if missing
 command -v blastall >/dev/null 2>&1 || {
     echo 'Installing Blast tools...'
-    curl ${BLASTMAC} -o ${BLASTFOLDER}.tar.gz
+    echo "OS type: ${OSTYPE}"
+
+    if [[ "$OSTYPE" == 'linux'* ]]; then
+        curl ${BLASTLINUX} -o ${BLASTFOLDER}.tar.gz
+    else
+        curl ${BLASTMAC} -o ${BLASTFOLDER}.tar.gz
+    fi
+       
     tar -zxvf ${BLASTFOLDER}.tar.gz
 }
