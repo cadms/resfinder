@@ -184,7 +184,15 @@ class PhenoDB(dict):
                         notes = ""
 
                     if(len(line_list) > 11 and line_list[11]):
-                        species = self.get_csv_tuple(line_list[11])
+                        notes = line_list[11]
+                    else:
+                        notes = ""
+
+                    # TODO:
+                    # Load required mutations!
+
+                    if(len(line_list) > 12 and line_list[12]):
+                        species = self.get_csv_tuple(line_list[12])
                     else:
                         species = ()
 
@@ -219,14 +227,46 @@ class PhenoDB(dict):
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
 
+    # TODO: Create get_csv_in_csv_dict from string method
     @staticmethod
-    def get_csv_tuple(csv_string):
+    def get_req_mut_tuples(req_mut_string):
+        """
+        """
+        out_list = []
+
+        mut_groups = req_mut_string.split(";")
+
+        mut_id_re = re.compile(r"^(.+?\d+)(.+)$")
+
+        for i, group in enumerate(mut_groups):
+            positions = group.split(",")
+            out_list.append([])
+
+            for j, mut in enumerate(positions):
+                out_list[i].append([])
+                mut_id_match = mut_id_re.match(mut)
+                if(mut_id_match):
+                    refpos = mut_id_match.group(1)
+                    alternatives = mut_id_match.group(2)
+
+                    mut_ids = []
+                    for alt in alternatives:
+                        mut_ids.append(refpos + alt)
+
+                    out_list[i][j] = tuple(mut_ids)
+
+        return out_list
+
+    @staticmethod
+    def get_csv_tuple(csv_string, sep=",", lower=True):
         """ Takes a string containing a comma seperated list, makes it all
             lower case, remove empty entries, remove trailing and preseeding
             whitespaces, and returns the list as a tuple.
         """
-        csv_string = csv_string.lower()
-        string_list = csv_string.split(",")
+        if(lower):
+            csv_string = csv_string.lower()
+
+        string_list = csv_string.split(sep)
         # Remove empty entries.
         out_list = [var.strip() for var in string_list if var]
         return tuple(out_list)
@@ -261,6 +301,59 @@ class PhenoDB(dict):
         print("-------------------- END --------------------")
 
 
+class MutationGenotype():
+    """
+    """
+    def __init__(self, mut_string):
+        mut_match = re.search(r"^(.+)_(\D+)(\d+)(.+)$", mut_string)
+        self.gene = mut_match.group(1)
+        self.ref = mut_match.group(2)
+        self.pos = mut_match.group(3)
+        alt_str = mut_match.group(4)
+        self.alternatives = tuple(alt_str.split("."))
+        self.mut_id_prefix = "".join(self.gene, "_", self.ref, self.pos)
+
+    def __eq__(self, other):
+        if isinstance(other, MutationGenotype):
+
+            # Returns True if gene, ref base, position and the tuple of
+            # alternatives match.
+            if(self.mut_id_prefix == other.mut_id_prefix):
+
+                if(len(self.alternatives) != len(other.alternatives)):
+                    return False
+                for self_alt in self.alternatives:
+                    if(self_alt not in other.alternatives):
+                        return False
+                return True
+            else:
+                return False
+
+        elif isinstance(other, str):
+            mut_match = re.search(r"^(\D+\d+)(.+)$", mut_string)
+            if(mut_match):
+
+                if(mut_match.group(1) == self.mut_id_prefix):
+                    if(mut_match.group(2) in self.alternatives):
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+
+            else:
+                return False
+
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
+
+
 class Phenotype():
     """ A Phenotype object describes the antibiotics a feature/gene causes
         resistance and susceptibility against.
@@ -274,11 +367,18 @@ class Phenotype():
                         susceptibil towards.
         gene_class: resistance gene class (e.g. class D)
         notes: String containing other information on the resistance gene.
-        species: not used.
+        species: Ignore resistance in these species as it is intrinsic.
+        req_mut: Mutations required to cause the penotype. This is a tuple of
+                 tuples of tuples. The outmost tuple represent a groups of
+                 mutations that are needed for the phenotype, but each of the
+                 groups are independent of each other. The middle tuples
+                 represent positions and the reference mutations found at
+                 these positions. The inner tuples represent the alternative
+                 nucleotides/mutations that causes the phenotype.
     """
     def __init__(self, unique_id, phenotype, ab_class, sug_phenotype,
                  pub_phenotype, pmid, susceptibile=(), gene_class=None,
-                 notes="", species=None, res_mechanics=None):
+                 notes="", species=None, res_mechanics=None, req_muts=None):
         self.unique_id = unique_id
         self.phenotype = phenotype
         self.ab_class = ab_class
@@ -290,6 +390,7 @@ class Phenotype():
         self.gene_class = gene_class
         self.notes = notes
         self.res_mechanics = res_mechanics
+        self.req_muts = req_muts
 
 
 class Antibiotics():
@@ -405,6 +506,7 @@ class ResProfile():
     def __init__(self, features, phenodb):
         self.phenodb = phenodb
         self.resistance = {}
+        self.features = {}
         self.susceptibile = {}
         self.resistance_classes = {}
         self.missing_db_features = []
@@ -420,7 +522,36 @@ class ResProfile():
     def add_feature(self, feature, update=True):
         """
         """
+        self.features[feature.unique_id] = feature
+
         phenotype = self.phenodb[feature.unique_id]
+
+        # Handle required mutations
+        if(phenotype.req_muts is not None):
+
+            # Iterate through the different groups of mutations (See
+            # Phenotype description).
+            mut_found = False
+            for mut_group in phenotype.req_muts:
+                # Iterate through the positions prefixed with the
+                # reference nucleotide.
+                for refpos in mut_group:
+                    mut_found = False
+                    # Iterate through the possible reference alternatives.
+                    for mut_id in refpos:
+                        if(mut_id in self.features):
+                            mut_found = True
+                            break
+                    # Mutation not found, the requied mutations in this
+                    # group are therefore not fullfilled.
+                    if(mut_found is False):
+                        break
+                # All mutations from a group was found.
+                if(mut_found is True):
+                    break
+            # No group contained all required mutations.
+            if(mut_found is False):
+                return
 
         for antibiotic in phenotype.pub_phenotype:
 
