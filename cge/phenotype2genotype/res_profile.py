@@ -183,13 +183,42 @@ class PhenoDB(dict):
                     else:
                         notes = ""
 
+                    # Load required mutations.
+                    # A mutation can dependent on a group of other
+                    # mutations. It is also possible for a mutation to
+                    # be dependent on either group A, B, C etc.
+                    # The string stored in this field divides each
+                    # group using a semicolon, and each mutation using
+                    # a comma.
+                    # The individual mutation notation is also a little
+                    # different from elsewhere, see MutationGenotype
+                    # class for more info.
+                    # Requied mutations are stored in a tuple of tuples
+                    # of MutationGenotypes. Outer tuple seperate
+                    # groups, inner tuples seperate mutations.
                     if(len(line_list) > 11 and line_list[11]):
-                        notes = line_list[11]
-                    else:
-                        notes = ""
+                        mut_groups_str = PhenoDB.get_csv_tuple(line_list[11],
+                                                               sep=";",
+                                                               lower=False)
+                        if(mut_groups_str):
+                            mut_groups = []
 
-                    # TODO:
-                    # Load required mutations!
+                            for group in mut_groups_str:
+                                group_list = []
+                                mut_strings = PhenoDB.get_csv_tuple(
+                                    group, lower=False)
+                                for mut_str in mut_strings:
+                                    mut = MutationGenotype(mut_str)
+                                    group_list.append(mut)
+
+                                mut_groups.append(tuple(group_list))
+
+                            mut_groups = tuple(mut_groups)
+
+                        else:
+                            mut_groups = None
+                    else:
+                        mut_groups = None
 
                     if(len(line_list) > 12 and line_list[12]):
                         species = self.get_csv_tuple(line_list[12])
@@ -208,7 +237,7 @@ class PhenoDB(dict):
                     pheno = Phenotype(unique_id, phenotype, ab_class,
                                       sug_phenotype, pub_phenotype, pmid,
                                       notes=notes, res_mechanics=res_mechanics,
-                                      species=species)
+                                      req_muts=mut_groups, species=species)
 
                     self[unique_id] = pheno
 
@@ -226,36 +255,6 @@ class PhenoDB(dict):
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
-
-    # TODO: Create get_csv_in_csv_dict from string method
-    @staticmethod
-    def get_req_mut_tuples(req_mut_string):
-        """
-        """
-        out_list = []
-
-        mut_groups = req_mut_string.split(";")
-
-        mut_id_re = re.compile(r"^(.+?\d+)(.+)$")
-
-        for i, group in enumerate(mut_groups):
-            positions = group.split(",")
-            out_list.append([])
-
-            for j, mut in enumerate(positions):
-                out_list[i].append([])
-                mut_id_match = mut_id_re.match(mut)
-                if(mut_id_match):
-                    refpos = mut_id_match.group(1)
-                    alternatives = mut_id_match.group(2)
-
-                    mut_ids = []
-                    for alt in alternatives:
-                        mut_ids.append(refpos + alt)
-
-                    out_list[i][j] = tuple(mut_ids)
-
-        return out_list
 
     @staticmethod
     def get_csv_tuple(csv_string, sep=",", lower=True):
@@ -345,7 +344,7 @@ class MutationGenotype():
                 return False
 
         else:
-            return NotImplemented
+            return self == other
 
     def __ne__(self, other):
         result = self.__eq__(other)
@@ -369,12 +368,12 @@ class Phenotype():
         notes: String containing other information on the resistance gene.
         species: Ignore resistance in these species as it is intrinsic.
         req_mut: Mutations required to cause the penotype. This is a tuple of
-                 tuples of tuples. The outmost tuple represent a groups of
-                 mutations that are needed for the phenotype, but each of the
-                 groups are independent of each other. The middle tuples
-                 represent positions and the reference mutations found at
-                 these positions. The inner tuples represent the alternative
-                 nucleotides/mutations that causes the phenotype.
+                 tuples of MutationGenotypes. The outmost tuple represent
+                 groups of mutations that are needed for the phenotype,
+                 but each of the groups are independent of each other. The
+                 inner tuples represent individual mutations for a specific
+                 reference aa/nucs found at the position. The MutationGenotype
+                 objects contain information on known mutations.
     """
     def __init__(self, unique_id, phenotype, ab_class, sug_phenotype,
                  pub_phenotype, pmid, susceptibile=(), gene_class=None,
@@ -533,18 +532,14 @@ class ResProfile():
             # Phenotype description).
             mut_found = False
             for mut_group in phenotype.req_muts:
-                # Iterate through the positions prefixed with the
-                # reference nucleotide.
-                for refpos in mut_group:
-                    mut_found = False
-                    # Iterate through the possible reference alternatives.
-                    for mut_id in refpos:
-                        if(mut_id in self.features):
-                            mut_found = True
-                            break
+                # Iterate through the individual mutations.
+                for mut in mut_group:
+                    if(mut in self.features):
+                        mut_found = True
                     # Mutation not found, the requied mutations in this
                     # group are therefore not fullfilled.
-                    if(mut_found is False):
+                    else:
+                        mut_found = False
                         break
                 # All mutations from a group was found.
                 if(mut_found is True):
