@@ -17,7 +17,8 @@ class CGEFinder():
     def kma(inputfile_1, out_path, databases, db_path_kma, min_cov=0.9,
             threshold=0.6, kma_path="cge/kma/kma", sample_name="",
             inputfile_2=None, kma_mrs=None, kma_gapopen=None,
-            kma_gapextend=None, kma_penalty=None, kma_reward=None):
+            kma_gapextend=None, kma_penalty=None, kma_reward=None, kma_pm=None,
+            kma_fpm=None):
         """
            I expect that there will only be one hit pr gene, but if there are
            more, I assume that the sequence of the hits are the same in the res
@@ -35,10 +36,12 @@ class CGEFinder():
         for db in databases:
             kma_db = db_path_kma + "/" + db
             kma_outfile = out_path + "/kma_" + db + sample_name
-            kma_cmd = ("%s -t_db %s -SW -o %s -e 1.0 -i %s" % (kma_path,
-                       kma_db, kma_outfile, inputfile_1))
+            kma_cmd = ("%s -t_db %s -o %s -e 1.0" % (kma_path,
+                       kma_db, kma_outfile))
             if(inputfile_2 is not None):
-               kma_cmd += " " + inputfile_2
+                kma_cmd += " -ipe " + inputfile_1 + " " + inputfile_2
+            else:
+                kma_cmd += " -i " + inputfile_1
             if(kma_mrs is not None):
                 kma_cmd += " -mrs " + str(kma_mrs)
             if(kma_gapopen is not None):
@@ -51,6 +54,10 @@ class CGEFinder():
                 kma_cmd += " -penalty " + str(kma_penalty)
             if(kma_reward is not None):
                 kma_cmd += " -reward " + str(kma_reward)
+            if(kma_pm is not None):
+                kma_cmd += " -pm " + kma_pm
+            if(kma_fpm is not None):
+                kma_cmd += " -fpm " + kma_fpm
 
             # kma output files
             align_filename = kma_outfile + ".aln"

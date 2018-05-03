@@ -321,7 +321,9 @@ if args.acquired is True:
                                         sample_name="",
                                         kma_mrs=0.5, kma_gapopen=-3,
                                         kma_gapextend=-1, kma_penalty=-2,
-                                        kma_reward=1)
+                                        kma_reward=1,
+                                        kma_pm="p",
+                                        kma_fpm="p")
 
       acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
                                     res_type=ResFinder.TYPE_KMA)
@@ -368,7 +370,8 @@ if args.point is True:
                            kma_path=kma,
                            sample_name="",
                            kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
-                           kma_penalty=-3, kma_reward=1)
+                           kma_penalty=-3, kma_reward=1, kma_pm="p",
+                           kma_fpm="p")
 
    if(args.specific_gene):
       results = PointFinder.discard_unwanted_results(results=results,
