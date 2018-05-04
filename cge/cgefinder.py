@@ -1,9 +1,10 @@
-#!/home/data1/tools/bin/anaconda/bin/python
+#!/usr/bin/env python3
 import subprocess
 import re
 import os.path
 
-from cge.blaster.blaster import Blaster
+#TODO import blaster and make blaster function in CGEFinder
+#from cge.blaster.blaster import Blaster
 
 
 class CGEFinder():
@@ -48,8 +49,6 @@ class CGEFinder():
                 kma_cmd += " -gapopen " + str(kma_gapopen)
             if(kma_gapextend is not None):
                 kma_cmd += " -gapextend " + str(kma_gapextend)
-            if(kma_gapextend is not None):
-                kma_cmd += " -gapextend " + str(kma_gapextend)
             if(kma_penalty is not None):
                 kma_cmd += " -penalty " + str(kma_penalty)
             if(kma_reward is not None):
@@ -92,6 +91,7 @@ class CGEFinder():
                     sbjct_len = int(data[3])
                     sbjct_ident = float(data[4])
                     coverage = float(data[5])
+                    q_value = float(data[-2])
 
                     if gene not in kma_results[db]:
                         hit = gene
@@ -113,13 +113,14 @@ class CGEFinder():
                     kma_results[db][hit]["perc_coverage"] = coverage
                     kma_results[db][hit]["sbjct_string"] = []
                     kma_results[db][hit]["query_string"] = []
-                    kma_results[db][hit]["homology"] = []
+                    kma_results[db][hit]["homo_string"] = []
                     kma_results[db][hit]["sbjct_header"] = gene
                     kma_results[db][hit]["perc_ident"] = sbjct_ident
                     kma_results[db][hit]["query_start"] = "NA"
                     kma_results[db][hit]["query_end"] = "NA"
                     kma_results[db][hit]["contig_name"] = "NA"
-                    kma_results[db][hit]["HSP_length"] = "NA"
+                    kma_results[db][hit]["HSP_length"] = ""
+                    kma_results[db][hit]["cal_score"] = q_value
 
             if kma_results[db] == 'No hit found':
                 continue
@@ -159,29 +160,64 @@ class CGEFinder():
                                 kma_results[db][hit]["query_string"] += (
                                     [line_data])
                             else:
-                                kma_results[db][hit]["homology"] += [line_data]
+                                kma_results[db][hit]["homo_string"]  += (
+                                    [line_data])
                         else:
                             print(hit + " not in results: ", kma_results)
 
             # concatinate all sequences lists and find subject start
             # and subject end
-            seq_start_search_str = re.compile("^-*(\w+)")
+
+            gene_align_sbjct = {db:{}}
+            gene_align_query = {db:{}}
+            gene_align_homo  = {db:{}}
 
             for hit in kma_results[db]:
                 # if(hit == "excluded"):
                 # continue
-                kma_results[db][hit]['sbjct_string'] = "".join(
-                    kma_results[db][hit]['sbjct_string'])
-                kma_results[db][hit]['query_string'] = "".join(
-                    kma_results[db][hit]['query_string'])
-                kma_results[db][hit]['homology'] = "".join(
-                    kma_results[db][hit]['homology'])
+                align_sbjct = "".join(kma_results[db][hit]['sbjct_string'])
+                align_query = "".join(kma_results[db][hit]['query_string'])
+                align_homo  = "".join(kma_results[db][hit]['homo_string'])
 
-                seq_start_object = seq_start_search_str.search(
-                    kma_results[db][hit]['query_string'])
-                sbjct_start = seq_start_object.start() + 1
-                kma_results[db][hit]['sbjct_start'] = sbjct_start
-                kma_results[db][hit]["sbjct_end"] = (
-                    kma_results[db][hit]["sbjct_length"] - sbjct_start + 1)
+                # Extract only aligned sequences
+                start = re.search("^-*(\w+)", align_query).start(1)
+                end = re.search("\w+(-*)$", align_query).start(1)
 
-        return kma_results
+                kma_results[db][hit]['sbjct_string'] = align_sbjct[start:end]
+                kma_results[db][hit]['query_string'] = align_query[start:end]
+                kma_results[db][hit]['homo_string'] = align_homo[start:end]
+
+                # Save align start and stop positions relative to subject sequence
+                kma_results[db][hit]['sbjct_start'] = start + 1
+                kma_results[db][hit]["sbjct_end"] = end + 1
+                kma_results[db][hit]["HSP_length"] = end - start
+
+                # Count gaps in the alignment
+                kma_results[db][hit]["gaps"] = (
+                    kma_results[db][hit]['sbjct_string'].count("-") +
+                    kma_results[db][hit]['query_string'].count("-"))
+
+                # Save sequences covering the entire subject sequence in seperate variables
+                gene_align_sbjct[db][hit] = align_sbjct
+                gene_align_query[db][hit] = align_query
+                gene_align_homo[db][hit] = align_homo
+
+        return kma_results, gene_align_sbjct, gene_align_query, gene_align_homo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
