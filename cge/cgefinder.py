@@ -7,6 +7,15 @@ import os.path
 # from cge.blaster.blaster import Blaster
 
 
+class FinderResult():
+    def __init__(self, results, align_sbjct=None, align_query=None,
+                 align_homo=None):
+        self.results = results  # Results
+        self.gene_align_query = align_query  # Sequence alignment lines
+        self.gene_align_homo = align_homo  # Sequence alignment homolog string
+        self.gene_align_sbjct = align_sbjct  # Sequence alignment allele string
+
+
 class CGEFinder():
 
     # Variables used by methods to distinguish results created by different
@@ -204,4 +213,5 @@ class CGEFinder():
                 gene_align_query[db][hit] = align_query
                 gene_align_homo[db][hit] = align_homo
 
-        return kma_results, gene_align_sbjct, gene_align_query, gene_align_homo
+        return FinderResult(kma_results, gene_align_sbjct, gene_align_query,
+                            gene_align_homo)

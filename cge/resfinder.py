@@ -223,7 +223,7 @@ class ResFinder(CGEFinder):
                                                homo_align[db][hit], hit_seq))
                elif(res_type == ResFinder.TYPE_KMA):
                   txt_file_seq_text[db].append((text, ref_seq,
-                                               results[db][hit]["homology"],
+                                               results[db][hit]["homo_string"],
                                                hit_seq))
 
             for res in split_print:

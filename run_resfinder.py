@@ -310,22 +310,23 @@ if args.acquired is True:
                                     res_type=ResFinder.TYPE_BLAST)
 
    if(args.inputfastq):
-      kma_results = acquired_finder.kma(inputfile_1=inputfastq_1,
-                                        inputfile_2=inputfastq_2,
-                                        out_path=out_res_kma,
-                                        db_path_kma=db_path_kma,
-                                        databases=acquired_finder.databases,
-                                        min_cov=min_cov,
-                                        threshold=args.threshold,
-                                        kma_path=kma,
-                                        sample_name="",
-                                        kma_mrs=0.5, kma_gapopen=-3,
-                                        kma_gapextend=-1, kma_penalty=-2,
-                                        kma_reward=1,
-                                        kma_pm="p",
-                                        kma_fpm="p")
+      kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
+                                    inputfile_2=inputfastq_2,
+                                    out_path=out_res_kma,
+                                    db_path_kma=db_path_kma,
+                                    databases=acquired_finder.databases,
+                                    min_cov=min_cov,
+                                    threshold=args.threshold,
+                                    kma_path=kma,
+                                    sample_name="",
+                                    kma_mrs=0.5, kma_gapopen=-3,
+                                    kma_gapextend=-1, kma_penalty=-2,
+                                    kma_reward=1,
+                                    kma_pm="p",
+                                    kma_fpm="p")
 
-      acquired_finder.write_results(out_path=out_res_kma, result=kma_results,
+      acquired_finder.write_results(out_path=out_res_kma,
+                                    result=kma_run.results,
                                     res_type=ResFinder.TYPE_KMA)
 
 ##########################################################################
@@ -360,7 +361,7 @@ if args.point is True:
 
       method = PointFinder.TYPE_KMA
 
-      results = finder.kma(inputfile_1=inputfastq_1,
+      kma_run = finder.kma(inputfile_1=inputfastq_1,
                            inputfile_2=inputfastq_2,
                            out_path=out_point,
                            db_path_kma=db_path_point,
@@ -372,6 +373,8 @@ if args.point is True:
                            kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
                            kma_penalty=-3, kma_reward=1, kma_pm="p",
                            kma_fpm="p")
+
+      results = kma_run.results
 
    if(args.specific_gene):
       results = PointFinder.discard_unwanted_results(results=results,
