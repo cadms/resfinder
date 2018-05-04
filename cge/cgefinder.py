@@ -3,8 +3,8 @@ import subprocess
 import re
 import os.path
 
-#TODO import blaster and make blaster function in CGEFinder
-#from cge.blaster.blaster import Blaster
+# TODO import blaster and make blaster function in CGEFinder
+# from cge.blaster.blaster import Blaster
 
 
 class CGEFinder():
@@ -160,7 +160,7 @@ class CGEFinder():
                                 kma_results[db][hit]["query_string"] += (
                                     [line_data])
                             else:
-                                kma_results[db][hit]["homo_string"]  += (
+                                kma_results[db][hit]["homo_string"] += (
                                     [line_data])
                         else:
                             print(hit + " not in results: ", kma_results)
@@ -168,16 +168,16 @@ class CGEFinder():
             # concatinate all sequences lists and find subject start
             # and subject end
 
-            gene_align_sbjct = {db:{}}
-            gene_align_query = {db:{}}
-            gene_align_homo  = {db:{}}
+            gene_align_sbjct = {db: {}}
+            gene_align_query = {db: {}}
+            gene_align_homo = {db: {}}
 
             for hit in kma_results[db]:
                 # if(hit == "excluded"):
                 # continue
                 align_sbjct = "".join(kma_results[db][hit]['sbjct_string'])
                 align_query = "".join(kma_results[db][hit]['query_string'])
-                align_homo  = "".join(kma_results[db][hit]['homo_string'])
+                align_homo = "".join(kma_results[db][hit]['homo_string'])
 
                 # Extract only aligned sequences
                 start = re.search("^-*(\w+)", align_query).start(1)
@@ -187,7 +187,8 @@ class CGEFinder():
                 kma_results[db][hit]['query_string'] = align_query[start:end]
                 kma_results[db][hit]['homo_string'] = align_homo[start:end]
 
-                # Save align start and stop positions relative to subject sequence
+                # Save align start and stop positions relative to
+                # subject sequence
                 kma_results[db][hit]['sbjct_start'] = start + 1
                 kma_results[db][hit]["sbjct_end"] = end + 1
                 kma_results[db][hit]["HSP_length"] = end - start
@@ -197,27 +198,10 @@ class CGEFinder():
                     kma_results[db][hit]['sbjct_string'].count("-") +
                     kma_results[db][hit]['query_string'].count("-"))
 
-                # Save sequences covering the entire subject sequence in seperate variables
+                # Save sequences covering the entire subject sequence
+                # in seperate variables
                 gene_align_sbjct[db][hit] = align_sbjct
                 gene_align_query[db][hit] = align_query
                 gene_align_homo[db][hit] = align_homo
 
         return kma_results, gene_align_sbjct, gene_align_query, gene_align_homo
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
