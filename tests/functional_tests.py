@@ -7,7 +7,9 @@ import sys
 
 # This is not best practice but for testing, this is the best I could
 # come up with
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# TODO: Ability to run test on databases not in default locations.
 
 
 test_names = ["test1", "test2", "test3", "test4"]
@@ -60,7 +62,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --databasePath_res ../database")
+                        + " --databasePath_res ../db_resfinder")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -120,7 +122,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --databasePath_res ../database"
+                        + " --databasePath_res ../db_resfinder"
                         + " --kmaPath ../cge/kma/kma")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
@@ -180,7 +182,7 @@ class ResFinderRunTest(unittest.TestCase):
                      + " --min_cov 0.6"
                      + " --threshold 0.8"
                      + " --point"
-                     + " --databasePath_point ../database_pointfinder")
+                     + " --databasePath_point ../db_pointfinder")
 
         procs = run(cmd_point, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -189,16 +191,6 @@ class ResFinderRunTest(unittest.TestCase):
         pf_pred = test3_dir + "/PointFinder_prediction.txt"
         pf_res = test3_dir + "/PointFinder_results.txt"
         pf_table = test3_dir + "/PointFinder_table.txt"
-
-        # TODO: Figure out how the pred file should be interpreted.
-        # with open(pf_pred, "r") as fh:
-        #    fh.readline()
-        #    fh.readline()
-        #    pred_line = fh.readline()
-        # pred_lst = pred_line.split()
-        # print("LIST: " + str(pred_lst))
-        # self.assertEqual("1", pred_lst[13])
-        # self.assertEqual("1", pred_lst[17])
 
         with open(pf_res, "r") as fh:
             fh.readline()
@@ -232,7 +224,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " --threshold 0.8"
                         + " --point"
-                        + " --databasePath_point ../database_pointfinder"
+                        + " --databasePath_point ../db_pointfinder"
                         + " --kmaPath ../cge/kma/kma")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
@@ -242,16 +234,6 @@ class ResFinderRunTest(unittest.TestCase):
         pf_pred = test4_dir + "/PointFinder_prediction.txt"
         pf_res = test4_dir + "/PointFinder_results.txt"
         pf_table = test4_dir + "/PointFinder_table.txt"
-
-        # TODO: Figure out how the pred file should be interpreted.
-        # with open(pf_pred, "r") as fh:
-        #    fh.readline()
-        #    fh.readline()
-        #    pred_line = fh.readline()
-        # pred_lst = pred_line.split()
-        # print("LIST: " + str(pred_lst))
-        # self.assertEqual("1", pred_lst[13])
-        # self.assertEqual("1", pred_lst[17])
 
         with open(pf_res, "r") as fh:
             fh.readline()

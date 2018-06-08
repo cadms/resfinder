@@ -207,10 +207,15 @@ blast = args.blast_path
 species = args.species
 
 # Check KMA path cge/kma/kma
-if(args.inputfastq and args.kma_path is None):
-   kma = (os.path.dirname(
-       os.path.realpath(__file__)) + "/cge/kma/kma")
-   kma = os.path.abspath(kma)
+if(args.inputfastq):
+   if(args.kma_path is None):
+      kma = (os.path.dirname(
+          os.path.realpath(__file__)) + "/cge/kma/kma")
+      kma = os.path.abspath(kma)
+   else:
+      kma = args.kma_path
+else:
+   kma = None
 
 # Check output directory
 args.out_path = os.path.abspath(args.out_path)
@@ -233,20 +238,20 @@ if args.acquired is False and args.point is False:
 # Check ResFinder KMA database
 if(args.db_path_kma is None and args.acquired):
    db_path_kma = (os.path.dirname(
-       os.path.realpath(__file__)) + "/database/kma_indexing/")
+       os.path.realpath(__file__)) + "/db_resfinder/kma_indexing/")
    db_path_kma = os.path.abspath(db_path_kma)
 
 # Check Poinfinder database
 if(args.db_path_point is None and args.point):
    db_path_point = (os.path.dirname(
-       os.path.realpath(__file__)) + "/database_pointfinder/"
+       os.path.realpath(__file__)) + "/db_pointfinder/"
        + args.species)
    db_path_point = os.path.abspath(db_path_point)
 
 # Check phenotype database
 if(args.pheno_db_path is None):
    pheno_db_path = os.path.dirname(
-       os.path.realpath(__file__)) + "/database_phenotype"
+       os.path.realpath(__file__)) + "/db_phenotype"
    pheno_db_path = os.path.abspath(pheno_db_path)
 
 if not os.path.exists(pheno_db_path):
@@ -274,7 +279,8 @@ if args.acquired is True:
 
    # Check if valid database is provided
    if(db_path_res is None):
-      db_path_res = os.path.dirname(os.path.realpath(__file__)) + "/database"
+      db_path_res = (os.path.dirname(os.path.realpath(__file__))
+                     + "/db_resfinder")
 
    if not os.path.exists(db_path_res):
       sys.exit("Input Error: The specified database directory does not "
@@ -388,8 +394,12 @@ if args.point is True:
 ##########################################################################
 
 # Load genotype to phenotype database
+if(args.db_path_point is not None):
+   point_file = db_path_point + "/resistens-overview.txt"
+else:
+   point_file = None
 res_pheno_db = PhenoDB(acquired_file=pheno_db_path + "/acquired_db.txt",
-                       point_file=db_path_point + "/resistens-overview.txt")
+                       point_file=point_file)
 
 # Isolate object stores results
 isolate = Isolate(name=sample_name)
