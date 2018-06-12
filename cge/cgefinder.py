@@ -2,6 +2,7 @@
 import subprocess
 import re
 import os.path
+import sys
 
 # TODO import blaster and make blaster function in CGEFinder
 # from cge.blaster.blaster import Blaster
