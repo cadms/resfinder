@@ -247,6 +247,8 @@ if(args.db_path_point is None and args.point):
        os.path.realpath(__file__)) + "/db_pointfinder/"
        + args.species)
    db_path_point = os.path.abspath(db_path_point)
+elif(args.db_path_point is not None):
+    db_path_point = args.db_path_point + "/" + args.species
 
 # Check phenotype database
 if(args.pheno_db_path is None):
@@ -316,6 +318,8 @@ if args.acquired is True:
                                     res_type=ResFinder.TYPE_BLAST)
 
    if(args.inputfastq):
+      print("DEBUG run_res ln 319: db list: " + str(acquired_finder.databases))
+      # quit()
       kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
                                     inputfile_2=inputfastq_2,
                                     out_path=out_res_kma,

@@ -43,6 +43,11 @@ class CGEFinder():
         if(sample_name):
            sample_name = "_" + sample_name
 
+        # Initiate output dicts.
+        gene_align_sbjct = {}
+        gene_align_query = {}
+        gene_align_homo = {}
+
         for db in databases:
             kma_db = db_path_kma + "/" + db
             kma_outfile = out_path + "/kma_" + db + sample_name
@@ -70,6 +75,8 @@ class CGEFinder():
             # kma output files
             align_filename = kma_outfile + ".aln"
             res_filename = kma_outfile + ".res"
+
+            print("# DEBUG cgefinder ln 74: kma cmd: " + kma_cmd)
 
             # If .res file exists then skip mapping
             if(os.path.exists(res_filename)):
@@ -177,9 +184,9 @@ class CGEFinder():
             # concatinate all sequences lists and find subject start
             # and subject end
 
-            gene_align_sbjct = {db: {}}
-            gene_align_query = {db: {}}
-            gene_align_homo = {db: {}}
+            gene_align_sbjct[db] = {}
+            gene_align_query[db] = {}
+            gene_align_homo[db] = {}
 
             for hit in kma_results[db]:
                 # if(hit == "excluded"):

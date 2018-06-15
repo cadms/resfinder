@@ -9,6 +9,8 @@ import sys
 # come up with
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
+# TODO: KMA does not give results!
+# TODO: Species specific aqquired genes only pheno results, not spec specific?
 # TODO: Ability to run test on databases not in default locations.
 
 
@@ -22,13 +24,14 @@ test_data = {
     test_names[3]: "data/test_isolate_05_1.fq data/test_isolate_05_2.fq",
 }
 run_test_dir = "running_test"
+working_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 class ResFinderRunTest(unittest.TestCase):
 
     def setUp(self):
         # Change working dir to test dir
-        os.chdir(os.path.dirname(os.path.realpath(__file__)))
+        os.chdir(working_dir)
         # Does not allow running two tests in parallel
         os.makedirs(run_test_dir, exist_ok=False)
 
