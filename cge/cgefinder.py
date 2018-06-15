@@ -2,6 +2,7 @@
 import subprocess
 import re
 import os.path
+import sys
 
 # TODO import blaster and make blaster function in CGEFinder
 # from cge.blaster.blaster import Blaster
@@ -90,53 +91,62 @@ class CGEFinder():
 
             kma_results[db] = 'No hit found'
 
-            # Open res file, find coverage and the gene names of genes found
-            with open(res_filename, "r") as res_file:
+            try:
+                res_file = open(res_filename, "r")
                 header = res_file.readline()
+            except IOError:
+                sys.exit("Error: KMA did not run as expected.\nKMA finished with the following response:\n{}\n{}".format(out.decode("utf-8"),err.decode("utf-8")))
 
-                for line in res_file:
 
-                    if kma_results[db] == 'No hit found':
-                        kma_results[db] = dict()
-                        # kma_results[db]["excluded"] = dict()
-                        # continue
+            # Open res file, find coverage and the gene names of genes found
+            #with open(res_filename, "r") as res_file:
+            #    header = res_file.readline()
 
-                    data = [data.strip() for data in line.split("\t")]
-                    gene = data[0]
+            for line in res_file:
 
-                    sbjct_len = int(data[3])
-                    sbjct_ident = float(data[4])
-                    coverage = float(data[5])
-                    q_value = float(data[-2])
+                if kma_results[db] == 'No hit found':
+                    kma_results[db] = dict()
+                    # kma_results[db]["excluded"] = dict()
+                    # continue
 
-                    if gene not in kma_results[db]:
-                        hit = gene
-                    else:
-                        hit = gene + "_" + str(len(kma_results[db][gene]) + 1)
+                data = [data.strip() for data in line.split("\t")]
+                gene = data[0]
 
-                    exclude_reasons = []
+                sbjct_len = int(data[3])
+                sbjct_ident = float(data[4])
+                coverage = float(data[5])
+                q_value = float(data[-2])
 
-                    if(coverage < min_cov or sbjct_ident < threshold):
-                        exclude_reasons.append(coverage)
-                        exclude_reasons.append(sbjct_ident)
+                if gene not in kma_results[db]:
+                    hit = gene
+                else:
+                    hit = gene + "_" + str(len(kma_results[db][gene]) + 1)
 
-                    if(exclude_reasons):
-                        # kma_results[db]["excluded"][hit] = exclude_reasons
-                        kma_results["excluded"][hit] = exclude_reasons
+                exclude_reasons = []
 
-                    kma_results[db][hit] = dict()
-                    kma_results[db][hit]['sbjct_length'] = sbjct_len
-                    kma_results[db][hit]["perc_coverage"] = coverage
-                    kma_results[db][hit]["sbjct_string"] = []
-                    kma_results[db][hit]["query_string"] = []
-                    kma_results[db][hit]["homo_string"] = []
-                    kma_results[db][hit]["sbjct_header"] = gene
-                    kma_results[db][hit]["perc_ident"] = sbjct_ident
-                    kma_results[db][hit]["query_start"] = "NA"
-                    kma_results[db][hit]["query_end"] = "NA"
-                    kma_results[db][hit]["contig_name"] = "NA"
-                    kma_results[db][hit]["HSP_length"] = ""
-                    kma_results[db][hit]["cal_score"] = q_value
+                if(coverage < min_cov or sbjct_ident < threshold):
+                    exclude_reasons.append(coverage)
+                    exclude_reasons.append(sbjct_ident)
+
+                if(exclude_reasons):
+                    # kma_results[db]["excluded"][hit] = exclude_reasons
+                    kma_results["excluded"][hit] = exclude_reasons
+
+                kma_results[db][hit] = dict()
+                kma_results[db][hit]['sbjct_length'] = sbjct_len
+                kma_results[db][hit]["perc_coverage"] = coverage
+                kma_results[db][hit]["sbjct_string"] = []
+                kma_results[db][hit]["query_string"] = []
+                kma_results[db][hit]["homo_string"] = []
+                kma_results[db][hit]["sbjct_header"] = gene
+                kma_results[db][hit]["perc_ident"] = sbjct_ident
+                kma_results[db][hit]["query_start"] = "NA"
+                kma_results[db][hit]["query_end"] = "NA"
+                kma_results[db][hit]["contig_name"] = "NA"
+                kma_results[db][hit]["HSP_length"] = ""
+                kma_results[db][hit]["cal_score"] = q_value
+            res_file.close()
+
 
             if kma_results[db] == 'No hit found':
                 continue
