@@ -10,8 +10,8 @@ from argparse import ArgumentParser
 from tabulate import tabulate
 import collections
 
-from cge.blaster.blaster import Blaster
-from cge.cgefinder import CGEFinder
+from cgecore.blaster import Blaster
+from cgecore.cgefinder import CGEFinder
 
 
 class ResFinder(CGEFinder):

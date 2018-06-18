@@ -9,7 +9,6 @@ import sys
 # come up with
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# TODO: KMA does not give results!
 # TODO: Species specific aqquired genes only pheno results, not spec specific?
 # TODO: Ability to run test on databases not in default locations.
 

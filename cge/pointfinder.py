@@ -12,8 +12,8 @@ import math
 import argparse
 import subprocess
 
-from cge.blaster.blaster import Blaster
-from cge.cgefinder import CGEFinder
+from cgecore.blaster import Blaster
+from cgecore.cgefinder import CGEFinder
 
 
 class PointFinder(CGEFinder):
