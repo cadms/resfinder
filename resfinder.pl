@@ -10,7 +10,7 @@ use Try::Tiny::Retry;
 
 use constant PROGRAM_NAME            => 'ResFinder_v2.pl';
 use constant PROGRAM_NAME_LONG       => 'Findes antimicrobial resitance genes for a sequence or genome';
-use constant VERSION                 => '2.1';
+use constant VERSION                 => '2.3';
 
 #Global variables
 my $BLAST;
@@ -465,7 +465,7 @@ foreach my $element(@Antimicrobial){
         my $Seqs_genome_ref = grep_ids(-seqs => $Seqs_input, -ids => \@array_for_getting_genome_seq);  
         for (@{ $Seqs_genome_ref }) {
           my $contig = lc($_->seq);
-          my $length_contig = length($contig);  #Redundant, da jeg ogsŒ v.h.a. bioperl finder hit length
+          my $length_contig = length($contig);  #Redundant, da jeg ogsï¿½ v.h.a. bioperl finder hit length
           
           # Getting the right sub_contig depends on which strand the hit is on
           # If the hit is on the +1 
@@ -490,7 +490,7 @@ foreach my $element(@Antimicrobial){
                 $variant = 4;
                 $major_variants_detector = 1;
                 $sub_contig = substr($contig, 0,  ( $HIT_START{$data} + (($QUERY_LENGTH{$data} + $no_gaps_gene) - $QUERY_START{$data})));
-                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||Ê|||Ê||") should be preceeded by spaces
+                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||ï¿½|||ï¿½||") should be preceeded by spaces
                 $spaces_hit = $QUERY_START{$data} - $HIT_START{$data} + 1;
                 $spaces_match_string = $QUERY_START{$data};
               } else {    
@@ -705,7 +705,7 @@ foreach my $element(@Antimicrobial){
                 $variant = 4;
                 $major_variants_detector = 1;
                 $sub_contig = substr($contig, 0,  ( $HIT_START{$data} + (($QUERY_LENGTH{$data} + $no_gaps_gene) - $QUERY_START{$data})));
-                # If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||Ê|||Ê||") should be preceeded by spaces
+                # If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||ï¿½|||ï¿½||") should be preceeded by spaces
                 $spaces_hit = $QUERY_START{$data} - $HIT_START{$data} + 1;
                 $spaces_match_string = $QUERY_START{$data};
               }
@@ -860,7 +860,7 @@ foreach my $element(@Antimicrobial){
         #print $ABres_substr . "\n";
         push(@{$GENE_ALIGN_QUERY_HASH{$gene}}, $ABres_substr);
    
-        #Printing spaces before the match string with the "||Ê||||Ê||Ê||" and the string itself
+        #Printing spaces before the match string with the "||ï¿½||||ï¿½||ï¿½||" and the string itself
         #print "                   ";
         my $string_spaces = "";  #For saving the spaces as a string of spaces instead of a number of spaces
         for (my $i = 1 ; $i < $spaces_match_string; ++$i){
@@ -969,7 +969,7 @@ foreach my $key (sort keys %GENE_RESULTS_HASH2) {
     $outStr = $outStr.": WARNING2, "; 
   }  
   $alignment .= $outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Contig name: ".@$array[4].", Position: ".@$array[5]."\n\n";
-  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Positions in reference: ".$qStart."..".$qEnd.", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mŒske forkert text
+  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Positions in reference: ".$qStart."..".$qEnd.", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mï¿½ske forkert text
   $resalign .= ">".@$array[7]."\n";
   
   # now print the alleles
