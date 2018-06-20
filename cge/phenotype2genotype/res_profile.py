@@ -1,4 +1,4 @@
-#! /tools/bin/python3
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import argparse
@@ -9,8 +9,6 @@ from signal import *
 import tempfile
 import sys
 import subprocess
-# import io
-# import urllib.parse
 from .feature import Feature, Gene, Mutation
 
 

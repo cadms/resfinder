@@ -1,4 +1,4 @@
-#!/home/data1/tools/bin/anaconda/bin/python
+#!/usr/bin/env python3
 from __future__ import division
 import sys
 import os

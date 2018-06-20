@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import unittest
 from subprocess import PIPE, run
 import os

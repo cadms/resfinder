@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
-# Program: 	PointFinder-3.0
+# Program: 	PointFinder
 # Author: 	Camilla Hundahl Johnsen
 #
 # Dependencies: KMA or NCBI-blast together with BioPython.
