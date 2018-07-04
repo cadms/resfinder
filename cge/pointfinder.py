@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Program: 	PointFinder
+# Program: 	PointFinder-3.0
 # Author: 	Camilla Hundahl Johnsen
 #
 # Dependencies: KMA or NCBI-blast together with BioPython.
@@ -23,7 +23,6 @@ class PointFinder(CGEFinder):
         """
         self.species = species
         self.specie_path = db_path
-
         self.gene_list = PointFinder.get_file_content(
             self.specie_path + "/genes.txt")
         self.RNA_gene_list = PointFinder.get_file_content(
@@ -43,10 +42,11 @@ class PointFinder(CGEFinder):
             # Change the gene_list to the user defined gene_list
             self.gene_list = genes_specified
 
-        self.known_mutations, self.drug_genes = self.get_db_mutations(
-            self.specie_path + "/resistens-overview.txt", self.gene_list)
+        self.known_mutations, self.drug_genes, self.known_stop_codon = (
+            self.get_db_mutations(self.specie_path + "/resistens-overview.txt",
+                                  self.gene_list))
 
-    def results_to_str(self, res_type, results, unknown_flag):
+    def results_to_str(self, res_type, results, unknown_flag, min_cov):
         # Initiate output stings with headers
         output_strings = [
             "Mutation\tNucleotide change\tAmino acid change\tResistance\tPMID",
@@ -64,21 +64,18 @@ class PointFinder(CGEFinder):
         excluded_hits = {}
 
         if res_type == PointFinder.TYPE_BLAST:
-            GENES = results
+            # Patch together partial sequence hits (BLASTER does not do this)
+            # and removes dummy_hit_id
+            GENES = self.find_best_seqs(results, min_cov)
         else:
             # TODO: Some databases are either genes or species,
             #       depending on the method applied (BLAST/KMA).
-            GENES = dict()
-            for db in results:
-                if(db != "excluded"):
-                    for gene, vals in results[db].items():
-                        GENES[gene] = dict()
-                        GENES[gene]["dummy_hit_id"] = vals
-            excluded_hits = results["excluded"]
+            GENES = results[self.species]
 
-        for gene in GENES:
+        for gene, hit in GENES.items():
+
             # Start writing output string (to HTML tab file)
-            gene_name = gene
+            gene_name = gene # Not perfeft can differ from the specific mutation
             regex = r"promoter_size_(\d+)(?:bp)"
             promtr_gene_objt = re.search(regex, gene)
 
@@ -87,104 +84,97 @@ class PointFinder(CGEFinder):
 
             output_strings[1] += "\n%s\n" % (gene_name)
 
+            # Ignore excluded genes 
+            # TODO, Should all not found genes be moved to this dict?
+            if gene == "excluded":
+                continue
+
+            # Write excludion reason for genes not found
             if isinstance(GENES[gene], str):
                 output_strings[1] += GENES[gene] + "\n"
                 continue
 
-            for hit_id, hit in GENES[gene].items():
-                # Ignore excluded genes
-                if(gene in excluded_hits):
-                    continue
+            sbjct_start = hit['sbjct_start']
+            sbjct_seq = hit['sbjct_string']
+            qry_seq = hit['query_string']
 
-                sbjct_start = hit['sbjct_start']
-                sbjct_seq = hit['sbjct_string']
-                qry_seq = hit['query_string']
-
-                # Find and save mis_matches in gene
-                hit['mis_matches'] = self.find_mismatches(gene, sbjct_start,
+            # Find and save mis_matches in gene
+            hit['mis_matches'] = self.find_mismatches(gene, sbjct_start,
                                                           sbjct_seq, qry_seq)
 
-                # Check if no mutations was found
-                if len(hit['mis_matches']) < 1:
-                    output_strings[1] += (
-                        "No mutations found in %s (coverage: %.2f, identity: "
-                        "%.3f))\n" % (gene_name, hit['perc_coverage'],
-                                      hit['perc_ident'])
-                    )
-                else:
-                    # Write mutations found to output file
-                    total_unknown_str += (
-                        "\n%s (coverage: %.2f, identity: %.3f)\n"
-                        % (gene_name, hit['perc_coverage'],
-                           hit['perc_ident']))
+            # Check if no mutations was found
+            if len(hit['mis_matches']) < 1:
+                output_strings[1] += ("No mutations found in %s\n"%(gene_name)
+                    #"No mutations found in %s (coverage: %.2f, identity: "
+                    #"%.3f))\n" % (gene_name, hit['perc_coverage'],
+                    #              hit['perc_ident'])
+                )
+            else:
+                # Write mutations found to output file
+                total_unknown_str += "\n%s\n"%(gene_name)
+                    #"\n%s (coverage: %.2f, identity: %.3f)\n"
+                    #% (gene_name, hit['perc_coverage'],
+                    #   hit['perc_ident']))
 
-                    str_tuple = self.mut2str(gene, gene_name,
+                str_tuple = self.mut2str(gene, gene_name,
                                              hit['mis_matches'],
                                              unknown_flag, hit)
 
-                    all_results = str_tuple[0]
-                    total_known = str_tuple[1]
-                    total_unknown = str_tuple[2]
-                    drug_list = str_tuple[3]
+                all_results = str_tuple[0]
+                total_known = str_tuple[1]
+                total_unknown = str_tuple[2]
+                drug_list = str_tuple[3]
 
-                    # Add results to output strings
-                    if(all_results):
-                        output_strings[0] += "\n" + all_results
-                    output_strings[1] += total_known + "\n"
+                # Add results to output strings
+                if(all_results):
+                    output_strings[0] += "\n" + all_results
+                output_strings[1] += total_known + "\n"
 
-                    # Add unknown mutations the total results of
-                    # unknown mutations
-                    total_unknown_str += total_unknown + "\n"
+                # Add unknown mutations the total results of
+                # unknown mutations
+                total_unknown_str += total_unknown + "\n"
 
-                    # Add drugs to druglist
-                    unique_drug_list += drug_list
+                # Add drugs to druglist
+                unique_drug_list += [drug.lower() for drug in drug_list]
 
-            # Store hits that was excluded
-            for gene, exclude_reasons in excluded_hits.items():
-                output_strings[1] += "\n%s\n" % (gene_name)
-                output_strings[1] += (
-                    "No mutations found in %s (coverage: %.2f, identity: "
-                    "%.3f))\n" % (gene_name, exclude_reasons[0],
-                                  exclude_reasons[1]))
-
-            if unknown_flag is True:
-                output_strings[1] += ("\n\nUnknown Mutations \n"
+        if unknown_flag is True:
+            output_strings[1] += ("\n\nUnknown Mutations \n"
                                       + total_unknown_str)
 
-            # Make Resistance Prediction output
+        # Make Resistance Prediction output
 
-            # Go throug all drugs in the database and see if prediction
-            # can be called.
-            pred_output = []
-            for drug in drug_lst:
-                # Check if resistance to drug was found
-                if drug in unique_drug_list:
-                    pred_output.append("1")
+        # Go throug all drugs in the database and see if prediction
+        # can be called.
+        pred_output = []
+        for drug in drug_lst:
+            drug = drug.lower()
+            # Check if resistance to drug was found
+            if drug in unique_drug_list:
+                pred_output.append("1")
+            else:
+                # Check at all genes associated with the drug
+                # resistance where found
+                all_genes_found = True
+                for gene in self.drug_genes[drug]:
+                    if gene not in GENES:
+                        all_genes_found = False
+
+                if all_genes_found is False:
+                    pred_output.append("?")
                 else:
-                    # Check at all genes associated with the drug
-                    # resistance where found
-                    all_genes_found = True
+                    pred_output.append("0")
 
-                    for gene in self.drug_genes[drug]:
-                        if gene not in GENES:
-                            all_genes_found = False
-
-                    if all_genes_found is False:
-                        pred_output.append("?")
-                    else:
-                        pred_output.append("0")
-
-            output_strings[2] += "\t".join(pred_output) + "\n"
+        output_strings[2] += "\t".join(pred_output) + "\n"
 
         return output_strings
 
-    def write_results(self, out_path, result, res_type, unknown_flag):
+    def write_results(self, out_path, result, res_type, unknown_flag, min_cov):
        """
        """
 
        result_str = self.results_to_str(res_type=res_type,
                                         results=result,
-                                        unknown_flag=unknown_flag)
+                                        unknown_flag=unknown_flag, min_cov=min_cov)
 
        with open(out_path + "/PointFinder_results.txt", "w") as fh:
           fh.write(result_str[0])
@@ -214,24 +204,8 @@ class PointFinder(CGEFinder):
                             min_cov=min_cov, threshold=threshold, blast=blast,
                             cut_off=cut_off)
 
-        self.blast_results = blast_run.results
+        self.blast_results = blast_run.results # TODO Is this used?
         return blast_run
-
-    @staticmethod
-    def get_gene_seqs(database_path, gene):
-        """
-        This function takes the database path and a gene name as inputs and
-        returns the gene sequence contained in the file given by the gene name
-        """
-        gene_path = database_path + "/" + gene + ".fsa"
-        gene_seq = ""
-        # Open fasta file
-        with open(gene_path) as gene_file:
-            header = gene_file.readline()
-            for line in gene_file:
-                seq = line.strip()
-                gene_seq += seq
-        return gene_seq
 
     @staticmethod
     def get_db_mutations(mut_db_path, gene_list):
@@ -244,8 +218,10 @@ class PointFinder(CGEFinder):
 
         # Initiate variables
         known_mutations = dict()
+        known_stop_codon = dict()
         drug_genes = dict()
         indelflag = False
+        stopcodonflag = False
 
         # Go throug mutation file line by line
 
@@ -258,10 +234,15 @@ class PointFinder(CGEFinder):
             if line.startswith("#"):
                 if "indel" in line.lower():
                     indelflag = True
+                elif "stop codon" in line.lower():
+                    stopcodonflag = True
+                else:
+                    stopcodonflag = False
                 continue
 
             # Assert that all lines have the correct set of columns
             mutation = [data.strip() for data in line.split("\t")]
+            # TODO: Should maybe be changed with the new db format in gen2phen?
             assert len(mutation) >= 9, ("mutation overview file (%s) must have"
                                         " 9 columns, %s" % (mut_db_path,
                                                             mutation))
@@ -279,6 +260,13 @@ class PointFinder(CGEFinder):
                 alt_aa = mutation[6].split(",")
                 res_drug = mutation[7].replace("\t", " ")
                 pmid = mutation[8].split(",")
+
+                # Check if stop codons are predictive for resistance
+                if stopcodonflag == True:
+                    if gene_ID not in known_stop_codon:
+                        known_stop_codon[gene_ID] = {"pos":[], "drug":res_drug}
+                    known_stop_codon[gene_ID]["pos"].append(mut_pos)
+
 
                 # Add genes associated with drug resistance to drug_genes dict
                 drug_lst = res_drug.split(",")
@@ -300,9 +288,6 @@ class PointFinder(CGEFinder):
                                                "drug": res_drug,
                                                "pmid": pmid[i]}
                     except IndexError:
-                        print(line)
-                        print(type("-"))
-                        print("pmid not found, %s" % (line))
                         mut_info[alt_aa[i]] = {"gene_name": gene_name,
                                                "drug": res_drug,
                                                "pmid": "-"}
@@ -327,15 +312,198 @@ class PointFinder(CGEFinder):
                 if mut_pos not in known_mutations[gene_ID][mutation_type]:
                     known_mutations[gene_ID][mutation_type][mut_pos] = dict()
                 for amino in alt_aa:
-                    known_mutations[gene_ID][mutation_type][mut_pos][amino] = (
-                        mut_info[amino])
+                    if (amino in known_mutations[gene_ID][mutation_type]
+                                               [mut_pos]):
+                        stored_mut_info = (known_mutations[gene_ID]
+                                                          [mutation_type]
+                                                          [mut_pos][amino])
+                        if stored_mut_info["drug"] != mut_info[amino]["drug"]:
+                            stored_mut_info["drug"] += "," + (mut_info[amino]
+                                                                      ["drug"])
+                        if stored_mut_info["pmid"] != mut_info[amino]["pmid"]:
+                            stored_mut_info["pmid"] += ";" + (mut_info[amino]
+                                                                      ["pmid"])
+              
+                        (known_mutations[gene_ID][mutation_type]
+                                        [mut_pos][amino]) = stored_mut_info
+                    else:
+                        (known_mutations[gene_ID][mutation_type]
+                                        [mut_pos][amino]) = mut_info[amino]
 
         # Check that all genes in the gene list has known mutations
         for gene in gene_list:
             if gene not in known_mutations:
                 known_mutations[gene] = {"sub": dict(), "ins": dict(),
                                          "del": dict()}
-        return known_mutations, drug_genes
+        return known_mutations, drug_genes, known_stop_codon
+
+    
+    def find_best_seqs(self, blast_results, min_cov):
+        """
+        This function finds gene sequences with the largest coverage based on 
+        the blast results. If more hits covering different sequences parts 
+        exists it concatinates parial gene hits into one hit.
+        If different overlap sequences occurs they are saved in the list 
+        alternative_overlaps. The function returns a new results dict where 
+        each gene has an inner dict with hit information corresponding to 
+        the new concatinated hit. If no gene is found the value is a string 
+        with info of why the gene wasn't found.
+        """
+
+        GENES = dict()
+        for gene, hits in blast_results.items():
+
+            # Save all hits in the list 'hits_found'
+            hits_found = []
+            GENES[gene] = dict()
+
+            # Check for gene has any hits in blast results
+            if type(hits) is dict and len(hits)>0:
+                GENES[gene]['found'] = 'partially'
+            else:
+                # Gene not found! go to next gene
+                continue
+
+            # Check coverage for each hit, patch together partial genes hits
+            for hit in hits.values(): 
+
+                # Save hits start and end positions in subject, total subject 
+                # len, and subject and query sequences of each hit
+                hits_found += [(hit['sbjct_start'], hit['sbjct_end'],
+                                hit['sbjct_string'], hit['query_string'],
+                                hit['sbjct_length'])]
+
+                # If coverage is 100% change found to yes               
+                hit_coverage = hit['perc_coverage']
+                if hit_coverage == 1.0:
+                    GENES[gene]['found'] = 'yes'               
+
+            # Sort positions found
+            hits_found = sorted(hits_found, key = lambda x:x[0])
+
+            # Find best hit by concatenating sequences if more hits exist
+
+            # Get information from the first hit found	
+            all_start = hits_found[0][0]
+            current_end = hits_found[0][1]
+            final_sbjct = hits_found[0][2]
+            final_qry = hits_found[0][3] 
+            sbjct_len = hits_found[0][4]  
+
+            alternative_overlaps = []
+
+            # Check if more then one hit was found within the same gene
+            for i in range(len(hits_found)-1):
+
+                # Save information from previous hit
+                pre_block_start = hits_found[i][0]
+                pre_block_end = hits_found[i][1]
+                pre_sbjct = hits_found[i][2]
+                pre_qry = hits_found[i][3]
+
+                # Save information from next hit
+                next_block_start = hits_found[i+1][0]
+                next_block_end = hits_found[i+1][1]
+                next_sbjct = hits_found[i+1][2]
+                next_qry = hits_found[i+1][3]
+
+                # Check for overlapping sequences, collaps them and save 
+                # alternative overlaps if any
+                if next_block_start <= current_end:
+
+                    # Find overlap start and take gaps into account     
+                    pos_count = 0
+                    overlap_pos = pre_block_start
+                    for i in range(len(pre_sbjct)):
+
+                        # Stop loop if overlap_start position is reached
+                        if overlap_pos == next_block_start:
+                            overlap_start = pos_count
+                            break
+                        if pre_sbjct[i] != "-":
+                            overlap_pos += 1
+                        pos_count += 1
+    
+                    # Find overlap len and add next sequence to final sequence 
+                    if len(pre_sbjct[overlap_start:]) > len(next_sbjct):
+                        #  <--------->
+                        #     <--->
+                        overlap_len = len(next_sbjct)
+                        overlap_end_pos = next_block_end
+                    else:
+                        #  <--------->
+                        #        <--------->
+                        overlap_len = len(pre_sbjct[overlap_start:])
+                        overlap_end_pos = pre_block_end
+
+                        # Update current end
+                        current_end = next_block_end
+
+                        # Use the entire previous sequence and add the last 
+                        # part of the next sequence
+                        final_sbjct += next_sbjct[overlap_len:]
+                        final_qry += next_qry[overlap_len:]
+                
+                    # Find query overlap sequences
+                    pre_qry_overlap = pre_qry[overlap_start : (overlap_start +
+                                                               overlap_len)]
+                    next_qry_overlap = next_qry[:overlap_len]
+                    sbjct_overlap = next_sbjct[:overlap_len]
+
+                    # If alternative query overlap excist save it
+                    if pre_qry_overlap != next_qry_overlap:
+                        print("OVERLAP WARNING:")
+                        print(pre_qry_overlap, "\n", next_qry_overlap)
+
+                        # Save alternative overlaps    
+                        alternative_overlaps += [(next_block_start, 
+                                                  overlap_end_pos, 
+                                                  sbjct_overlap, 
+                                                  next_qry_overlap)]
+        
+                elif next_block_start > current_end:
+                    #  <------->
+                    #              <-------> 
+                    gap_size = next_block_start - current_end - 1
+                    final_qry += "N"*gap_size
+                    final_sbjct += "N"*gap_size
+                    current_end = next_block_end
+                    final_sbjct += next_sbjct
+                    final_qry += next_qry
+
+            # Calculate new coverage
+            no_call = final_qry.upper().count("N")
+            coverage = (current_end - all_start + 1 - no_call)/float(sbjct_len)
+    
+            # Calculate identity
+            equal = 0
+            not_equal = 0
+            for i in range(len(final_qry)):
+                if final_qry[i].upper() != "N":
+                    if final_qry[i].upper() == final_sbjct[i].upper():
+                        equal += 1
+                    else:
+                        not_equal += 1
+            identity = equal/float(equal + not_equal)
+
+            if coverage >= min_cov:# and total_identity >= threshold:
+                GENES[gene]['perc_coverage'] = coverage
+                GENES[gene]['perc_ident'] = identity
+                GENES[gene]['sbjct_string'] = final_sbjct
+                GENES[gene]['query_string'] = final_qry
+                GENES[gene]['sbjct_start'] =  all_start
+                GENES[gene]['sbjct_end'] = current_end
+                GENES[gene]['sbjct_len'] = sbjct_len
+                GENES[gene]['alternative_overlaps'] = alternative_overlaps
+                GENES[gene]['mis_matches'] = []
+
+            else:
+                # Gene not found above given coverage
+                GENES[gene] = ('Gene found with coverage, %f, below '
+                              'minimum coverage threshold: %s'%(coverage, 
+                                                                min_cov))
+
+        return GENES 
 
     def find_mismatches(self, gene, sbjct_start, sbjct_seq, qry_seq):
         """
@@ -1216,6 +1384,13 @@ class PointFinder(CGEFinder):
                     gene_name = (self.known_mutations[gene][mut][pos]
                                  [found_mut]['gene_name'])
 
+        # Check if stop codons refer resistance
+        if "*" in found_mut and gene in self.known_stop_codon:
+            if resistence == "Unknown":
+                resistence = self.known_stop_codon[gene]["drug"]
+            else: 
+                resistence += "," + self.known_stop_codon[gene]["drug"]
+
         return (gene_name, resistence, pmid)
 
 
@@ -1329,13 +1504,12 @@ if __name__ == '__main__':
             sys.exit("Input Error: Blast was chosen as mapping method only 1 "
                      "input file requied, not %s" % (len(args.inputfiles)))
 
-        blast_run = finder.blast(inputfile=args.inputfiles[0],
+        finder_run = finder.blast(inputfile=args.inputfiles[0],
                                  out_path=args.out_path,
                                  min_cov=0.01,
                                  threshold=args.threshold,
                                  blast=args.method_path,
                                  cut_off=False)
-        results = blast_run.results
     else:
         inputfile_1 = args.inputfiles[0]
         inputfile_2 = None
@@ -1343,7 +1517,7 @@ if __name__ == '__main__':
         if(len(args.inputfiles) == 2):
             inputfile_2 = args.inputfiles[1]
 
-        results = finder.kma(inputfile_1=inputfile_1,
+        finder_run = finder.kma(inputfile_1=inputfile_1,
                              inputfile_2=inputfile_2,
                              out_path=args.out_path,
                              db_path_kma=kma_db_path,
@@ -1355,9 +1529,11 @@ if __name__ == '__main__':
                              kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
                              kma_penalty=-3, kma_reward=1)
 
+    results = finder_run.results
+
     if(args.specific_gene):
         results = PointFinder.discard_unwanted_results(
             results=results, wanted=args.specific_gene)
 
-    finder.write_results(out_path=args.out_path, result=results,
+    finder.write_results(out_path=args.out_path, result=results, min_cov=args.min_cov,
                          res_type=method, unknown_flag=args.unknown_mutations)
