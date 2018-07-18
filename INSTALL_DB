@@ -11,7 +11,7 @@ fi
 
 # Check if the path is valid and unexisting
 if [ ! -d $path ]; then
-   git clone git@bitbucket.org:genomicepidemiology/resfinder_db.git $path
+   git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git $path
 else
    echo "Error: path exists! Please provide a valid and unused path..."
 fi
