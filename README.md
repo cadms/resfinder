@@ -32,7 +32,7 @@ Setting up ResFinder
 # Go to wanted location for resfinder
 cd /path/to/some/dir
 # Clone and enter the resfinder directory
-git clone https://bitbucket.org/genomicepidemiology/resfinder.git
+git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
 ```
 
