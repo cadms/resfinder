@@ -119,7 +119,7 @@ parser.add_argument("-s", "--species",
                     help="Species in the sample")
 parser.add_argument("-l", "--min_cov",
                     dest="min_cov",
-                    help="Minimum coverage",
+                    help="Minimum (breadth-of) coverage",
                     type=float,
                     default=0.60)
 parser.add_argument("-t", "--threshold",
@@ -260,6 +260,8 @@ if not os.path.exists(pheno_db_path):
    sys.exit("Input Error: The specified phenotype database directory does not "
             "exist!\nProvided path: " + str(pheno_db_path))
 
+min_cov = float(args.min_cov)
+
 ##########################################################################
 # ResFinder
 ##########################################################################
@@ -267,7 +269,6 @@ if not os.path.exists(pheno_db_path):
 if args.acquired is True:
 
    databases = args.databases
-   min_cov = float(args.min_cov)
    threshold = float(args.threshold)
 
    if(args.inputfasta):
@@ -392,7 +393,7 @@ if args.point is True:
 
    finder.write_results(out_path=args.out_path, result=results,
                         res_type=method, unknown_flag=args.unknown_mutations,
-                        min_cov=5)
+                        min_cov=min_cov)
 
 ##########################################################################
 # Phenotype to genotype
