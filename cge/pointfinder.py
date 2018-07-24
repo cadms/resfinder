@@ -67,6 +67,7 @@ class PointFinder(CGEFinder):
             # Patch together partial sequence hits (BLASTER does not do this)
             # and removes dummy_hit_id
             GENES = self.find_best_seqs(results, min_cov)
+
         else:
             # TODO: Some databases are either genes or species,
             #       depending on the method applied (BLAST/KMA).
@@ -355,13 +356,14 @@ class PointFinder(CGEFinder):
 
             # Save all hits in the list 'hits_found'
             hits_found = []
-            GENES[gene] = dict()
+            GENES[gene] = {}
 
             # Check for gene has any hits in blast results
             if type(hits) is dict and len(hits)>0:
                 GENES[gene]['found'] = 'partially'
             else:
                 # Gene not found! go to next gene
+                GENES[gene] = 'No hit found'
                 continue
 
             # Check coverage for each hit, patch together partial genes hits
@@ -1530,6 +1532,7 @@ if __name__ == '__main__':
                              kma_penalty=-3, kma_reward=1)
 
     results = finder_run.results
+
 
     if(args.specific_gene):
         results = PointFinder.discard_unwanted_results(
