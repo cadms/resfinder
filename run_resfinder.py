@@ -391,7 +391,8 @@ if args.point is True:
                                                      wanted=args.specific_gene)
 
    finder.write_results(out_path=args.out_path, result=results,
-                        res_type=method, unknown_flag=args.unknown_mutations)
+                        res_type=method, unknown_flag=args.unknown_mutations,
+                        min_cov=5)
 
 ##########################################################################
 # Phenotype to genotype
