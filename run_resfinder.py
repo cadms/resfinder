@@ -242,6 +242,7 @@ if(args.db_path_kma is None and args.acquired):
    db_path_kma = os.path.abspath(db_path_kma)
 
 # Check Poinfinder database
+db_path_point = None
 if(args.db_path_point is None and args.point):
    db_path_point = (os.path.dirname(
        os.path.realpath(__file__)) + "/db_pointfinder/"
@@ -400,7 +401,7 @@ if args.point is True:
 ##########################################################################
 
 # Load genotype to phenotype database
-if(args.db_path_point is not None):
+if(db_path_point is not None):
    point_file = db_path_point + "/resistens-overview.txt"
 else:
    point_file = None

@@ -132,7 +132,10 @@ class PhenoDB(dict):
                                       gene_class=gene_class, notes=notes,
                                       species=species)
 
-                    self[unique_id] = pheno
+                    pheno_lst = self.get(unique_id, [])
+                    pheno_lst.append(pheno)
+                    self[unique_id] = pheno_lst
+
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
@@ -237,7 +240,9 @@ class PhenoDB(dict):
                                       notes=notes, res_mechanics=res_mechanics,
                                       req_muts=mut_groups, species=species)
 
-                    self[unique_id] = pheno
+                    pheno_lst = self.get(unique_id, [])
+                    pheno_lst.append(pheno)
+                    self[unique_id] = pheno_lst
 
                     # A pointmutation with several different res codons will
                     # never be found using all the res_codons. Instead it will
@@ -249,7 +254,7 @@ class PhenoDB(dict):
                         for codon in res_codon:
                             unique_id_alt = (phenodb_id + "_" + codon_pos
                                              + "_" + codon)
-                            self[unique_id_alt] = pheno
+                            self[unique_id_alt] = pheno_lst
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
@@ -304,14 +309,26 @@ class MutationGenotype():
     def __init__(self, mut_string):
         mut_match = re.search(r"^(.+)_(\D+)(\d+)(.+)$", mut_string)
         self.gene = mut_match.group(1)
-        self.ref = mut_match.group(2)
+        self.ref = mut_match.group(2).lower()
         self.pos = mut_match.group(3)
-        alt_str = mut_match.group(4)
+        alt_str = mut_match.group(4).lower()
         self.alternatives = tuple(alt_str.split("."))
-        self.mut_id_prefix = "".join(self.gene, "_", self.ref, self.pos)
+        self.mut_id_prefix = "".join((self.gene, "_", self.ref, self.pos))
+
+    def is_in(self, feat_dict):
+        """ Checks if any of the mutation genotypes exists in the given
+            feature dict.
+        """
+        for feat in feat_dict:
+            if(self == feat_dict[feat]):
+                return True
+
+        return False
 
     def __eq__(self, other):
-        if isinstance(other, MutationGenotype):
+        if isinstance(other, Mutation):
+            return self == other.mut_string
+        elif isinstance(other, MutationGenotype):
 
             # Returns True if gene, ref base, position and the tuple of
             # alternatives match.
@@ -327,11 +344,13 @@ class MutationGenotype():
                 return False
 
         elif isinstance(other, str):
-            mut_match = re.search(r"^(\D+\d+)(.+)$", mut_string)
+            eprint(self.mut_id_prefix + str(self.alternatives) + "==" + other)
+            mut_match = re.search(r"^(\D+\d+)(.+)$", other)
             if(mut_match):
 
                 if(mut_match.group(1) == self.mut_id_prefix):
                     if(mut_match.group(2) in self.alternatives):
+                        eprint(True)
                         return True
                     else:
                         return False
@@ -510,18 +529,19 @@ class ResProfile():
 
         for feature in features:
             if(feature.unique_id in phenodb):
-                self.add_feature(feature, update=False)
+                # Add feature
+                self.features[feature.unique_id] = feature
+                # Several phenotypes can exist for a single feature ID.
+                for phenotype in phenodb[feature.unique_id]:
+                    self.add_phenotype(feature, phenotype, update=False)
             else:
                 eprint("Not found in PhenoDB: " + feature.unique_id)
                 self.missing_db_features.append(feature)
         self.update_profile()
 
-    def add_feature(self, feature, update=True):
+    def add_phenotype(self, feature, phenotype, update=True):
         """
         """
-        self.features[feature.unique_id] = feature
-
-        phenotype = self.phenodb[feature.unique_id]
 
         # Handle required mutations
         if(phenotype.req_muts is not None):
@@ -532,7 +552,7 @@ class ResProfile():
             for mut_group in phenotype.req_muts:
                 # Iterate through the individual mutations.
                 for mut in mut_group:
-                    if(mut in self.features):
+                    if(mut.is_in(self.features)):
                         mut_found = True
                     # Mutation not found, the requied mutations in this
                     # group are therefore not fullfilled.

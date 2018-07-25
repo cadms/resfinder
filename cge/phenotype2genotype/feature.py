@@ -58,3 +58,5 @@ class Mutation(Feature):
         self.mut_codon = mut_codon
         self.ref_aa = ref_aa
         self.mut_aa = mut_aa
+        self.mut_string = (str(self.seq_region) + "_" + self.ref_aa
+                           + str(self.pos) + self.mut_aa)
