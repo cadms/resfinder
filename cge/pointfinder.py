@@ -15,7 +15,6 @@ import subprocess
 from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
 
-
 class PointFinder(CGEFinder):
 
     def __init__(self, db_path, species, gene_list=None):
@@ -73,6 +72,18 @@ class PointFinder(CGEFinder):
             #       depending on the method applied (BLAST/KMA).
             GENES = results[self.species]
 
+            # If not hits found insert genes not found
+            if GENES == 'No hit found':
+                GENES = {}
+
+            # KMA only gives the genes found, however all genes sould be included
+            for gene in self.gene_list:
+                if gene not in GENES:
+                    GENES[gene] = 'No hit found'
+
+            # Included excluded
+            GENES['excluded'] = results['excluded']
+
         for gene, hit in GENES.items():
 
             # Start writing output string (to HTML tab file)
@@ -85,7 +96,7 @@ class PointFinder(CGEFinder):
 
             output_strings[1] += "\n%s\n" % (gene_name)
 
-            # Ignore excluded genes 
+            # Ignore excluded genes
             # TODO, Should all not found genes be moved to this dict?
             if gene == "excluded":
                 continue
@@ -268,7 +279,6 @@ class PointFinder(CGEFinder):
                         known_stop_codon[gene_ID] = {"pos":[], "drug":res_drug}
                     known_stop_codon[gene_ID]["pos"].append(mut_pos)
 
-
                 # Add genes associated with drug resistance to drug_genes dict
                 drug_lst = res_drug.split(",")
                 drug_lst = [d.strip().lower() for d in drug_lst]
@@ -324,7 +334,7 @@ class PointFinder(CGEFinder):
                         if stored_mut_info["pmid"] != mut_info[amino]["pmid"]:
                             stored_mut_info["pmid"] += ";" + (mut_info[amino]
                                                                       ["pmid"])
-              
+
                         (known_mutations[gene_ID][mutation_type]
                                         [mut_pos][amino]) = stored_mut_info
                     else:
@@ -338,16 +348,15 @@ class PointFinder(CGEFinder):
                                          "del": dict()}
         return known_mutations, drug_genes, known_stop_codon
 
-    
     def find_best_seqs(self, blast_results, min_cov):
         """
-        This function finds gene sequences with the largest coverage based on 
-        the blast results. If more hits covering different sequences parts 
+        This function finds gene sequences with the largest coverage based on
+        the blast results. If more hits covering different sequences parts
         exists it concatinates parial gene hits into one hit.
-        If different overlap sequences occurs they are saved in the list 
-        alternative_overlaps. The function returns a new results dict where 
-        each gene has an inner dict with hit information corresponding to 
-        the new concatinated hit. If no gene is found the value is a string 
+        If different overlap sequences occurs they are saved in the list
+        alternative_overlaps. The function returns a new results dict where
+        each gene has an inner dict with hit information corresponding to
+        the new concatinated hit. If no gene is found the value is a string
         with info of why the gene wasn't found.
         """
 
@@ -359,7 +368,10 @@ class PointFinder(CGEFinder):
             GENES[gene] = {}
 
             # Check for gene has any hits in blast results
-            if type(hits) is dict and len(hits)>0:
+            if gene == 'excluded':
+                GENES[gene] = hits
+                continue
+            elif type(hits) is dict and len(hits)>0:
                 GENES[gene]['found'] = 'partially'
             else:
                 # Gene not found! go to next gene
@@ -367,30 +379,30 @@ class PointFinder(CGEFinder):
                 continue
 
             # Check coverage for each hit, patch together partial genes hits
-            for hit in hits.values(): 
+            for hit in hits.values():
 
-                # Save hits start and end positions in subject, total subject 
+                # Save hits start and end positions in subject, total subject
                 # len, and subject and query sequences of each hit
                 hits_found += [(hit['sbjct_start'], hit['sbjct_end'],
                                 hit['sbjct_string'], hit['query_string'],
                                 hit['sbjct_length'])]
 
-                # If coverage is 100% change found to yes               
+                # If coverage is 100% change found to yes
                 hit_coverage = hit['perc_coverage']
                 if hit_coverage == 1.0:
-                    GENES[gene]['found'] = 'yes'               
+                    GENES[gene]['found'] = 'yes'
 
             # Sort positions found
             hits_found = sorted(hits_found, key = lambda x:x[0])
 
             # Find best hit by concatenating sequences if more hits exist
 
-            # Get information from the first hit found	
+            # Get information from the first hit found
             all_start = hits_found[0][0]
             current_end = hits_found[0][1]
             final_sbjct = hits_found[0][2]
-            final_qry = hits_found[0][3] 
-            sbjct_len = hits_found[0][4]  
+            final_qry = hits_found[0][3]
+            sbjct_len = hits_found[0][4]
 
             alternative_overlaps = []
 
@@ -409,11 +421,11 @@ class PointFinder(CGEFinder):
                 next_sbjct = hits_found[i+1][2]
                 next_qry = hits_found[i+1][3]
 
-                # Check for overlapping sequences, collaps them and save 
+                # Check for overlapping sequences, collaps them and save
                 # alternative overlaps if any
                 if next_block_start <= current_end:
 
-                    # Find overlap start and take gaps into account     
+                    # Find overlap start and take gaps into account
                     pos_count = 0
                     overlap_pos = pre_block_start
                     for i in range(len(pre_sbjct)):
@@ -425,8 +437,8 @@ class PointFinder(CGEFinder):
                         if pre_sbjct[i] != "-":
                             overlap_pos += 1
                         pos_count += 1
-    
-                    # Find overlap len and add next sequence to final sequence 
+
+                    # Find overlap len and add next sequence to final sequence
                     if len(pre_sbjct[overlap_start:]) > len(next_sbjct):
                         #  <--------->
                         #     <--->
@@ -441,7 +453,7 @@ class PointFinder(CGEFinder):
                         # Update current end
                         current_end = next_block_end
 
-                        # Use the entire previous sequence and add the last 
+                        # Use the entire previous sequence and add the last
                         # part of the next sequence
                         final_sbjct += next_sbjct[overlap_len:]
                         final_qry += next_qry[overlap_len:]
@@ -457,15 +469,15 @@ class PointFinder(CGEFinder):
                         print("OVERLAP WARNING:")
                         print(pre_qry_overlap, "\n", next_qry_overlap)
 
-                        # Save alternative overlaps    
-                        alternative_overlaps += [(next_block_start, 
-                                                  overlap_end_pos, 
-                                                  sbjct_overlap, 
+                        # Save alternative overlaps
+                        alternative_overlaps += [(next_block_start,
+                                                  overlap_end_pos,
+                                                  sbjct_overlap,
                                                   next_qry_overlap)]
-        
+
                 elif next_block_start > current_end:
                     #  <------->
-                    #              <-------> 
+                    #              <------->
                     gap_size = next_block_start - current_end - 1
                     final_qry += "N"*gap_size
                     final_sbjct += "N"*gap_size
@@ -476,7 +488,7 @@ class PointFinder(CGEFinder):
             # Calculate new coverage
             no_call = final_qry.upper().count("N")
             coverage = (current_end - all_start + 1 - no_call)/float(sbjct_len)
-    
+
             # Calculate identity
             equal = 0
             not_equal = 0
@@ -502,10 +514,9 @@ class PointFinder(CGEFinder):
             else:
                 # Gene not found above given coverage
                 GENES[gene] = ('Gene found with coverage, %f, below '
-                              'minimum coverage threshold: %s'%(coverage, 
+                              'minimum coverage threshold: %s'%(coverage,
                                                                 min_cov))
-
-        return GENES 
+        return GENES
 
     def find_mismatches(self, gene, sbjct_start, sbjct_seq, qry_seq):
         """
@@ -1390,7 +1401,7 @@ class PointFinder(CGEFinder):
         if "*" in found_mut and gene in self.known_stop_codon:
             if resistence == "Unknown":
                 resistence = self.known_stop_codon[gene]["drug"]
-            else: 
+            else:
                 resistence += "," + self.known_stop_codon[gene]["drug"]
 
         return (gene_name, resistence, pmid)
@@ -1532,7 +1543,6 @@ if __name__ == '__main__':
                              kma_penalty=-3, kma_reward=1)
 
     results = finder_run.results
-
 
     if(args.specific_gene):
         results = PointFinder.discard_unwanted_results(
