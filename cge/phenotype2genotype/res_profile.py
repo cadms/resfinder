@@ -361,7 +361,7 @@ class MutationGenotype():
                 return False
 
         else:
-            return self == other
+            return False
 
     def __ne__(self, other):
         result = self.__eq__(other)

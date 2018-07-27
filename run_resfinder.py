@@ -188,6 +188,9 @@ args = parser.parse_args()
 
 # Create a "sample" name
 if(args.inputfasta):
+   args.inputfasta = os.path.abspath(args.inputfasta)
+   if(not os.path.isfile(args.inputfasta)):
+      sys.exit("ERROR: Input FASTA file not found: " + args.inputfasta)
    sample_name = os.path.basename(args.inputfasta)
    method = PointFinder.TYPE_BLAST
 else:
@@ -198,8 +201,14 @@ else:
 scripts = args.scripts
 if(args.inputfastq):
    inputfastq_1 = args.inputfastq[0]
+   inputfastq_1 = os.path.abspath(inputfastq_1)
+   if(not os.path.isfile(inputfastq_1)):
+      sys.exit("ERROR: Input fastq file 1 not found: " + inputfastq_1)
    if(len(args.inputfastq) == 2):
       inputfastq_2 = args.inputfastq[1]
+      inputfastq_2 = os.path.abspath(inputfastq_2)
+      if(not os.path.isfile(inputfastq_2)):
+         sys.exit("ERROR: Input fastq file 2 not found: " + inputfastq_2)
    else:
       inputfastq_2 = None
 
