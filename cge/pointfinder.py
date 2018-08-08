@@ -457,7 +457,7 @@ class PointFinder(CGEFinder):
                         # part of the next sequence
                         final_sbjct += next_sbjct[overlap_len:]
                         final_qry += next_qry[overlap_len:]
-                
+
                     # Find query overlap sequences
                     pre_qry_overlap = pre_qry[overlap_start : (overlap_start +
                                                                overlap_len)]
@@ -1286,7 +1286,7 @@ class PointFinder(CGEFinder):
                             all_results_lst = all_results_lst[:-1]
 
             if "Premature stop codon" in mut_name:
-                sbjct_len = hit['sbjct_length']
+                sbjct_len = hit['sbjct_len']
                 qry_len = pos * 3
                 prec_truckat = round(
                     ((float(sbjct_len) - qry_len)
