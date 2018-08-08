@@ -12,7 +12,7 @@ import subprocess
 from itertools import chain
 from .feature import Feature, Gene, Mutation
 from .phenodbpoint import PhenoDBPoint
-from .res_profile import PhenoDB, ResProfile
+from .res_profile import PhenoDB, ResProfile, FeatureGroup
 from .dbhit import DBHit
 
 
@@ -178,7 +178,8 @@ class Isolate(dict):
                     best_match = 0
                     for unique_id in ab.features:
                         feature = ab.features[unique_id]
-                        if(isinstance(feature, Mutation)):
+                        if(isinstance(feature, Mutation)
+                           or isinstance(feature, FeatureGroup)):
                             best_match = 3
                         # Note: Mutations do not have "hits"
                         elif(feature.hit.match_category > best_match):

@@ -329,8 +329,6 @@ if args.acquired is True:
                                     res_type=ResFinder.TYPE_BLAST)
 
    if(args.inputfastq):
-      print("DEBUG run_res ln 319: db list: " + str(acquired_finder.databases))
-      # quit()
       kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
                                     inputfile_2=inputfastq_2,
                                     out_path=out_res_kma,

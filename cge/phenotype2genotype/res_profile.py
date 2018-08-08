@@ -315,19 +315,45 @@ class MutationGenotype():
         self.alternatives = tuple(alt_str.split("."))
         self.mut_id_prefix = "".join((self.gene, "_", self.ref, self.pos))
 
+    def create_mut(self, mut_aa):
+        """ Given an aa alternative, creates a Mutation object.
+        """
+        unique_id = self.mut_id_prefix + "_" + mut_aa
+        mut = Mutation(unique_id, seq_region=gene, pos=self.pos,
+                       ref_aa=self.ref, mut_aa=mut_aa)
+        # Check if the created mutation is part of the MutationGenotype
+        if(self.is_in([mut])):
+            return mut
+        else:
+            sys.exit("An attempt was made to create a mutation from a"
+                     "MutationGenotype that was not defined in that "
+                     "genotype.")
+
     def is_in(self, feat_dict):
         """ Checks if any of the mutation genotypes exists in the given
-            feature dict.
+            feature dict. Retuns feature if found. Returns False
+            otherwise.
         """
-        for feat in feat_dict:
-            if(self == feat_dict[feat]):
-                return True
+        for feat_id in feat_dict:
+            feat = feat_dict[feat_id]
+            if(self == feat):
+                return feat
 
         return False
 
     def __eq__(self, other):
+        """ Compare MutationGenotype to other MutationGenotypes,
+            Mutation objects, or strings.
+
+            Returns the matched mutation aa if compared to a mutation
+            or a string. Returns boolean if compared to another
+            MutationGenotype object.
+        """
         if isinstance(other, Mutation):
-            return self == other.mut_string
+            if(self == other.mut_string):
+                return other.mut_aa
+            else:
+                return False
         elif isinstance(other, MutationGenotype):
 
             # Returns True if gene, ref base, position and the tuple of
@@ -344,14 +370,12 @@ class MutationGenotype():
                 return False
 
         elif isinstance(other, str):
-            eprint(self.mut_id_prefix + str(self.alternatives) + "==" + other)
             mut_match = re.search(r"^(\D+\d+)(.+)$", other)
             if(mut_match):
 
                 if(mut_match.group(1) == self.mut_id_prefix):
                     if(mut_match.group(2) in self.alternatives):
-                        eprint(True)
-                        return True
+                        return mut_match.group(2)
                     else:
                         return False
                 else:
@@ -437,20 +461,30 @@ class Antibiotics():
             return result
         return not result
 
+    # TODO: Overwrites idetical features. Should check to keep only
+    #       the most resistant feature.
     def add_feature(self, feature):
+        eprint("Adding: " + feature.unique_id)
         self.features[feature.unique_id] = feature
 
     def get_mut_names(self, _list=False):
         names = {}
         for f in self.features:
             feature = self.features[f]
-            if(not isinstance(feature, Mutation)):
+            if(not (isinstance(feature, Mutation)
+                    or isinstance(feature, FeatureGroup))):
                 continue
 
-            names[feature.unique_id] = [feature.seq_region,
-                                        feature.ref_aa.upper(),
-                                        str(feature.pos),
-                                        feature.mut_aa.upper()]
+            if(isinstance(feature, FeatureGroup)):
+                feature_lst = list(feature.values())
+            else:
+                feature_lst = [feature]
+
+            for entry in feature_lst:
+                names[entry.unique_id] = [entry.seq_region,
+                                          entry.ref_aa.upper(),
+                                          str(entry.pos),
+                                          entry.mut_aa.upper()]
         if(_list):
             return names.keys()
         else:
@@ -533,6 +567,8 @@ class ResProfile():
                 self.features[feature.unique_id] = feature
                 # Several phenotypes can exist for a single feature ID.
                 for phenotype in phenodb[feature.unique_id]:
+# DEBUG
+                    eprint("Phenotype: " + feature.unique_id)
                     self.add_phenotype(feature, phenotype, update=False)
             else:
                 eprint("Not found in PhenoDB: " + feature.unique_id)
@@ -549,10 +585,14 @@ class ResProfile():
             # Iterate through the different groups of mutations (See
             # Phenotype description).
             mut_found = False
+            mut_groups_found = []
             for mut_group in phenotype.req_muts:
+                feat_group = FeatureGroup([feature])
                 # Iterate through the individual mutations.
                 for mut in mut_group:
-                    if(mut.is_in(self.features)):
+                    mut_feat = mut.is_in(self.features)
+                    if(mut_feat):
+                        feat_group[mut_feat.unique_id] = mut_feat
                         mut_found = True
                     # Mutation not found, the requied mutations in this
                     # group are therefore not fullfilled.
@@ -561,10 +601,18 @@ class ResProfile():
                         break
                 # All mutations from a group was found.
                 if(mut_found is True):
+                    mut_groups_found.append(feat_group)
                     break
             # No group contained all required mutations.
             if(mut_found is False):
                 return
+            else:
+                # If several mut groups exist, then choose the one that
+                # contains most req mutations.
+                feature = {}
+                for fg in mut_groups_found:
+                    if(len(fg) > len(feature)):
+                        feature = fg
 
         for antibiotic in phenotype.pub_phenotype:
 
@@ -616,3 +664,27 @@ class ResProfile():
         for ab in susc_abs:
             if ab in self.resistance:
                 del self.susceptibile[ab]
+
+
+class FeatureGroup(dict):
+    """ This class is a dict with a unique_id variable created from the
+        keys in the dict.
+
+        LIMITATION: The class does not handle the deletion of keys,
+                    only additions.
+    """
+    def __init__(self, features):
+        feature_ids = []
+        for feature in features:
+            feature_ids.append(feature.unique_id)
+            super().__setitem__(feature.unique_id, feature)
+            # self[feature.unique_id] = feature
+
+        self.unique_id = "_".join(feature_ids)
+
+    def __hash__(self):
+        return hash(self.unique_id)
+
+    def __setitem__(self, k, v):
+        self.unique_id = self.unique_id + "_" + k
+        return super().__setitem__(k, v)
