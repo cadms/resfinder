@@ -457,7 +457,7 @@ class PointFinder(CGEFinder):
                         # part of the next sequence
                         final_sbjct += next_sbjct[overlap_len:]
                         final_qry += next_qry[overlap_len:]
-                
+
                     # Find query overlap sequences
                     pre_qry_overlap = pre_qry[overlap_start : (overlap_start +
                                                                overlap_len)]
@@ -507,7 +507,7 @@ class PointFinder(CGEFinder):
                 GENES[gene]['query_string'] = final_qry
                 GENES[gene]['sbjct_start'] =  all_start
                 GENES[gene]['sbjct_end'] = current_end
-                GENES[gene]['sbjct_len'] = sbjct_len
+                GENES[gene]['sbjct_length'] = sbjct_len
                 GENES[gene]['alternative_overlaps'] = alternative_overlaps
                 GENES[gene]['mis_matches'] = []
 
