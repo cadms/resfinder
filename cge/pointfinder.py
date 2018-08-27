@@ -1286,7 +1286,7 @@ class PointFinder(CGEFinder):
                             all_results_lst = all_results_lst[:-1]
 
             if "Premature stop codon" in mut_name:
-                sbjct_len = hit['sbjct_len']
+                sbjct_len = hit['sbjct_length']
                 qry_len = pos * 3
                 prec_truckat = round(
                     ((float(sbjct_len) - qry_len)
