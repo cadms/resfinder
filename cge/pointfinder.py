@@ -15,6 +15,7 @@ import subprocess
 from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
 
+
 class PointFinder(CGEFinder):
 
     def __init__(self, db_path, species, gene_list=None):
@@ -267,16 +268,17 @@ class PointFinder(CGEFinder):
                 gene_name = mutation[1]
                 no_of_mut = int(mutation[2])
                 mut_pos = int(mutation[3])
-                ref_codon = mutation[4]
-                ref_aa = mutation[5]
-                alt_aa = mutation[6].split(",")
+                ref_codon = mutation[4]                     # Ref_nuc (1 or 3?)
+                ref_aa = mutation[5]                        # Ref_codon
+                alt_aa = mutation[6].split(",")             # Res_codon
                 res_drug = mutation[7].replace("\t", " ")
                 pmid = mutation[8].split(",")
 
                 # Check if stop codons are predictive for resistance
-                if stopcodonflag == True:
+                if stopcodonflag is True:
                     if gene_ID not in known_stop_codon:
-                        known_stop_codon[gene_ID] = {"pos":[], "drug":res_drug}
+                        known_stop_codon[gene_ID] = {"pos": [],
+                                                     "drug": res_drug}
                     known_stop_codon[gene_ID]["pos"].append(mut_pos)
 
                 # Add genes associated with drug resistance to drug_genes dict
@@ -303,10 +305,14 @@ class PointFinder(CGEFinder):
                                                "drug": res_drug,
                                                "pmid": "-"}
 
+                # TODO: Remove column and dependencies in code. This
+                # feature has been implemented using the column named
+                # Required_mut (index 11).
+
                 # Check if more than one mutations is needed for resistance
-                if no_of_mut != 1:
-                    print("More than one mutation is needed, this is not "
-                          "implemented", mutation)
+                # if no_of_mut != 1:
+                #    print("More than one mutation is needed, this is not "
+                #          "implemented", mutation)
 
                 # Add all possible types of mutations to the dict
                 if gene_ID not in known_mutations:
@@ -324,7 +330,7 @@ class PointFinder(CGEFinder):
                     known_mutations[gene_ID][mutation_type][mut_pos] = dict()
                 for amino in alt_aa:
                     if (amino in known_mutations[gene_ID][mutation_type]
-                                               [mut_pos]):
+                                                [mut_pos]):
                         stored_mut_info = (known_mutations[gene_ID]
                                                           [mutation_type]
                                                           [mut_pos][amino])

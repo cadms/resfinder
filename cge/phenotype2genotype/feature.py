@@ -50,7 +50,8 @@ class Mutation(Feature):
     """
     def __init__(self, unique_id, seq_region=None, pos=None, hit=None,
                  ref_codon=None, mut_codon=None, ref_aa=None, mut_aa=None,
-                 isolate=None):
+                 isolate=None, insertion=None, deletion=None, end=None,
+                 nuc=False):
         Feature.__init__(self, unique_id, seq_region, pos, hit, isolate)
         if(pos is not None):
             self.pos = int(pos)
@@ -58,5 +59,27 @@ class Mutation(Feature):
         self.mut_codon = mut_codon
         self.ref_aa = ref_aa
         self.mut_aa = mut_aa
-        self.mut_string = (str(self.seq_region) + "_" + self.ref_aa
-                           + str(self.pos) + self.mut_aa)
+
+        # Create mut string
+        if(insertion):
+            self.mut_string_short = (pos + "_" + end + "ins"
+                                     + self.mut_codon.upper())
+            self.mut_string = (str(self.seq_region) + "_"
+                               + self.mut_string_short)
+        elif(deletion):
+            if(end):
+                self.mut_string_short = (pos + "_" + end + "del")
+            else:
+                self.mut_string_short = (pos + "del" + ref_codon.upper())
+            self.mut_string = (str(self.seq_region) + "_"
+                               + self.mut_string_short)
+        elif(nuc):
+            self.mut_string_short = (pos + ref_codon.upper() + ">"
+                                     + mut_codon.upper())
+            self.mut_string = (str(self.seq_region) + "_"
+                               + self.mut_string_short)
+        else:
+            self.mut_string_short = (self.ref_aa.upper() + str(self.pos)
+                                     + self.mut_aa.upper())
+            self.mut_string = (str(self.seq_region) + "_"
+                               + self.mut_string_short)

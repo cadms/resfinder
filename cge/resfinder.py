@@ -141,7 +141,7 @@ class ResFinder(CGEFinder):
                res_header = results[db][hit]["sbjct_header"]
                tmp = res_header.split("_")
                gene = tmp[0]
-               acc = tmp[2]
+               acc = "_".join(tmp[2:])
                ID = results[db][hit]["perc_ident"]
                coverage = results[db][hit]["perc_coverage"]
                sbjt_length = results[db][hit]["sbjct_length"]

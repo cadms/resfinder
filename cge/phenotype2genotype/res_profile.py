@@ -67,7 +67,7 @@ class PhenoDB(dict):
                     # The acc should be unique and is used here.
                     phenodb_id = line_list[0]
                     phenodb_id = phenodb_id.split("_")
-                    unique_id = phenodb_id[-1]
+                    unique_id = "_".join(phenodb_id[2:])
 
                     ab_class = self.get_csv_tuple(line_list[1].lower())
 
@@ -158,6 +158,14 @@ class PhenoDB(dict):
                     phenodb_id = line_list[0]
                     codon_pos = line_list[3]
                     res_codon_str = line_list[6].lower()
+
+                    # Check if the entry is with a promoter
+                    regex = r"^(.+)_promoter_size_\d+bp$"
+                    promoter_match = re.search(regex, phenodb_id)
+                    if(promoter_match):
+                        reg_name = promoter_match.group(1)
+                        phenodb_id = reg_name + "-promoter"
+
                     unique_id = (phenodb_id + "_" + codon_pos + "_"
                                  + res_codon_str)
 
@@ -482,9 +490,8 @@ class Antibiotics():
 
             for entry in feature_lst:
                 names[entry.unique_id] = [entry.seq_region,
-                                          entry.ref_aa.upper(),
-                                          str(entry.pos),
-                                          entry.mut_aa.upper()]
+                                          entry.mut_string_short]
+
         if(_list):
             return names.keys()
         else:
@@ -572,6 +579,8 @@ class ResProfile():
                     self.add_phenotype(feature, phenotype, update=False)
             else:
                 eprint("Not found in PhenoDB: " + feature.unique_id)
+# DEBUG
+                eprint("DB:\n" + str(list(phenodb.keys())))
                 self.missing_db_features.append(feature)
         self.update_profile()
 

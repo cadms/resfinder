@@ -86,25 +86,96 @@ class Isolate(dict):
                 while(point_hit):
                     hit_list = point_hit.split("\t")
 
+                    # Mutation list examples:
+                    # [gyrA, p.S83L]
+                    # [ampC, promoter, n.-42C>T]
                     mutation_list = hit_list[0].split(" ")
+                    mut_name = []
+                    ins = None
+                    deletion = None
+                    mut_end = None
+                    protein_mut = None
+                    nucleotide_mut = None
 
-                    # First and last chars are ref and mut. Ex.: S83A
-                    pos = mutation_list[1][3:-1]
-                    ref_aa = mutation_list[1][2:3].lower()
-                    mut_aa = mutation_list[1][-1:].lower()
+                    for m in mutation_list:
 
-                    # Codon field looks like: "TCG -> GCG"
-                    ref_codon = hit_list[1][:3].lower()
-                    mut_codon = hit_list[1][-3:].lower()
+                        # Protein / Amino acid mutations
+                        # Ex.: "p.T83I"
+                        if(m.startswith("p.")):
+                            nucleotide_mut = False
 
-                    unique_id = mutation_list[0] + "_" + pos + "_" + mut_aa
+                            mut_match = re.search(
+                                r"^p.(\D{1})(\d+)(\D{1})$", m)
+                            ref_aa = mut_match.group(1).lower()
+                            pos = mut_match.group(2)
+                            mut_aa = mut_match.group(3).lower()
+
+                        # Nucleotide mutations
+                        # Ex. sub: n.-42T>C
+                        # Ex. ins: n.-13_-14insG    (TODO: Verify)
+                        # Ex. del: n.42delT         (TODO: Verify)
+                        # Ex. del: n.42_45del       (TODO: Verify)
+                        elif(m.startswith("n.")):
+                            nucleotide_mut = True
+                            ref_aa = None
+                            mut_aa = None
+
+                            sub_match = re.search(
+                                r"^n.(-{0,1}\d+)(\D{1})>(\D{1})$", m)
+                            ins_match = re.search(
+                                r"^n.(-{0,1}\d+)_(-{0,1}\d+)ins([CTGA]+)$", m)
+                            del_match = re.search((r"^n.(-{0,1}\d+)_{0,1}(-{0,1}\d*)del[CTGA]*$"), m)
+                            if(sub_match):
+                                pos = sub_match.group(1)
+                            elif(ins_match):
+                                ins = True
+                                pos = ins_match.group(1)
+                                mut_end = ins_match.group(2)
+                            elif(del_match):
+                                deletion = True
+                                pos = del_match.group(1)
+                                if(del_match.group(2)):
+                                    mut_end = del_match.group(2)
+
+                        else:
+                            mut_name.append(m)
+
+                    mut_name_str = "-".join(mut_name)
+
+                    # Codon field looks like: "TCG -> GCG" or "G -> C"
+                    # TODO: Camilla, what are possible values of this field?
+                    codon_match = re.search(
+                        r"^(\S+) -> (\S+)$", hit_list[1].lower())
+                    mut_codon = None
+                    if(codon_match):
+                        ref_codon = codon_match.group(1)
+                        mut_codon = codon_match.group(2)
+                    else:
+                        sys.exit(("EEROR: isolate.py failed to match codon: "
+                                  + hit_list[1].lower()))
+
+                    if(not nucleotide_mut):
+                        unique_id = mut_name_str + "_" + pos + "_" + mut_aa
+                    elif(mut_codon):
+                        unique_id = mut_name_str + "_" + pos + "_" + mut_codon
+                    elif(deletion):
+                        unique_id = (mut_name_str + "_" + pos
+                                     + "_del" + ref_codon)
+                    else:
+                        sys.exit(("ERROR: isolate.py was not able to infer a "
+                                  "unique ID. 'mutation_list' contains: "
+                                  + str(mutation_list)))
 
                     mut_feat = Mutation(unique_id=unique_id,
-                                        seq_region=mutation_list[0],
+                                        seq_region=mut_name_str,
                                         pos=pos, ref_codon=ref_codon,
                                         mut_codon=mut_codon, ref_aa=ref_aa,
                                         mut_aa=mut_aa,
-                                        isolate=self)
+                                        isolate=self,
+                                        insertion=ins,
+                                        deletion=deletion,
+                                        end=mut_end,
+                                        nuc=nucleotide_mut)
 
                     if(unique_id in self):
                         temp_list = self[unique_id]
