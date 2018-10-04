@@ -1,71 +1,95 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # --------------------------------------------------------------------
 # %% Setting up %%
+#
+
 use strict;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev pass_through);
+use File::Temp qw/ tempfile tempdir /;
+
 use Bio::SeqIO;
+use Bio::Seq;
 use Bio::SearchIO;
-use Try::Tiny::Retry;
 
 use constant PROGRAM_NAME            => 'ResFinder_v2.pl';
 use constant PROGRAM_NAME_LONG       => 'Findes antimicrobial resitance genes for a sequence or genome';
-use constant VERSION                 => '2.3';
+use constant VERSION                 => '3.0';
 
-#Global variables
-my $BLAST;
-my $BLASTALL;
-my $FORMATDB;
-my $ABRES_DB;
-my $Pheno;
-my ($Help, $AB_indput, $threshold, $min_length, $InFile, $dir);
+# my $BLASTALL  = "/usr/cbs/bio/bin/Linux/x86_64/blastall";
+my $BLASTALL  = "/usr/local/bin/blastall";
+# my $FORMATDB  = "/usr/cbs/bio/bin/Linux/x86_64/formatdb";
+my $FORMATDB  = "/usr/local/bin/formatdb";
+my $ABRES_DB   = "/home/data1/services/ResFinder/database_repository";       # This one should point to a directory containing the files with the antibiotic resistance genes.
+my $Pheno = "$ABRES_DB/notes.txt";
+
+
+my ($Help, $AB_indput, $threshold, $min_length, $InFile, $runroot);
 my $IFormat = "fasta";
 my $OFormat = "ST";
 my %ARGV    = ('-p' => 'blastn', '-a' => '5' , '-F' => 'F');
+my ($checkbox,$species);
 
-#Getting global variables from the command line
-&commandline_parsing();
+&GetOptions (
+  "d=s"     => \$AB_indput,
+  "k=s"     => \$threshold,
+  "l=s"     => \$min_length,
+  "c=s"     => \$checkbox,
+  "s=s"     => \$species,
+  "i=s"     => \$InFile,
+  "I=s"     => \$IFormat,
+  "O=s"     => \$OFormat,
+  "R=s"     => \$runroot,
+  "h|help"  => \$Help               # Prints the help text
+);
 
-if (defined $Help || not defined $AB_indput || not defined $InFile || not defined $threshold || not defined $min_length) {
-   print_help();
-   exit;
+if (defined $Help || not defined $AB_indput) {
+  print_help();
+  exit;
 }
 
-#If there are not given a path to the database or BLAST the program assume that the files are located in the curet directury
-if (not defined $BLAST) {
-   $BLASTALL = "blastall";
-   $FORMATDB = "formatdb";
-}
-if (not defined $ABRES_DB) {
-  $ABRES_DB = "database";
-  $Pheno = "database/notes.txt";
-}
-if (not defined $dir) {
-  $dir = ".";
-}
+my %Temp = @ARGV;
+@ARGV{keys %Temp} = values %Temp;
 
 my $procent_length = 100*$min_length;
 
-# Making tmp directory for BLAST output
-my $tmp_dir = "$dir/tmp";
-mkdir("$dir/tmp");
+# --------------------------------------------------------------------
+# Printing info
+=pod
+print "<style type='text/css'>
+        .bglightgreen{background-color:#BEDCBE;} /*IMPERFECT HIT COLOR*/
+	     .bggrey{background-color:#9D9D9D;} /*WARNING COLOR*/
+	     .bggreen{background-color:#6EBE50;} /*PERFECT HIT COLOR*/
+	     .bgred{background-color:#BF2026;} /*NO HITS COLOR*/
+	     .results th,td{ /*PROPERTIES OF TABLE CELLS*/
+          font-size: 14px;
+          padding: 4px 5px 1px 5px;
+          text-align: center;
+        }
+	     .results th{ /*HEADER COLORS*/
+          color:#FFF;
+          background-color:#3956A6;
+        }
+	     .results td a{color:#3956A6;} /*LINK COLOR*/
+      </style>";
 
-
+print "<h1>ResFinder-3.0 Server - Results: Checkbox - $species </h1>\n<center><br>";
+=cut
 #---------------------------------------------------------------------
 
 # %% Main Program %%
 #
-##################### Antimicrobial families #################
-# Extract Resistance class names from config file
+## AVAILABLE antimicrobial families ##
+  # hash mapping the ARGF profiles to antibiotic names
 my %argfProfiles=();
-open(IN, '<', "$ABRES_DB/config") or die "Error: $!\n";
+##################### Antimicrobial families ################# ="Aminoglycoside";
+open(IN, '<', "$ABRES_DB/config") or die "Could't open config file!\n";
 while (defined(my $line = <IN>)) {
    next if $line =~ m/^#/;  # discard comments
    my @tmp = split("\t", $line);
    $argfProfiles{$tmp[0]} = $tmp[1];
 }
 close IN;
-
 # -----------------------
 #Making phenotype list
 my %Pheno_hash = &phenolist($Pheno);
@@ -79,8 +103,8 @@ my %FINAL_RESULTS; # will contain the results for txt printing
 
 ### Variables for text-printing ###
 my $txtresults= "ResFinder result file\n\n"; #Added to txt print
-my $tableresult = "";
-my $tabr .= "Resistance gene\tIdentity\tQuery/HSP\tContig\tPosition in contig\tPhenotype\tAccession no.\n"; #added to print tab-separated txt file
+my $tabr = ''; # Making empty tab result
+#$txtresults .= "Resistance gene\tIdentity\tAllele Lenght/HSP\tContig\tPosition in contig\tAccession no.\n";
 my  $contigtable ="\nContig Table\n"; #added to txt print
 $contigtable .= "-----------\n";
 my $alignment = "\n\nAlignments as text\n_________________________________________________________________________________\n";
@@ -88,29 +112,49 @@ my @headarray = ("RES. GENE       ", "IDENTITY  ", "QUERY/HSP     ", "CONTIG  ",
 my $resalign = ""; #Added for alignment print
 my $hits_in_seq = ""; #Added for alignment print
 
+#### FINDING THE RUNROOT ## Added to print textresults
+#my @tmpArrRunroot = split(/final_input/, $InFile);
+my @tmpArrRunroot = split(/inputs/, $InFile);
+#my $runroot = $tmpArrRunroot[0];
+my $dir;
+if($runroot){
+  $dir = $runroot."/downloads/";
+}
+else{
+  $runroot = "./";
+  $dir = "./";
+}
+
+# SETTING THE OUTPUT FOLDER (DOWNLOAD)
+#my $dir = $runroot."downloads/";
+#my $dir = "downloads/";
+
+#If all databases is called
+if ($AB_indput eq "ALL") {
+  $AB_indput = "aminoglycoside,beta-lactamase,colistin,quinolone,fosfomycin,fusidicacid,macrolide,nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,vancomycin";
+}
+
+
 # Finding genes for each chosen antimicrobial family
 my $antibiocount = 0;
 my @Antimicrobial = split(/,/,$AB_indput);
 foreach my $element(@Antimicrobial){
+  #print "$element\n";
   $antibiocount ++;
   my $CurrentAnti = $element;
   # Run BLAST and find best matching Alleles
-  
-  my ($Seqs_ABres, $Seqs_input, @Blast_lines);
-  
-  retry{
-      $Seqs_ABres   = read_seqs(-file => $ABRES_DB.'/'.$element.'.fsa', format => 'fasta');  
-      $Seqs_input  = $InFile ne "" ? read_seqs(-file => $InFile, -format => $IFormat) : 
+  my $Seqs_ABres   = read_seqs(-file => $ABRES_DB.'/'.$element.'.fsa', -format => 'fasta');  
+  my $Seqs_input  = $InFile ne "" ? read_seqs(-file => $InFile, -format => $IFormat) : 
                                   read_seqs(-fh => \*STDIN,   -format => $IFormat);
-   
-      @Blast_lines = get_blast_run($tmp_dir, $element, -d => $Seqs_input, -i => $Seqs_ABres, %ARGV);
-   }
-   catch{ die $_ };
-  
+
+  my @Blast_lines = get_blast_run(-d => $Seqs_input, -i => $Seqs_ABres, %ARGV);
  
   #Declaring variables - array and hash
   my @RESULTS_AND_SETTINGS_ARRAY; #will contain the typing results some setting and the hash with the results for each gene
   my @GENE_RESULTS_ARRAY; #will contain the typing results some setting and the hash with the results for each gene
+  #my %GENE_ALIGN_HIT_HASH; #will contain the sequence alignment lines
+  #my %GENE_ALIGN_HOMO_HASH; #will contain the sequence alignment homolog string
+  #my %GENE_ALIGN_QUERY_HASH; #will contain the sequence alignment allele string
   my %GENE_RESULTS_HASH;
   # Declaring variables for each BLAST
   my %ABres;
@@ -160,13 +204,17 @@ foreach my $element(@Antimicrobial){
     my $id2 = $qid.":".$hit_start."_".$hit_end."_".$bits;
     my $id = $hit_start."_".$hit_end."_".$contig_name;
     #print "$id\n";
-    #print "query_length: $query_length, hsp_length: $hsp_length, ident: $ident, bits: $bits, score: $calc_score, hit_start: $hit_start, hit_end: $hit_end, gaps: $gaps, contig: $contig_name\n"; 
-    
+    #print "<h1>query_length: $query_length, hsp_length: $hsp_length, ident: $ident, bits: $bits, score: $calc_score, hit_start: $hit_start, hit_end: $hit_end, gaps: $gaps, contig: $contig_name\n</h1>"; 
+
     #making 
-    
+
     # Save BLAST results, sorting on position and contig
     if (exists $BITS{$id}){
-      #print "if exists, BITS{id}: $BITS{$id}, bits: $bits, qid: $qid\n";
+      #print "if exists, BITS{id}: $BITS{$id}, bits: $bits, $calc_score qid: $qid, id: $ident, lenght (q/h): $query_length/$hsp_length\n";
+		#if ($ident == 100 and $query_length/$hsp_length == 1) {
+		#	$calc_score = $calc_score*100;
+		#	$bits = $bits*100;
+		#}
       if ($calc_score == $ABres{$id} and $bits > $BITS{$id}) {
         $ABres{$id}  = $calc_score; #%MLST and %PERC_IDENT are later used to find the best query ID at the next level (adk1.., adk2.., adk3.. ->  dk2..). 
         $GENEID{$id} = $qid; #Query ID, genename_connecter_accessionnumber, e.g. tet(C)_2_AB123456
@@ -232,9 +280,9 @@ foreach my $element(@Antimicrobial){
       #print "else; ID: $id\tGENE: $GENEID{$id}\n";
     }
   }
-  
-  
-  # Saving the best hits in each contig for each position
+
+
+  #Saving the best hits in each contig for each porsition
   foreach my $contig (keys %HoA_sort){
     #print "First level: $contig\n";
     my @list;
@@ -250,10 +298,10 @@ foreach my $element(@Antimicrobial){
       $k++;
     }
   
-    # Sorting AoA aftener start position in contig
+    #Sorting AoA aftener start position in contig
     my @sorted = sort { $a->[0] <=> $b->[0] } @list;
     
-    # Sorting, so overlapping genes are removed
+    #Sorting, so overlapping genes are removed
     my $start = 0;
     my $end = 1;
     my $contig = 2;
@@ -265,15 +313,21 @@ foreach my $element(@Antimicrobial){
     if ($#sorted == 0) {
       push(@best_hit, "$sorted[0][0]_$sorted[0][1]_$sorted[0][2]");
     }
-    until ($next > $#sorted ) { # as long $first <= 4 and $next <= 5
+    until ($next > $#sorted ) { # sŒ l¾nge $first <= 4 og $next <= 5
       if ($#sorted == 1) {
-        if ($sorted[$first][$bits] >= $sorted[$next][$bits]) {
+        if ($sorted[$first][$end] <= $sorted[$next][$start]) { # if the two hits dos not overlap, save both
+			push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
+			push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
+			#print "2 hits, save both\n";
+			$next = 2;
+		  }
+		  elsif ($sorted[$first][$bits] >= $sorted[$next][$bits]) {
           push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
-          #print "Sorted == 1, first: $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]";
+          #print "Sorted == 1, first: $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]\n";
           $next++;
         } else {
           push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
-          #print "Sorted == 1, next: $sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]";
+          #print "Sorted == 1, next: $sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]\n";
           $next++;
         }
       }
@@ -281,26 +335,27 @@ foreach my $element(@Antimicrobial){
         if ($next == $#sorted) {
           push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
           push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
-          #print "if end<start, first: $first, next: $next\t$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]\t$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]\n";
+          #print "if end<start, first: $first, next: $next\t$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3]\t$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][3]\n";
           $first = $next;
           $next++;
         } else {
           push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
-          #print "if end<start, first: $first, next: $next\t$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]\n";
+          #print "if end<start, first: $first, next: $next\t$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3]\n";
           $first = $next;
           $next++;
         }        
       }
-      elsif ( ($sorted[$first][$end] >= $sorted[$next][$start]+1) && ($sorted[$first][$end] < $sorted[$next][$start]+30)) { # overlap 1-30, Vancomycin A-H overlap 3, 7, 10, 17, 22
+      elsif ( ($sorted[$first][$end] >= $sorted[$next][$start]+1) && ($sorted[$first][$end]-$sorted[$next][$start] <= 30))  { # overlap 1-30, Vancomycin A-H overlap 3, 7, 10, 17, 22
         push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
-        #print "if +1-30, first: $first, next: $next\tsave: $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]\n";
+        #print "if +1-30, first: $first, next: $next\tsave: $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3]\n";
         $first = $next;
         $next++;
       }
       elsif (($sorted[$first][$end] > $sorted[$next][$start]) && ($sorted[$first][$calc_score] < $sorted[$next][$calc_score])){ # If first end is after next start + first is better...
         if ($next == $#sorted){
           push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
-          #print "1>2: $next\n";
+          #print "1>2: $first, $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3], bits: $sorted[$first][$bits] cal_score: $sorted[$first][$calc_score]\n";
+          #print "1>2: $next, $sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][3], bits: $sorted[$next][$bits] cal_score: $sorted[$next][$calc_score]\n";
           $next++;
         } else {
           #print "1>2: first: $first, next: $next\n";
@@ -310,7 +365,7 @@ foreach my $element(@Antimicrobial){
       elsif (($sorted[$first][$end] > $sorted[$next][$start]) && ($sorted[$first][$calc_score] > $sorted[$next][$calc_score])) { #If first end is after next start + next is better...
         if ($next == $#sorted){
           push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
-          #print "1<=2: $next\n";
+          #print "1<=2: first: $first, next: $next, $sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][3]\n";
           $next++;
         } else {
           #print "1<=2: first: $first, next: $next\n";
@@ -319,55 +374,69 @@ foreach my $element(@Antimicrobial){
         }  
       }
       elsif (($sorted[$first][$end] > $sorted[$next][$start]) && ($sorted[$first][$calc_score] == $sorted[$next][$calc_score])) { # If Calc_score ==
-        if ($sorted[$first][$bits] > $sorted[$next][$bits]) { # First bits > next bits => first better
+        #my $f = "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]";
+        #my $n = "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]";
+        #print "ID: $PERC_IDENT{$f}\t$PERC_IDENT{$n}\n";
+        if ($PERC_IDENT{"$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]"} == 100 ) {
+          push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
+          $next++;
+          #print "1>2==: first: $first, next: $next, $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3], $PERC_IDENT{$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]}\n";
+        }
+        elsif ($PERC_IDENT{"$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]"} == 100 ){
+          push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
+          $first = $next;
+          $next++;
+        }
+        elsif ($sorted[$first][$bits] > $sorted[$next][$bits]) { # First bits > next bits => first better
           if ($next == $#sorted){
             push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
-            #print "1>2: $next\n";
+            #print "1>2==: first: $first, next: $next, $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][3]\n";
             $next++;
           } else {
-            #print "1>2: first: $first, next: $next\n";
+            #print "1>2==: first: $first, $sorted[$first][$bits] $sorted[$first][3] next: $next $sorted[$next][$bits] $sorted[$next][3]\n";
             $next++;
           }
         } 
         elsif ($sorted[$first][$bits] <= $sorted[$next][$bits]) { # Next bits > first bits => next better...
           if ($next == $#sorted){
             push (@best_hit, "$sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][$contig]");
-            #print "1<=2: $next\n";
+            #print "1<=2bits: first: $first, next: $next, $sorted[$next][$start]_$sorted[$next][$end]_$sorted[$next][3]\n";
             $next++;
           } else {
-            #print "1<=2: first: $first, next: $next\n";
+            #print "1<=2bits: first: $first, next: $next\n";
             $first = $next;
             $next++;
           }  
         } 
       }
       elsif ($next == $#sorted){
-        #print "First = length: first: $first, next: $next\t";
+        #print "First = length: first: $first, next: $next, $sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$3]\t";
         push (@best_hit, "$sorted[$first][$start]_$sorted[$first][$end]_$sorted[$first][$contig]");
         $next++;
       }
     }
   }
-  
+
   my @control;
   my $major_variants_detector = 0;
   # Savning the best hits for output/results, with nice output
   foreach my $gene (@best_hit){
     #print "Gene: $gene\t$GENEID{$gene}\n"; # $gene = $qid2, "hit_start"_"hit_end"_"contig_name", $GENEID{$gene} = $qid = genename_connecter_accessionNR (tet(A)_1_AB12345)
-    
+
     my $data = $gene;
-    
-    # Get accession number
+
+    #Get accession number
     my @tmp = split(/_/, $GENEID{$gene},3);
     my $genename = $tmp[0];
     my $accNR = $tmp[2];
     #print "Gene: $genename\tAcc: $accNR\n";
-    
+
     $GENE_RESULTS_HASH{$gene} = ();
     $GENE_ALIGN_HIT_HASH{$gene} = ();
     $GENE_ALIGN_HOMO_HASH{$gene} = ();
     $GENE_ALIGN_QUERY_HASH{$gene} = ();
-    
+
+    #Declaring variables
     my $sub_contig;
     my $sub_rev_contig;
     my $final_contig;
@@ -380,11 +449,11 @@ foreach my $element(@Antimicrobial){
     my @gaps_in_hit;
     my $no_gaps_gene = 0;
     my $no_gaps_hit = 0;
-    
+
     # Position in contig
     my $position = "$HIT_START{$data}..$HIT_END{$data}";
   
-    # Finding genes with a %ID >= threshold, savning results for output-print in html
+    #Finding genes with a %ID >= threshold, savning results for output-print in html
     if ($HSP_LENGTH{$data} >= ($min_length)*$QUERY_LENGTH{$data} and $PERC_IDENT{$data} >= $threshold) {
       push(@control, $data);
       if ($HSP_LENGTH{$data} == $QUERY_LENGTH{$data} and $PERC_IDENT{$data} == 100.00){ #If 100% length and %id = 100
@@ -394,7 +463,7 @@ foreach my $element(@Antimicrobial){
         my $phenores;
         if (exists $Pheno_hash{$genename}){
           $phenores = $Pheno_hash{$genename};
-        } # End if (exists $Pheno_hash{$gene})
+        } #End if (exists $Pheno_hash{$gene})
         push(@{$GENE_RESULTS_HASH{$gene}},sprintf("%.2f", $PERC_IDENT{$data})); #% ID
         push(@{$GENE_RESULTS_HASH{$gene}}, $QUERY_LENGTH{$data}); # Query lenght
         push(@{$GENE_RESULTS_HASH{$gene}}, $HSP_LENGTH{$data}); # HSP langht
@@ -443,32 +512,32 @@ foreach my $element(@Antimicrobial){
         push(@{$GENE_RESULTS_HASH2{$gene}}, $QUERY_START{$data}); #
         push(@{$GENE_RESULTS_HASH2{$gene}}, $genename);
         #print "$QUERY_LENGTH{$data}, $HSP_LENGTH{$data}, $CONTIG_NAME{$data}, $position, $data\n";
-        # Identifying gaps in the MLST allele string and hit string
+              #Identifying gaps in the MLST allele string and hit string
         @gaps_in_gene = Getting_gaps($Q_STRING{$data});
         @gaps_in_hit = Getting_gaps($HIT_STRING{$data});
         #foreach my $elem (@gaps_in_hit){
         #print "####\n$elem\n#####";
         #}
-        
+    
         $no_gaps_gene = scalar @gaps_in_gene;
         $no_gaps_hit = scalar @gaps_in_hit;
-        
-        # Getting the complete mlst allele (even thought it may not all be part of the HSP)   
+
+        #Getting the complete mlst allele (even thought it may not all be part of the HSP)   
         my @array_for_getting_mlst_seq = ($GENEID{$data});
         my $Seqs_ref = grep_ids(-seqs => $Seqs_ABres, -ids => \@array_for_getting_mlst_seq);  
         for (@{ $Seqs_ref }) {
           $seq_lower_case = lc($_->seq);
         }
-        
-        # Getting the right contig
+    
+        #Getting the right contig
         my @array_for_getting_genome_seq = ($CONTIG_NAME{$data});
         my $Seqs_genome_ref = grep_ids(-seqs => $Seqs_input, -ids => \@array_for_getting_genome_seq);  
         for (@{ $Seqs_genome_ref }) {
           my $contig = lc($_->seq);
-          my $length_contig = length($contig);  #Redundant, da jeg ogsï¿½ v.h.a. bioperl finder hit length
-          
-          # Getting the right sub_contig depends on which strand the hit is on
-          # If the hit is on the +1 
+          my $length_contig = length($contig);  #Redundant, da jeg ogsŒ v.h.a. bioperl finder hit length
+       
+          #Getting the right sub_contig depends on which strand the hit is on
+          #If the hit is on the +1 
           if ($HIT_STRAND{$data} == 1){
             if (($QUERY_START{$data} == 1) && (($QUERY_LENGTH{$data} + $no_gaps_gene) == $HSP_LENGTH{$data})){  
               $variant = 1;
@@ -490,26 +559,29 @@ foreach my $element(@Antimicrobial){
                 $variant = 4;
                 $major_variants_detector = 1;
                 $sub_contig = substr($contig, 0,  ( $HIT_START{$data} + (($QUERY_LENGTH{$data} + $no_gaps_gene) - $QUERY_START{$data})));
-                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||ï¿½|||ï¿½||") should be preceeded by spaces
+                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||Ê|||Ê||") should be preceeded by spaces
                 $spaces_hit = $QUERY_START{$data} - $HIT_START{$data} + 1;
                 $spaces_match_string = $QUERY_START{$data};
-              } else {    
+              }
+              else {    
                 if ((($HIT_START{$data} - $QUERY_START{$data}) + ($QUERY_LENGTH{$data} + $no_gaps_gene)) < ($HIT_LENGTH{$data} + $no_gaps_hit)){
                   $variant = "5a";
                   $sub_contig = substr($contig, ($HIT_START{$data} - $QUERY_START{$data}), ($QUERY_LENGTH{$data} + $no_gaps_gene));
                   $spaces_match_string = $QUERY_START{$data};
-                } else {
+                }
+                else {
                   $variant = "5b";
                   #$major_variants_detector = 1;
                   $sub_contig = substr($contig, ($HIT_START{$data} - $QUERY_START{$data}),  ((($HIT_LENGTH{$data} + $no_gaps_hit) - $HIT_START{$data}) + $QUERY_START{$data} -1 ));
                   $spaces_match_string = $QUERY_START{$data};
                 }
               }
-            } else {
+            }
+            else {
               #print "New option not taken into account!\n";
             }
           } 
-          
+       
           #If the hit is on the -1 strand
           elsif ($HIT_STRAND{$data} == -1){
             if (($QUERY_START{$data} == 1) && (($QUERY_LENGTH{$data} + $no_gaps_gene) == $HSP_LENGTH{$data})){
@@ -555,7 +627,8 @@ foreach my $element(@Antimicrobial){
                   }
                 }
               }
-            } else {    
+            }
+            else {    
               #print "New option not taken into account!\n";       
             }
             
@@ -564,7 +637,7 @@ foreach my $element(@Antimicrobial){
             $sub_contig = $sub_rev_contig;
           } # End elsif ($HIT_STRAND{$data} == -1){
         } # End for (@{ $Seqs_genome_ref }) {
-        
+
         #Adding gaps to the sub_contig (if there are any) leading to the creation of final_contig
         if ($no_gaps_hit > 0){
           my $hsp_length1 = (length $sub_contig) + $no_gaps_hit;
@@ -598,13 +671,13 @@ foreach my $element(@Antimicrobial){
             }
             $final_contig .= $sign1;
             ++$start1;
-          } # END for (my $i = 0 ; $i < $hsp_length1 ; ++$i){
-        } # END if ($no_gaps_hit > 0){
+          } #END for (my $i = 0 ; $i < $hsp_length1 ; ++$i){
+        } #END if ($no_gaps_hit > 0){
         else {
           $final_contig = $sub_contig;
         }
         #print "####\n final hit contig: $final_contig\n ##################";   
-        # Adding gaps to the mlst allele sequence, $seq_lower_case (if there are any) leading to the creation of final_seq_lower_case
+        #Adding gaps to the mlst allele sequence, $seq_lower_case (if there are any) leading to the creation of final_seq_lower_case
         if ($no_gaps_gene > 0){
           my $hsp_length2 = (length $seq_lower_case) + $no_gaps_gene;
           my $sign2;
@@ -630,14 +703,14 @@ foreach my $element(@Antimicrobial){
           $final_seq_lower_case = $seq_lower_case;
         }      
       } 
-      else { # If length !=
+      else { #If length !=
         push(@{$GENE_RESULTS_HASH{$gene}}, "warning2");
         push(@{$GENE_RESULTS_HASH2{$gene}}, "warning2");
         #print "warning2 - $gene\n";
         my $phenores;
         if (exists $Pheno_hash{$genename}){
           $phenores = $Pheno_hash{$genename};
-        } # End if (exists $Pheno_hash{$gene})
+        } #End if (exists $Pheno_hash{$gene})
         push(@{$GENE_RESULTS_HASH{$gene}},sprintf("%.2f", $PERC_IDENT{$data})); #% ID
         push(@{$GENE_RESULTS_HASH{$gene}}, $QUERY_LENGTH{$data}); # Query lenght
         push(@{$GENE_RESULTS_HASH{$gene}}, $HSP_LENGTH{$data}); # HSP langht
@@ -658,32 +731,32 @@ foreach my $element(@Antimicrobial){
         push(@{$GENE_RESULTS_HASH2{$gene}}, $QUERY_START{$data}); 
         push(@{$GENE_RESULTS_HASH2{$gene}}, $genename);
         
-        # Identifying gaps in the MLST allele string and hit string
+        #Identifying gaps in the MLST allele string and hit string
         @gaps_in_gene = Getting_gaps($Q_STRING{$data});
         @gaps_in_hit = Getting_gaps($HIT_STRING{$data});
         #foreach my $elem (@gaps_in_hit){
         #print "####\n$elem\n#####";
         #}
-        
+    
         $no_gaps_gene = scalar @gaps_in_gene;
         $no_gaps_hit = scalar @gaps_in_hit;
-        
-        # Getting the complete mlst allele (even thought it may not all be part of the HSP)   
+
+        #Getting the complete mlst allele (even thought it may not all be part of the HSP)   
         my @array_for_getting_mlst_seq = ($GENEID{$data});
         my $Seqs_ref = grep_ids(-seqs => $Seqs_ABres, -ids => \@array_for_getting_mlst_seq);  
         for (@{ $Seqs_ref }) {
           $seq_lower_case = lc($_->seq);
         }
-        
-        # Getting the right contig
+    
+        #Getting the right contig
         my @array_for_getting_genome_seq = ($CONTIG_NAME{$data});
         my $Seqs_genome_ref = grep_ids(-seqs => $Seqs_input, -ids => \@array_for_getting_genome_seq);  
         for (@{ $Seqs_genome_ref }) {
           my $contig = lc($_->seq);
-          my $length_contig = length($contig);  # Redundant, since bioperl finds hit length
-          
-          # Getting the right sub_contig depends on which strand the hit is on
-          # If the hit is on the +1 
+          my $length_contig = length($contig);  #Redundant, da jeg ogsŒ v.h.a. bioperl finder hit length
+       
+          #Getting the right sub_contig depends on which strand the hit is on
+          #If the hit is on the +1 
           if ($HIT_STRAND{$data} == 1){
             if (($QUERY_START{$data} == 1) && (($QUERY_LENGTH{$data} + $no_gaps_gene) == $HSP_LENGTH{$data})){  
               $variant = 1;
@@ -705,7 +778,7 @@ foreach my $element(@Antimicrobial){
                 $variant = 4;
                 $major_variants_detector = 1;
                 $sub_contig = substr($contig, 0,  ( $HIT_START{$data} + (($QUERY_LENGTH{$data} + $no_gaps_gene) - $QUERY_START{$data})));
-                # If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||ï¿½|||ï¿½||") should be preceeded by spaces
+                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome. Likewise, the match-string (the "||Ê|||Ê||") should be preceeded by spaces
                 $spaces_hit = $QUERY_START{$data} - $HIT_START{$data} + 1;
                 $spaces_match_string = $QUERY_START{$data};
               }
@@ -722,11 +795,12 @@ foreach my $element(@Antimicrobial){
                   $spaces_match_string = $QUERY_START{$data};
                 }
               }
-            } else {
+            }
+            else {
               #print "New option not taken into account!\n";
             }
           } 
-          
+       
           #If the hit is on the -1 strand
           elsif ($HIT_STRAND{$data} == -1){
             if (($QUERY_START{$data} == 1) && (($QUERY_LENGTH{$data} + $no_gaps_gene) == $HSP_LENGTH{$data})){
@@ -746,7 +820,7 @@ foreach my $element(@Antimicrobial){
             }
             elsif ($QUERY_START{$data} > 1){
               if (($HIT_START{$data} + $QUERY_LENGTH{$data}) > $length_contig){ 
-                # If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome
+                #If, as here, the HSP only starts some nucleotides within the mlst allele, a number of spaces must be written before the matching string from the genome
                 $variant = 10;
                 $major_variants_detector = 1;
                 $spaces_hit = $QUERY_START{$data} - ($length_contig - $HIT_END{$data}) ;
@@ -772,7 +846,8 @@ foreach my $element(@Antimicrobial){
                   }
                 }
               }
-            } else {    
+            }
+            else {    
               #print "New option not taken into account!\n";       
             }
             
@@ -781,8 +856,8 @@ foreach my $element(@Antimicrobial){
             $sub_contig = $sub_rev_contig;
           } # End elsif ($HIT_STRAND{$data} == -1){
         } # End for (@{ $Seqs_genome_ref }) {
-        
-        # Adding gaps to the sub_contig (if there are any) leading to the creation of final_contig
+
+        #Adding gaps to the sub_contig (if there are any) leading to the creation of final_contig
         if ($no_gaps_hit > 0){
           my $hsp_length1 = (length $sub_contig) + $no_gaps_hit;
           my $sign1;
@@ -815,13 +890,13 @@ foreach my $element(@Antimicrobial){
             }
             $final_contig .= $sign1;
             ++$start1;
-          } # END for (my $i = 0 ; $i < $hsp_length1 ; ++$i){
-        } # END if ($no_gaps_hit > 0){
+          } #END for (my $i = 0 ; $i < $hsp_length1 ; ++$i){
+        } #END if ($no_gaps_hit > 0){
         else {
           $final_contig = $sub_contig;
         }
         #print "####\n final hit contig: $final_contig\n ##################";   
-        # Adding gaps to the mlst allele sequence, $seq_lower_case (if there are any) leading to the creation of final_seq_lower_case
+        #Adding gaps to the mlst allele sequence, $seq_lower_case (if there are any) leading to the creation of final_seq_lower_case
         if ($no_gaps_gene > 0){
           my $hsp_length2 = (length $seq_lower_case) + $no_gaps_gene;
           my $sign2;
@@ -848,8 +923,8 @@ foreach my $element(@Antimicrobial){
         }      
       }# END else# End else
       
-      # Nicely printing the sequences
-      #print contig_name
+      #Nicely printing the sequences
+      # print contig_name
       #print "Con: $CONTIG_NAME{$data}, HSP: $HSP_LENGTH{$data}, Acc: $accNR, Pos: $position\t";
       #push(@{$GENE_ALIGN_HIT_HASH{$gene}}, $CONTIG_NAME{$data});
       #print "Variant: $variant\n";
@@ -860,7 +935,7 @@ foreach my $element(@Antimicrobial){
         #print $ABres_substr . "\n";
         push(@{$GENE_ALIGN_QUERY_HASH{$gene}}, $ABres_substr);
    
-        #Printing spaces before the match string with the "||ï¿½||||ï¿½||ï¿½||" and the string itself
+        #Printing spaces before the match string with the "||Ê||||Ê||Ê||" and the string itself
         #print "                   ";
         my $string_spaces = "";  #For saving the spaces as a string of spaces instead of a number of spaces
         for (my $i = 1 ; $i < $spaces_match_string; ++$i){
@@ -871,7 +946,7 @@ foreach my $element(@Antimicrobial){
         #print $homo_string_substr . "\n";
         push(@{$GENE_ALIGN_HOMO_HASH{$gene}}, $homo_string_substr);
    
-        # Printing the match in the genome
+        #Printing the match in the genome
         my $string_spaces_hit = "";  #For saving the spaces as a string of spaces instead of a number of spaces
         for (my $i = 1 ; $i < $spaces_hit ; ++$i){
           $string_spaces_hit .= " ";  
@@ -888,7 +963,8 @@ foreach my $element(@Antimicrobial){
       delete $GENE_RESULTS_HASH{$gene};
     } # End else
   } # End foreach my $gene (keys %Profile){
-  
+
+
   my $length = scalar@control;
   push(@RESULTS_AND_SETTINGS_ARRAY, $length);
   push(@RESULTS_AND_SETTINGS_ARRAY, $argfProfiles{$element});
@@ -896,12 +972,16 @@ foreach my $element(@Antimicrobial){
   push(@RESULTS_AND_SETTINGS_ARRAY, $threshold);
   push(@RESULTS_AND_SETTINGS_ARRAY, $procent_length);
   
-  # Making the header of for the tab seperated result file
-  $tableresult .= $argfProfiles{$CurrentAnti};  
+  #print_html_results(\@RESULTS_AND_SETTINGS_ARRAY, \%GENE_RESULTS_HASH);
+  
+
+  ## Making the header of for the tab seperated result file
+  $tabr .= $argfProfiles{$CurrentAnti};  
   if (!%GENE_RESULTS_HASH) {
-    $tableresult .= "\nNo resistance genes found.\n"
-  } else {
-    $tableresult .= "\nResistance gene\tIdentity\tQuery/HSP\tContig\tPosition in contig\tPhenotype\tAccession no.\n"; #added to print tab-separated txt file
+    $tabr .= "\nNo resistance genes found.\n"
+  }
+  else {
+    $tabr .= "\nResistance gene\tIdentity\tQuery/HSP\tContig\tPosition in contig\tPhenotype\tAccession no.\n"; #added to print tab-separated txt file
     
     ## Making a hash with results for txt printing WORKS
     foreach my $key (sort keys %GENE_RESULTS_HASH) {
@@ -911,15 +991,14 @@ foreach my $element(@Antimicrobial){
       $FINAL_RESULTS{$key}= [@$array[9], @$array[1], @$array[2], @$array[3],  @$array[4], @$array[5], @$array[8], $CurrentAnti, $phenotype];
       #$contigtable .= "Contig ".$antibiocount." is ".@$array[4]."\n";
       #$contigtable .= "-----------\n";
-      
+        
       $tabr .= @$array[9]."\t".@$array[1]."\t".@$array[2]."/".@$array[3]."\t".@$array[4]."\t".@$array[5]."\t".$phenotype."\t".@$array[8]."\n";
-      $tableresult .= @$array[9]."\t".@$array[1]."\t".@$array[2]."/".@$array[3]."\t".@$array[4]."\t".@$array[5]."\t".$phenotype."\t".@$array[8]."\n";
     }
   }
   
   # Ekstra newline indicating that the result for the current anti has ended and a new can begin in the tab result
-  $tableresult .= "\n";
-  
+  $tabr .= "\n";
+
 } # End foreach my $element(@Antimicrobial){
 
 my $contigcount = 0; ## To give the contig numbers and put the real contig names in a table
@@ -952,13 +1031,16 @@ foreach my $key (sort keys %FINAL_RESULTS) {
 }
 
 ## Printing the alignments as text, making a txt string with alignment
+  
 foreach my $key (sort keys %GENE_RESULTS_HASH2) {
-  # print header line for each gene
+  	# print header line for each gene
+	  
   my $array = $GENE_RESULTS_HASH2{$key}; 
   my $outStr = @$array[7];
   my $hspLen = @$array[3];
   my $qStart = @$array[6];
   my $qEnd = $qStart + $hspLen - 1;
+    #my $matchAll = lc(@$array[5]);
   if (@$array[0] eq "perfect" ){
 	 $outStr .= ": PERFECT MATCH, "; 
   }
@@ -969,120 +1051,59 @@ foreach my $key (sort keys %GENE_RESULTS_HASH2) {
     $outStr = $outStr.": WARNING2, "; 
   }  
   $alignment .= $outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Contig name: ".@$array[4].", Position: ".@$array[5]."\n\n";
-  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Positions in reference: ".$qStart."..".$qEnd.", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mï¿½ske forkert text
+  $hits_in_seq .= ">".$outStr."ID: ".@$array[1]."%, HSP/Length: ".@$array[3]."/".@$array[2]. ", Positions in reference: ".$qStart."..".$qEnd.", Contig name: ".@$array[4].", Position: ".@$array[5]."\n"; #mŒske forkert text
   $resalign .= ">".@$array[7]."\n";
-  
-  # now print the alleles
+
+	 #now print the alleles
   my $queryArray = $GENE_ALIGN_QUERY_HASH{$key};
   my $homoArray = $GENE_ALIGN_HOMO_HASH{$key};
   my $hitArray = $GENE_ALIGN_HIT_HASH{$key};
-  
+	
   for (my $i=0; $i < scalar(@$hitArray); $i++){
 	 my $tmpQuerySingleLine = @$queryArray[$i];
 	 my $tmpHomoSingleLine = @$homoArray[$i];
 	 my $tmpHitSingleLine = @$hitArray[$i];
+
 	 $alignment .= "Resistance gene seq: ".$tmpQuerySingleLine."\n";
 	 $alignment .= "                     ".$tmpHomoSingleLine."\n";
 	 $alignment .= "Hit in genome:       ".$tmpHitSingleLine."\n\n";
 	 $resalign .= $tmpQuerySingleLine."\n";
 	 $hits_in_seq .= $tmpHitSingleLine."\n";
-  } # end for
+  }#end for
   $alignment .= "\n--------------------------------------------------------------------------------\n\n";
-} # end foreach
+}#end foreach
   
-# WRITING results.txt
-open (TXTRESULTS, '>>',"$dir/results.txt") or die("Error! Could not write to $dir"."results.txt\n");
+		#WRITING standard_output.txt
+open (TXTRESULTS, '>>',$dir.'results.txt') or die("Error! Could not write to $dir"."results.txt\n");
 print TXTRESULTS $txtresults;
 print TXTRESULTS $contigtable;
 print TXTRESULTS $alignment;
 close (TXTRESULTS);
+#print $txtresults; #printing to screen	
 
-# Print table output
-open (TABLER, '>',"$dir/results_table.txt") or die("Error! Could not write to results_table.txt");
-print TABLER $tableresult;
-close (TABLER);
 
-# Print tab output
-open (TABR, '>', "$dir/results_tab.txt") or die("Error! Could not write to results_tab.txt");
+open (TABR, '>',$dir.'results_tab.txt') or die("Error! Could not write to results_tab.txt");
 print TABR $tabr;
 close (TABR);
 
-# WRITING Hit_in_genome_seq.fsa
-open (HIT, '>'."$dir/Hit_in_genome_seq.fsa") || die("Error! Could not write to Hit_in_genome_seq.fsa");
+
+	#WRITING Hit_in_genome_seq.fsa
+open (HIT, '>'.$dir.'Hit_in_genome_seq.fsa') || die("Error! Could not write to Hit_in_genome_seq.fsa");
 print HIT $hits_in_seq;
 close (HIT);
 
-# WRITING Resistance_gene_seq.fsa
-open (ALLELE, '>'."$dir/Resistance_gene_seq.fsa") || die("Error! Could not write to Resistance_gene_seq.fsa");
+#WRITING Resistance_gene_seq.fsa
+open (ALLELE, '>'.$dir.'Resistance_gene_seq.fsa') || die("Error! Could not write to Resistance_gene_seq.fsa");
 print ALLELE $resalign;
 close (ALLELE);
 
-system("rm -r error.log");
-system("rm -r formatdb.log");
-system("rm -r  $tmp_dir/");
-
 exit;
+
+
 
 # --------------------------------------------------------------------
 # %% Land of the Subroutines %%
-
-sub commandline_parsing {
-    while (scalar @ARGV) {
-        if ($ARGV[0] =~ m/^-d$/) {
-            $ABRES_DB = $ARGV[1];
-			   $Pheno = "$ABRES_DB/notes.txt";
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-b$/) {
-            $BLAST = $ARGV[1];
-			   $BLASTALL = "$BLAST/bin/blastall";
-            $FORMATDB = "$BLAST/bin/formatdb";
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-l$/) {
-            $min_length = $ARGV[1];
-            shift @ARGV;
-            shift @ARGV;
-        }
-		elsif ($ARGV[0] =~ m/^-k$/) {
-            $threshold = $ARGV[1];
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-a$/) {
-            if ($ARGV[1] eq 'all') {
-            $AB_indput = 'aminoglycoside,beta-lactamase,quinolone,fosfomycin,fusidicacid,macrolide,nitroimidazole,oxazolidinone,phenicol,rifampicin,sulphonamide,tetracycline,trimethoprim,glycopeptide'
-			}
-			else {
-			  $AB_indput = $ARGV[1];
-			}
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-i$/) {
-            $InFile = $ARGV[1];
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-o$/) {
-            $dir = $ARGV[1];
-            mkdir $dir;
-            shift @ARGV;
-            shift @ARGV;
-        }
-        elsif ($ARGV[0] =~ m/^-h$/) {
-            $Help = 1;
-            shift @ARGV;
-        }
-        else {
-         &print_help();
-         exit
-        }
-    }
-}
-
+#
 ############# Phenotype sub ########
 # Making hash of phenotypes, genename = phenotype.
 
@@ -1104,57 +1125,64 @@ sub phenolist {
 # Returns text lines of blast output
 
 sub get_blast_run {
-   my ($tmp_dir, $org, %args) = @_;
-   #my $fh = $tmp_dir;
-   my $file = "blast_$org.fsa";
-   #my ($fh, $file) = tempfile( DIR => '/tmp', UNLINK => 1);
-   output_sequence(-file => ">$tmp_dir/$file", seqs => delete $args{-d}, -format => 'fasta');
-   die "Error! Could not build blast database" if (system("$FORMATDB -p F -i $tmp_dir/$file"));
-   
-   my $query_file = "$file.blastpipe";
-
-   #open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
-   output_sequence(-file => ">$tmp_dir/$query_file", seqs => $args{-i}, -format => 'fasta');
-   #close QUERY;
-   
-   delete $args{-i};
-
-   my $cmd = join(" ", %args);
-   my $file2 = "$tmp_dir/$file.blast_output";
-   system("$BLASTALL -d $tmp_dir/$file -i $tmp_dir/$query_file -o $file2 $cmd");
-
-   my $report = new Bio::SearchIO( -file   => $file2,
-                                   -format => "blast"
-                                 );
-   # Go through BLAST reports one by one
-   my @blast;
-   while(my $result = $report->next_result) {
-      # Go through each matching sequence
-      while(my $hit = $result->next_hit)    {
-         # Go through each each HSP for this sequence
-         while (my$hsp = $hit->next_hsp)  {
-            push(@blast, $result->query_accession ."\t".
-                        $result->query_length ."\t".
-                        $hsp->hsp_length ."\t".
-                        $hsp->gaps ."\t".
-                        $hsp->percent_identity ."\t".
-                        $hsp->evalue ."\t".
-                        $hsp->bits ."\t".
-                        $hsp->query_string ."\t".
-                        $hsp->hit_string ."\t".
-                        $hsp->homology_string ."\t".
-                        $hsp->seq_inds ."\t".
-                        $hsp->strand('hit') ."\t".
-                        $hsp->start('hit') ."\t".
-                        $hsp->end('hit') ."\t".
-                        $hit->name ."\t".
-                        $hsp->strand('query') ."\t".
-                        $hsp->start('query') ."\t".
-                        $hit->length ."\n");
-         }
-      }
-   }
-   return @blast;
+  my %args        = @_;
+  #my ($fh, $file) = tempfile( DIR => '/scratch', UNLINK => 1); 
+  my ($fh, $file) = tempfile( DIR => '/tmp', UNLINK => 1);
+  #print "\ntemp filename: $file\n";
+  output_sequence(-fh => $fh, seqs => delete $args{-d}, -format => 'fasta');
+  #die "Error! Could not build blast database" if (system("/usr/cbs/bio/bin/Linux/x86_64/formatdb -p F -i $file"));
+  die "Error! Could not build blast database" if (system("$FORMATDB -p F -i $file")); 
+  my $query_file = $file.".blastpipe";
+  `mknod $query_file p`;
+  if ( !fork() ) {
+    open QUERY, ">> $query_file" || die("Error! Could not perform blast run");
+    output_sequence(-fh => \*QUERY, seqs => $args{-i}, -format => 'fasta');
+    close QUERY;
+    exit(0);
+  }
+  delete $args{-i};
+  my $cmd = join(" ", %args);
+  #my ($fh2, $file2) = tempfile( DIR => '/scratch', UNLINK => 1); 
+  my ($fh2, $file2) = tempfile( DIR => '/tmp', UNLINK => 1);
+  #print "\ntemp filename: $file2\n";
+  print $fh2 `$BLASTALL -d $file -i $query_file $cmd`;
+  close $fh2;
+  #system("$BLASTALL -d $file -i $query_file $cmd > $file2");
+  #system ("echo -d $file -i $query_file $cmd ");
+  my $report = new Bio::SearchIO(
+         -file => $file2,
+              -format => "blast"); 
+# Go through BLAST reports one by one, evt. array in array...              
+my @blast;
+while(my $result = $report->next_result) {
+   # Go through each matching sequence
+   while(my $hit = $result->next_hit)    { 
+      # Go through each HSP for this sequence
+        while (my$hsp = $hit->next_hsp)  { 
+            push(@blast, 
+      $result->query_accession . "\t" . 
+      $result->query_length . "\t" . 
+      $hsp->hsp_length . "\t" . 
+      $hsp->gaps . "\t" . 
+      $hsp->percent_identity .  "\t" .  
+      $hsp->evalue . "\t" . 
+      $hsp->bits . "\t" . 
+      $hsp->query_string ."\t" . 
+      $hsp->hit_string ."\t" . 
+      $hsp->homology_string . "\t" . 
+      $hsp->seq_inds . "\t" .
+      $hsp->strand('hit') . "\t" .
+      $hsp->start('hit') . "\t" .
+      $hsp->end('hit') . "\t" .
+      $hit->name . "\t" .
+      $hsp->strand('query') . "\t" .
+      $hsp->start('query') . "\n");
+      } 
+   } 
+}
+unlink 'formatdb.log', 'error.log', "$file.blastpipe" , "$file.nhr" , "$file.nin" , "$file.nsq";
+#system("rm -rf formatdb.log error.log");
+return @blast;
 }
 
 ###################################
@@ -1232,22 +1260,21 @@ sub Getting_gaps {
 #   The filehandle and filename
 
 sub output_sequence {
-   my %args = @_;
-   my $seqs_ref = delete $args{seqs};
-   my $i = 1;
-   #$args{-fh} = \*STDOUT unless (exists $args{-fh} or exists $args{-file});
-   #if (exists $args{tempdir}) {
-   #   my $tempdir = delete $args{tempdir};
-   #   ($args{-fh}, $args{-file}) = tempfile(DIR => $tempdir, SUFFIX => ".".$args{-format})
-   #}
-   my $file = delete $args{-file} if (exists $args{-fh} && exists $args{-file}); # Stupid BioPerl cannot handle that both might be set...
-   print %args;
-   my $seq_out = Bio::SeqIO->new(%args);
-   $args{-file} = $file if (defined $file);
-   for my $seq (@{ $seqs_ref }) {
-      $seq_out->write_seq($seq);
-   }
-   return ($args{-fh}, $args{-file});
+  my %args = @_;
+  my $seqs_ref = delete $args{seqs};
+  my $i = 1;
+  $args{-fh} = \*STDOUT unless (exists $args{-fh} or exists $args{-file});
+  if (exists $args{tempdir}) {
+    my $tempdir = delete $args{tempdir};
+    ($args{-fh}, $args{-file}) = tempfile(DIR => $tempdir, SUFFIX => ".".$args{-format})
+  }
+  my $file = delete $args{-file} if (exists $args{-fh} && exists $args{-file}); # Stupid BioPerl cannot handle that both might be set...
+  my $seq_out = Bio::SeqIO->new(%args);
+  $args{-file} = $file if (defined $file);
+  for my $seq (@{ $seqs_ref }) {
+    $seq_out->write_seq($seq);
+  }
+  return ($args{-fh}, $args{-file});
 }
 
 # --------------------------------------------------------------------
@@ -1265,8 +1292,10 @@ NAME
   $ProgName - $ProgNameLong
 
 SYNOPSIS
-  $ProgName [Options]
-  
+  $ProgName -d [Antimicrobial] [Options] < [File]
+     or
+  $ProgName -d [Antimicrobial] -i [File] [Options]
+
 DESCRIPTION
   Calculates antibiotic resistance genes based on a BLAST alignment of the input
   sequence file and the specified allele set. If possible the ST will be
@@ -1278,40 +1307,44 @@ DESCRIPTION
   alleles from the species specified with '-d'.
 
   Notice also that the default options for BLAST are changed to suit the
-  ResFinder alignment.
+  ResFinder alignment. Although the user can change the arguments just as if he
+  was running blastall directly, this is the command line used as default
+  in this script:
 
-Options:
+        $BLASTALL $CMD
 
-    -h HELP
-                    Prints a message with options and information to the screen
-    -d DATABASE
-                    The path to where you have located the database folder
-    -b BLAST
-                    The path to the location of blast-2.2.26 if it is not added
-                    to the user's path (see the install guide in 'README.md')
-    -i INFILE
-                    Your input file which needs to be preassembled partial
-                    or complete genomes in fasta format
-    -o OUTFOLDER
-                    The folder you want to have your output files places.
-                    If not specified the program will create a folder named
-                    'Output' in which the result files will be stored
-    -a ANTIMICROBIAL
-                    Antimicrobial configuration. The options can be found
-                    in the config file
-    -k THRESHOLD
-                    The threshold for % identity for example '95.00' for 95 %
-    -l MIN_LENGHT
-                    The minimum length of the overlap ex 0.60 for an overlap of minimum 60 %
+  These defaults can be overridden by giving them as arguments to this
+  script, although it will likely break if anything other than '-a' is
+  changed. Example:
 
-Example of use with the 'database' folder is loacted in the current directory and Blast added to the user's path
-    
-    perl ResFinder-2.1.pl -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
+  $ProgName -a 10 -i [File] -d [Antimicrobial Database]
 
-Example of use with the 'database* and *blast-2.2.26' folders loacted in other directories
+OPTIONS
+  Most options are simply forwarded to the call to BLAST. A few are unique
+  to this script and a few blast arguments deserve special mention.
 
-    perl ResFinder-2.1.pl -d path/to/database -b path/to/blast-2.2.26 -i INFILE.fasta -o OUTFOLDER -a aminoglycoside -k 95.00 -l 0.60
-    
+     -d [Antimicrobial database]
+  The antibiotic for which the resistance gene should be calculated.
+  Should follow a simple format, e.g. tetracycline, macrolide, etc. These are
+  in fact the core names of a .fsa located in the database directory:
+
+  $ABRES_DB
+
+     -I [Format]
+  Specify the sequence format of the input file.
+  If the input file is in another format than fasta, this can be specified
+  here. Most BioPerl sequence formats are supported.
+  Default is 'fasta'
+
+     -O [Format]
+  Specifies the format of the output.
+  If left unspecified (the default), the ST is given along with the
+  corresponding allele numbers in a tabbed format. If set to a sequence
+  format, e.g. 'tab' or 'fasta', the sequence of the alleles will instead
+  be outputted in the requested format.
+
+     -h or --help
+  Prints this text.
 
 VERSION
     Current: $Version
