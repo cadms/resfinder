@@ -6,6 +6,7 @@
 # Dependencies: KMA or NCBI-blast together with BioPython.
 
 import os
+import os.scandir
 import re
 import sys
 import math
@@ -14,6 +15,15 @@ import subprocess
 
 from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
+
+
+class GeneListError(Exception):
+    """ Raise when a specified gene is not found within the gene list.
+    """
+    def __init__(self, message, *args):
+        self.message = message
+        # allow users initialize misc. arguments as any other builtin Error
+        super(PanelNameError, self).__init__(message, *args)
 
 
 class PointFinder(CGEFinder):
@@ -33,11 +43,11 @@ class PointFinder(CGEFinder):
             genes_specified = []
             for gene in gene_list:
                 # Check that the genes are valid
-                # TODO: Should raise an exception
                 if gene not in self.gene_list:
-                    sys.exit("Input Error: Specified gene not recognised "
-                             "(%s)\nChoose one or more of the following genes:"
-                             "\n%s" % (gene, "\n".join(self.gene_list)))
+                    raise(GeneListError(
+                        "Input Error: Specified gene not recognised "
+                        "(%s)\nChoose one or more of the following genes:"
+                        "\n%s" % (gene, "\n".join(self.gene_list))))
                 genes_specified.append(gene)
             # Change the gene_list to the user defined gene_list
             self.gene_list = genes_specified
@@ -45,6 +55,14 @@ class PointFinder(CGEFinder):
         self.known_mutations, self.drug_genes, self.known_stop_codon = (
             self.get_db_mutations(self.specie_path + "/resistens-overview.txt",
                                   self.gene_list))
+
+    @staticmethod
+    def get_db_names(db_root_path):
+        out_lst = []
+        for entry in os.scandir(db_root_path):
+            if not entry.name.startswith('.') and entry.is_dir():
+                out_lst.append(entry.name)
+        return tuple(out_lst)
 
     def results_to_str(self, res_type, results, unknown_flag, min_cov):
         # Initiate output stings with headers

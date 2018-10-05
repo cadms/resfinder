@@ -74,10 +74,16 @@ def create_tab_acquired(isolate, phenodb):
 
 
 # TODO: Add fix species choice
-species_transl = {"C. jejuni": "campylobacter",
-                  "C. jejuni": "C. jejuni",
-                  "E. coli": "e.coli",
-                  "E. coli": "E. coli",
+species_transl = {"c. jejuni": "campylobacter jejuni",
+                  "c jejuni": "campylobacter jejuni",
+                  "c. coli": "campylobacter coli",
+                  "c coli": "campylobacter coli",
+                  "e. coli": "escherichia coli",
+                  "e coli": "escherichia coli",
+                  "ecoli": "escherichia coli",
+                  "s. enterica": "salmonella enterica",
+                  "s enterica": "salmonella enterica",
+                  "senterica": "salmonella enterica",
                   }
 
 ##########################################################################
@@ -115,7 +121,6 @@ parser.add_argument("-k", "--kmaPath",
                     help="Path to KMA",
                     default=None)
 parser.add_argument("-s", "--species",
-                    dest="species",
                     help="Species in the sample")
 parser.add_argument("-l", "--min_cov",
                     dest="min_cov",
@@ -179,10 +184,6 @@ parser.add_argument("-db_pheno", "--databasePath_pheno",
                     dest="pheno_db_path",
                     help="Path to phenotype database.",
                     default=None)
-parser.add_argument("--amr_panel",
-                    help="Name of AMR panel to apply. If None is specified all\
-                          possible phenotypes are reported.",
-                    default=None)
 
 args = parser.parse_args()
 
@@ -213,7 +214,46 @@ if(args.inputfastq):
       inputfastq_2 = None
 
 blast = args.blast_path
-species = args.species
+
+if(args.species):
+    args.species = args.species.lower()
+
+    fixed_species = species_transl.get(args.species, None)
+    if(fixed_species):
+        args.species = fixed_species
+
+    tmp_list = " ".split(args.species)
+    if(len(tmp_list) != 1 or len(tmp_list) != 2):
+        sys.exit("ERROR: Species name must contain 1 or 2 names.")
+
+    if(len(tmp_list == 2)):
+        point_species = "_".join(tmp_list)
+    else:
+        point_species = tmp_list[0]
+
+    # Check Poinfinder database
+    db_path_point = None
+
+    if(args.db_path_point is None and args.point):
+       db_path_point = (os.path.dirname(
+           os.path.realpath(__file__)) + "/db_pointfinder")
+    elif(args.db_path_point is not None):
+        db_path_point = args.db_path_point
+
+    db_path_point = os.path.abspath(db_path_point)
+    point_dbs = PointFinder.get_db_names(db_path_point)
+
+    # Check if a database for species exists
+    if(point_species not in point_dbs and args.point):
+        # If not db for species is found check if db for genus is found
+        # and use that instead
+        if(tmp_list[0] in point_dbs):
+            point_species = tmp_list[0]
+        else:
+            sys.exit("ERROR: species '%s' (%s) does not seem to exist as a "
+                     "PointFinder database." % (args.species, point_species))
+
+    db_path_point = db_path_point + "/" + point_species
 
 # Check KMA path cge/kma/kma
 if(args.inputfastq):
@@ -249,16 +289,6 @@ if(args.db_path_kma is None and args.acquired):
    db_path_kma = (os.path.dirname(
        os.path.realpath(__file__)) + "/db_resfinder/kma_indexing/")
    db_path_kma = os.path.abspath(db_path_kma)
-
-# Check Poinfinder database
-db_path_point = None
-if(args.db_path_point is None and args.point):
-   db_path_point = (os.path.dirname(
-       os.path.realpath(__file__)) + "/db_pointfinder/"
-       + args.species)
-   db_path_point = os.path.abspath(db_path_point)
-elif(args.db_path_point is not None):
-    db_path_point = args.db_path_point + "/" + args.species
 
 # Check phenotype database
 if(args.pheno_db_path is None):

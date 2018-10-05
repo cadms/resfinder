@@ -5,6 +5,15 @@ import re
 from string import Template
 
 
+class PanelNameError(Exception):
+    """ Raise when panel name given does not match panel names from file.
+    """
+    def __init__(self, message, *args):
+        self.message = message
+        # allow users initialize misc. arguments as any other builtin Error
+        super(PanelNameError, self).__init__(message, *args)
+
+
 class ResSumTable(dict):
     """
     """
@@ -82,14 +91,14 @@ class ResSumTable(dict):
                 # Get panel name
                 match_panel = re_panel.search(line)
                 if(match_panel):
-                    panel_name = match_panel.group(1)
+                    panel_name = match_panel.group(1).lower()
                     species_panel_name = None
                     continue
 
                 # Get inclusions
                 match_inclusion = re_include.search(line)
                 if(match_inclusion):
-                    include_panel = match_inclusion.group(1)
+                    include_panel = match_inclusion.group(1).lower()
                     tmp_list = []
 
                     if(panel_name in self.inclusions):
@@ -114,9 +123,40 @@ class ResSumTable(dict):
         self._merge_inclusions()
         self._remove_redundancy()
 
-    def get_amr_panel_str(self, panel_name, header=False):
+    def check_panel_name(self, name):
+        """ Panel names are expected to consist of "Genus species" or
+            only "Genus". The method checks the name against the loaded
+            panel names and returns the panel name that matches the
+            given name. If no panel name matches it checks if the first
+            word of the given name matches any of the genus panel
+            names, and considers that a match if found.
+
+            Returns False if no match is found
+            Returns None if no panels has been loaded
+            Returns the panel name that match
+        """
+        if(not self.panels):
+            return None
+
+        name = name.lower()
+        if(name in self.panels):
+            return name
+
+        genus_name = " ".split(name)[0]
+        if(genus_name in self.panels):
+            return genus_name
+
+        return False
+
+    def get_amr_panel_str(self, panel_name_raw, header=False):
         """
         """
+        panel_name = self.check_panel_name(name=panel_name_raw)
+        if(not panel_name):
+            raise(PanelNameError("ERROR: Panel name given was not found among "
+                                 "the loaded panels. Panel name given: "
+                                 + str(panel_name_raw)))
+
         output_str = ""
 
         if(header):
@@ -154,7 +194,13 @@ class ResSumTable(dict):
 
         return output_str
 
-    def get_html_panel_table(self, panel_name, panel_id, indent='      '):
+    def get_html_panel_table(self, panel_name_raw, panel_id, indent='      '):
+        panel_name = self.check_panel_name(name=panel_name_raw)
+        if(not panel_name):
+            raise(PanelNameError("ERROR: Panel name given was not found among "
+                                 "the loaded panels. Panel name given: "
+                                 + str(panel_name_raw)))
+
         beg = Template(
             '$indent<div id="$panel_name" class="tabcontent">\n'
             '$indent  <table id="$panel_id" rules="cols">\n'
