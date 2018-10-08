@@ -61,7 +61,7 @@ class ResFinderRunTest(unittest.TestCase):
         cmd_acquired = ("python3 ../run_resfinder.py"
                         + " -ifa " + test_data[test_names[0]]
                         + " -o " + test1_dir
-                        + " -s e.coli"
+                        + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
@@ -121,7 +121,7 @@ class ResFinderRunTest(unittest.TestCase):
         cmd_acquired = ("python3 ../run_resfinder.py"
                         + " -ifq " + test_data[test_names[1]]
                         + " -o " + test2_dir
-                        + " -s e.coli"
+                        + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
@@ -181,7 +181,7 @@ class ResFinderRunTest(unittest.TestCase):
         cmd_point = ("python3 ../run_resfinder.py"
                      + " -ifa " + test_data[test_names[2]]
                      + " -o " + test3_dir
-                     + " -s e.coli"
+                     + " -s 'Escherichia coli'"
                      + " --min_cov 0.6"
                      + " --threshold 0.8"
                      + " --point"
@@ -223,7 +223,7 @@ class ResFinderRunTest(unittest.TestCase):
         cmd_acquired = ("python3 ../run_resfinder.py"
                         + " -ifq " + test_data[test_names[3]]
                         + " -o " + test4_dir
-                        + " -s e.coli"
+                        + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " --threshold 0.8"
                         + " --point"
