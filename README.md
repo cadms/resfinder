@@ -1,44 +1,35 @@
-===================
-ResFinder
-===================
-
-This project documents ResFinder service
-
-
-Documentation
+ResFinder documentation
 =============
-
-## What is it?
 
 The ResFinder service contains one perl script *resfinder.pl* which is the
 script of the latest version of the ResFinder service. ResFinder identifies
 acquired antimicrobial resistance genes in total or partial sequenced isolates
 of bacteria.
 
-This repository also contains a python script resfinder.py which is  a new version 
+This repository also contains a python script *resfinder.py* which is  a new version 
 of ResFinder, but not yet running on the CGE server. This program was added because
 it uses a newer version of blastn,  which, in contrary from the blastall version 
 that the perl script uses, is avail to download.
 
 ## Content of the repository
 1. resfinder.pl - the program
-2. resfinder.py - (same program with using a available blastn version - blastn-2.2.26+)
+2. resfinder.py - (same program using an available blastn version - blastn-2.2.26+)
 3. test.fsa     - test fasta file
 
 ## Installation
 
-Setting up ResFinder
+Setting up ResFinder script and database
 ```bash
 # Go to wanted location for resfinder
 cd /path/to/some/dir
+
 # Clone and enter the resfinder directory
 git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
-```
 
-```bash
 
 # Installing up the ResFinder database
+# Go to wanted location for resfinder database
 cd /path/to/some/dir
 
 # Clone and enter the resfinder directory
@@ -47,7 +38,7 @@ cd resfinder_db
 
 ```
 
-##Installing dependencies (for python script):
+### Installing dependencies (for python script):
 
 The BlastAll and FormatDB that the perl script uses are no longer available 
 for downloading through ncbi. Therefor we have provided the resfinder.py 
@@ -55,34 +46,30 @@ scriot that uses Blastn instead. Note, this is not not script that is running
 on the CGE server. The CGE server is running the perl script using BlastAll
 
 
-###Download Blastn and BioPython
+#### Download Blastn and BioPython
 ```url
 http://biopython.org/DIST/docs/install/Installation.html
 ```
 ```url
 ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
-### Install the cgecore module to python3
+#### Install the cgecore module to python3
 ```bash
 pip3 install cgecore
 ```
 
+## Usage 
 
-## Test the scripts and database
+You can run resfinder command line using python3
+   
 ```bash
-cd /path/to/test_dir
-cp /path/to/resfinder/test.fsa .
-python3 /path/to/resfinder/resfinder.py -o . -p /path/to/resfinder_db \
--b /path/to/blastn -i test.fsa -d aminoglycoside -k 90.00 -l 0.60
-```
 
-## Usage
+# Example of running resfinder
+python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
+-b /path/to/blastn -d aminoglycoside -k 90.00 -l 0.60
 
-The program can be invoked with the -h option to get help and more information 
-of the service.
-
-```bash
-                    age: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
+# The program can be invoked with the -h option 
+Usage: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
                     [-b BLAST_PATH] [-p DB_PATH] [-k KMA_PATH]
                     [-q DB_PATH_KMA] [-d DATABASES] [-l MIN_COV]
                     [-t THRESHOLD]
@@ -118,14 +105,13 @@ optional arguments:
                         default minimum 0.9 
 ```
 
-
-## Web-server
+### Web-server
 
 A webserver implementing the methods is available at the [CGE 
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
-## Documentation
+### Documentation
 
 The documentation available as of the date of this release can be found at
 https://bitbucket.org/genomicepidemiology/resfinder/overview.
