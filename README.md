@@ -15,15 +15,15 @@ script of the latest version of the ResFinder service. ResFinder identifies
 acquired antimicrobial resistance genes in total or partial sequenced isolates
 of bacteria.
 
+This repository also contains a python script resfinder.py which is  a new version 
+of ResFinder, but not yet running on the CGE server. This program was added because
+it uses a newer version of blastn,  which, in contrary from the blastall version 
+that the perl script uses, is avail to download.
+
 ## Content of the repository
 1. resfinder.pl - the program
-2. INSTALL_DB   - shell script for downloading the ResFinder database
-3. UPDATE_DB    - shell script for updating the database to the newest version
-4. VALIDATE_DB  - python script for verifying the database contains all
-                  required files
-5. brew.sh      - shell script for installing dependencies
-6. makefile     - make script for installing dependencies
-7. test.fsa     - test fasta file
+2. resfinder.py - (same program with using a available blastn version - blastn-2.2.26+)
+3. test.fsa     - test fasta file
 
 ## Installation
 
@@ -36,71 +36,44 @@ git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
 ```
 
-Installing up the ResFinder database
 ```bash
-cd /path/to/resfinder
-./INSTALL_DB database
 
-# Check all DB scripts works, and validate the database is correct
-./UPDATE_DB database
-./VALIDATE_DB database
+# Installing up the ResFinder database
+cd /path/to/some/dir
+
+# Clone and enter the resfinder directory
+git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git
+cd resfinder_db
+
 ```
 
-Installing dependencies:
-Perlbrew is used to manage isolated perl environments. To install it run:
-```bash
-bash brew.sh
-```
+##Installing dependencies (for python script):
 
-This will installed Perl 5.23 in the Home folder, along with CPAN minus as 
-package manager.
-Blast will also be installed when running brew.sh if BlastAll and FormatDB are 
-not already installed and place in the user's path.
-After running brew.sh and installing Blast add this command to the end of your 
-~/bash_profile to add BlastAll and FormatDB to the user's path
+The BlastAll and FormatDB that the perl script uses are no longer available 
+for downloading through ncbi. Therefor we have provided the resfinder.py 
+scriot that uses Blastn instead. Note, this is not not script that is running 
+on the CGE server. The CGE server is running the perl script using BlastAll
 
-```bash
-export PATH=$PATH:blast-2.2.26/bin
-```
 
-If you want to download the two external tools from the Blast package, BlastAll 
-and FormatDB, yourself go to
+###Download Blastn and BioPython
 ```url
-ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST
+http://biopython.org/DIST/docs/install/Installation.html
 ```
-
-and download the version for your OS with the format:
 ```url
-blast-version-architecture-OS.tar.gz
+ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
-
-after unzipping the file, add this command to the end of your ~/bash_profile.
+### Install the cgecore module to python3
 ```bash
-export PATH=$PATH:/path/to/blast-folder/bin
+pip3 install cgecore
 ```
 
-where path/to/blast-folder is the folder you unzipped.
-
-At last ResFinder has several Perl dependencies. To install them (this requires 
-CPAN minus as package manager):
-```bash
-make install
-```
-
-The scripts are self contained. You just have to copy them to where they should
-be used.
-
-Remember to add the program to your system path if you want to be able to 
-invoke the program without calling the full path.
-If you don't do that you have to write the full path to the program when using 
-it.
 
 ## Test the scripts and database
 ```bash
 cd /path/to/test_dir
 cp /path/to/resfinder/test.fsa .
-perl /path/to/resfinder/resfinder.pl -d /path/to/resfinder/database \
--b /path/to/blast/parent/dir -i test.fsa -a aminoglycoside -k 90.00 -l 0.60
+python3 /path/to/resfinder/resfinder.py -o . -p /path/to/resfinder_db \
+-b /path/to/blastn -i test.fsa -d aminoglycoside -k 90.00 -l 0.60
 ```
 
 ## Usage
@@ -109,46 +82,42 @@ The program can be invoked with the -h option to get help and more information
 of the service.
 
 ```bash
-Usage: perl resfinder.pl [options]
+                    age: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
+                    [-b BLAST_PATH] [-p DB_PATH] [-k KMA_PATH]
+                    [-q DB_PATH_KMA] [-d DATABASES] [-l MIN_COV]
+                    [-t THRESHOLD]
 
-Options:
-
-    -h HELP
-                    Prints a message with options and information to the screen
-    -d DATABASE
-                    The path to where you have located the database folder
-    -b BLAST
-                    The path to the location of blast-2.2.26 if it is not added
-                    to the users path (see the install guide in 'README.md')
-    -i INFILE
-                    Your input file which needs to be preassembled partial
-                    or complete genomes in fasta format
-    -o OUTFOLDER
-                    The folder you want to have your output files places.
-                    If not specified the program will create a folder named
-                    'Output' in which the result files will be stored
-    -a ANTIMICROBIAL
-                    Antimicrobial configuration. The options can be found
-                    in the file 'ResFinder_Antimicrobial'
-    -k THRESHOLD
-                    The threshold for % identity for example '95.00' for 95 %
-    -l MIN_LENGHT
-                    The minimum length of the overlap ex 0.60 for an overlap
-                    of minimum 60 %
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUTFILE, --inputfile INPUTFILE
+                        Input file
+  -1 FASTQ1, --fastq1 FASTQ1
+                        Raw read data file 1.
+  -2 FASTQ2, --fastq2 FASTQ2
+                        Raw read data file 2 (only required if data is paired-
+                        end).
+  -o OUT_PATH, --outputPath OUT_PATH
+                        Path to blast output
+  -b BLAST_PATH, --blastPath BLAST_PATH
+                        Path to blast
+  -p DB_PATH, --databasePath DB_PATH
+                        Path to the databases
+  -k KMA_PATH, --kmaPath KMA_PATH
+                        Path to KMA
+  -q DB_PATH_KMA, --databasePathKMA DB_PATH_KMA
+                        Path to the directories containing the KMA indexed
+                        databases. Defaults to the directory 'kma_indexing'
+                        inside the databasePath directory.
+  -d DATABASES, --databases DATABASES
+                        Databases chosen to search in - if none are specified
+                        all are used
+  -l MIN_COV, --min_cov MIN_COV
+                        Minimum coverage default 0.6
+  -t THRESHOLD, --threshold THRESHOLD
+                        Blast threshold for identity
+                        default minimum 0.9 
 ```
 
-#### Example of use with the *database* folder is loacted in the current
-#### directory and Blast added to the user's path
-```perl 
-    perl resfinder.pl -i test.fsa -o OUTFOLDER -a aminoglycoside -k 90.00 \
-    -l 0.60
-```
-#### Example of use with the *database* and *blast-2.2.26* folders loacted in
-#### other directories
-```perl
-    perl resfinder.pl -d path/to/database -b path/to/blast-2.2.26 -i \
-    test.fsa -o OUTFOLDER -a aminoglycoside -k 90.00 -l 0.60
-```
 
 ## Web-server
 
@@ -156,15 +125,7 @@ A webserver implementing the methods is available at the [CGE
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
-
-## The Latest Version
-
-
-The latest version can be found at
-https://bitbucket.org/genomicepidemiology/resfinder/overview
-
 ## Documentation
-
 
 The documentation available as of the date of this release can be found at
 https://bitbucket.org/genomicepidemiology/resfinder/overview.
