@@ -6,7 +6,6 @@
 # Dependencies: KMA or NCBI-blast together with BioPython.
 
 import os
-import os.scandir
 import re
 import sys
 import math
@@ -235,7 +234,7 @@ class PointFinder(CGEFinder):
                             min_cov=min_cov, threshold=threshold, blast=blast,
                             cut_off=cut_off)
 
-        self.blast_results = blast_run.results # TODO Is this used?
+        self.blast_results = blast_run.results  # TODO Is this used?
         return blast_run
 
     @staticmethod
@@ -273,10 +272,6 @@ class PointFinder(CGEFinder):
 
             # Assert that all lines have the correct set of columns
             mutation = [data.strip() for data in line.split("\t")]
-            # TODO: Should maybe be changed with the new db format in gen2phen?
-            assert len(mutation) >= 9, ("mutation overview file (%s) must have"
-                                        " 9 columns, %s" % (mut_db_path,
-                                                            mutation))
 
             # Extract all info on the line (even though it is not all used)
             gene_ID = mutation[0]
@@ -284,13 +279,12 @@ class PointFinder(CGEFinder):
             # Only consider mutations in genes found in the gene list
             if gene_ID in gene_list:
                 gene_name = mutation[1]
-                no_of_mut = int(mutation[2])
-                mut_pos = int(mutation[3])
-                ref_codon = mutation[4]                     # Ref_nuc (1 or 3?)
-                ref_aa = mutation[5]                        # Ref_codon
-                alt_aa = mutation[6].split(",")             # Res_codon
-                res_drug = mutation[7].replace("\t", " ")
-                pmid = mutation[8].split(",")
+                mut_pos = int(mutation[2])
+                ref_codon = mutation[3]                     # Ref_nuc (1 or 3?)
+                ref_aa = mutation[4]                        # Ref_codon
+                alt_aa = mutation[5].split(",")             # Res_codon
+                res_drug = mutation[6].replace("\t", " ")
+                pmid = mutation[7].split(",")
 
                 # Check if stop codons are predictive for resistance
                 if stopcodonflag is True:

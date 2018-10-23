@@ -121,7 +121,8 @@ parser.add_argument("-k", "--kmaPath",
                     help="Path to KMA",
                     default=None)
 parser.add_argument("-s", "--species",
-                    help="Species in the sample")
+                    help="Species in the sample",
+                    default=None)
 parser.add_argument("-l", "--min_cov",
                     dest="min_cov",
                     help="Minimum (breadth-of) coverage",
@@ -134,12 +135,10 @@ parser.add_argument("-t", "--threshold",
                     default=0.80)
 
 # Acquired resistance options
-parser.add_argument("-db_res", "--databasePath_res",
-                    dest="db_path_res",
+parser.add_argument("-db_res", "--db_path_res",
                     help="Path to the databases for ResFinder",
                     default=None)
-parser.add_argument("-db_res_kma", "--databasePath_res_kma",
-                    dest="db_path_kma",
+parser.add_argument("-db_res_kma", "--db_path_res_kma",
                     help="Path to the ResFinder databases indexed with KMA. \
                           Defaults to the 'kma_indexing' directory inside the \
                           given database directory.",
@@ -161,8 +160,7 @@ parser.add_argument("-c", "--point",
                     dest="point",
                     help="Run pointfinder for chromosomal mutations",
                     default=False)
-parser.add_argument("-db_point", "--databasePath_point",
-                    dest="db_path_point",
+parser.add_argument("-db_point", "--db_path_point",
                     help="Path to the databases for PointFinder",
                     default=None)
 parser.add_argument("-g",
@@ -178,12 +176,6 @@ parser.add_argument("-u", "--unknown_mut",
                     help="Show all mutations found even if in unknown to the\
                           resistance database",
                     default=False)
-
-# Phemotype2genotype options pheno_db_path
-parser.add_argument("-db_pheno", "--databasePath_pheno",
-                    dest="pheno_db_path",
-                    help="Path to phenotype database.",
-                    default=None)
 
 args = parser.parse_args()
 
@@ -222,38 +214,39 @@ if(args.species):
     if(fixed_species):
         args.species = fixed_species
 
-    tmp_list = " ".split(args.species)
-    if(len(tmp_list) != 1 or len(tmp_list) != 2):
+    tmp_list = args.species.split()
+    if(len(tmp_list) != 1 and len(tmp_list) != 2):
         sys.exit("ERROR: Species name must contain 1 or 2 names.")
-
-    if(len(tmp_list == 2)):
-        point_species = "_".join(tmp_list)
-    else:
-        point_species = tmp_list[0]
 
     # Check Poinfinder database
     db_path_point = None
-
-    if(args.db_path_point is None and args.point):
-       db_path_point = (os.path.dirname(
-           os.path.realpath(__file__)) + "/db_pointfinder")
-    elif(args.db_path_point is not None):
-        db_path_point = args.db_path_point
-
-    db_path_point = os.path.abspath(db_path_point)
-    point_dbs = PointFinder.get_db_names(db_path_point)
-
-    # Check if a database for species exists
-    if(point_species not in point_dbs and args.point):
-        # If not db for species is found check if db for genus is found
-        # and use that instead
-        if(tmp_list[0] in point_dbs):
-            point_species = tmp_list[0]
+    if(args.point):
+        if(len(tmp_list) == 2):
+            point_species = "_".join(tmp_list)
         else:
-            sys.exit("ERROR: species '%s' (%s) does not seem to exist as a "
-                     "PointFinder database." % (args.species, point_species))
+            point_species = tmp_list[0]
 
-    db_path_point = db_path_point + "/" + point_species
+        if(args.db_path_point is None and args.point):
+           db_path_point = (os.path.dirname(
+               os.path.realpath(__file__)) + "/db_pointfinder")
+        elif(args.db_path_point is not None):
+            db_path_point = args.db_path_point
+
+        db_path_point = os.path.abspath(db_path_point)
+        point_dbs = PointFinder.get_db_names(db_path_point)
+
+        # Check if a database for species exists
+        if(point_species not in point_dbs and args.point):
+            # If not db for species is found check if db for genus is found
+            # and use that instead
+            if(tmp_list[0] in point_dbs):
+                point_species = tmp_list[0]
+            else:
+                sys.exit("ERROR: species '%s' (%s) does not seem to exist as "
+                         "a PointFinder database."
+                         % (args.species, point_species))
+
+        db_path_point = db_path_point + "/" + point_species
 
 # Check KMA path cge/kma/kma
 if(args.inputfastq):
@@ -284,21 +277,20 @@ if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
             "chromosomal mutaitons or both!\n")
 
+if(args.db_path_res is None):
+    args.db_path_res = (os.path.dirname(
+        os.path.realpath(__file__)) + "/db_resfinder")
+args.db_path_res = os.path.abspath(args.db_path_res)
+if(not os.path.exists(args.db_path_res)):
+    sys.exit("Could not locate ResFinder database path: %s"
+             % args.db_path_res)
+
 # Check ResFinder KMA database
-if(args.db_path_kma is None and args.acquired):
-   db_path_kma = (os.path.dirname(
-       os.path.realpath(__file__)) + "/db_resfinder/kma_indexing/")
-   db_path_kma = os.path.abspath(db_path_kma)
-
-# Check phenotype database
-if(args.pheno_db_path is None):
-   pheno_db_path = os.path.dirname(
-       os.path.realpath(__file__)) + "/db_phenotype"
-   pheno_db_path = os.path.abspath(pheno_db_path)
-
-if not os.path.exists(pheno_db_path):
-   sys.exit("Input Error: The specified phenotype database directory does not "
-            "exist!\nProvided path: " + str(pheno_db_path))
+if(args.db_path_res_kma is None and args.acquired):
+    db_path_res_kma = (args.db_path_res + "/kma_indexing/")
+    if(not os.path.exists(db_path_res_kma)):
+        sys.exit("Could not locate ResFinder database index path: %s"
+                 % db_path_res_kma)
 
 min_cov = float(args.min_cov)
 
@@ -342,7 +334,7 @@ if args.acquired is True:
    # Actually running ResFinder (for acquired resistance)
    acquired_finder = ResFinder(db_conf_file=db_config_file,
                                databases=args.databases, db_path=db_path_res,
-                               notes=notes_path, db_path_kma=db_path_kma)
+                               notes=notes_path, db_path_kma=db_path_res_kma)
 
    blast_results = None
    kma_results = None
@@ -362,7 +354,7 @@ if args.acquired is True:
       kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
                                     inputfile_2=inputfastq_2,
                                     out_path=out_res_kma,
-                                    db_path_kma=db_path_kma,
+                                    db_path_kma=db_path_res_kma,
                                     databases=acquired_finder.databases,
                                     min_cov=min_cov,
                                     threshold=args.threshold,
@@ -391,7 +383,7 @@ if args.point is True:
       out_point = os.path.abspath(args.out_path + "/pointfinder_kma")
       os.makedirs(out_point, exist_ok=True)
 
-   finder = PointFinder(db_path=db_path_point, species=args.species,
+   finder = PointFinder(db_path=db_path_point, species=point_species,
                         gene_list=args.specific_gene)
 
    if(args.inputfasta):
@@ -414,7 +406,7 @@ if args.point is True:
                            inputfile_2=inputfastq_2,
                            out_path=out_point,
                            db_path_kma=db_path_point,
-                           databases=[args.species],
+                           databases=[point_species],
                            min_cov=args.min_cov,
                            threshold=args.threshold,
                            kma_path=kma,
@@ -442,7 +434,7 @@ if(db_path_point is not None):
    point_file = db_path_point + "/resistens-overview.txt"
 else:
    point_file = None
-res_pheno_db = PhenoDB(acquired_file=pheno_db_path + "/acquired_db.txt",
+res_pheno_db = PhenoDB(acquired_file=args.db_path_res + "/phenotypes.txt",
                        point_file=point_file)
 
 # Isolate object stores results
@@ -465,16 +457,15 @@ pheno_table_file = args.out_path + '/pheno_table.txt'
 with open(pheno_table_file, 'w') as fh:
    fh.write(pheno_profile_str)
 
-if(args.amr_panel is not None):
+if(args.species is not None):
    # Apply AMR panel
-   input_amr_panels = pheno_db_path + "/amr_panels.txt"
+   input_amr_panels = args.db_path_res + "/phenotype_panels.txt"
    res_sum_table = ResSumTable(pheno_profile_str)
    res_sum_table.load_amr_panels(input_amr_panels)
    panel_profile_str = res_sum_table.get_amr_panel_str(
-       panel_name=args.amr_panel, header=True)
+       panel_name_raw=args.species, header=True)
 
-   amr_panel_filename = args.amr_panel.replace(".", "")
-   amr_panel_filename = amr_panel_filename.replace(" ", "")
+   amr_panel_filename = args.species.replace(" ", "_")
 
    panel_tabel_file = pheno_table_file[:-4] + "_" + amr_panel_filename + ".txt"
    with open(panel_tabel_file, "w") as fh:

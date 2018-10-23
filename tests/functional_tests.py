@@ -65,7 +65,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --databasePath_res ../db_resfinder")
+                        + " --db_path_res ../db_resfinder")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -125,7 +125,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --databasePath_res ../db_resfinder"
+                        + " --db_path_res ../db_resfinder"
                         + " --kmaPath ../cge/kma/kma")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
@@ -185,7 +185,7 @@ class ResFinderRunTest(unittest.TestCase):
                      + " --min_cov 0.6"
                      + " --threshold 0.8"
                      + " --point"
-                     + " --databasePath_point ../db_pointfinder")
+                     + " --db_path_point ../db_pointfinder")
 
         procs = run(cmd_point, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -227,7 +227,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --min_cov 0.6"
                         + " --threshold 0.8"
                         + " --point"
-                        + " --databasePath_point ../db_pointfinder"
+                        + " --db_path_point ../db_pointfinder"
                         + " --kmaPath ../cge/kma/kma")
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,

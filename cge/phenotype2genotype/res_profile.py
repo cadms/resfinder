@@ -156,8 +156,8 @@ class PhenoDB(dict):
 
                     # ID in DB is just Gene ID and is not unique
                     phenodb_id = line_list[0]
-                    codon_pos = line_list[3]
-                    res_codon_str = line_list[6].lower()
+                    codon_pos = line_list[2]
+                    res_codon_str = line_list[5].lower()
 
                     # Check if the entry is with a promoter
                     regex = r"^(.+)_promoter_size_\d+bp$"
@@ -169,26 +169,26 @@ class PhenoDB(dict):
                     unique_id = (phenodb_id + "_" + codon_pos + "_"
                                  + res_codon_str)
 
-                    ab_class = self.get_csv_tuple(line_list[7].lower())
+                    ab_class = self.get_csv_tuple(line_list[6].lower())
 
-                    pub_phenotype = self.get_csv_tuple(line_list[7].lower())
+                    pub_phenotype = self.get_csv_tuple(line_list[6].lower())
                     if("unknown" in pub_phenotype or "none" in pub_phenotype):
                         pub_phenotype = ()
 
-                    pmid = self.get_csv_tuple(line_list[8].lower())
+                    pmid = self.get_csv_tuple(line_list[7].lower())
 
                     phenotype = list(pub_phenotype)
 
                     # TODO: Remove this tuple and its dependencies.
                     sug_phenotype = ()
 
-                    if(line_list[9]):
-                        res_mechanics = line_list[9]
+                    if(line_list[8]):
+                        res_mechanics = line_list[8]
                     else:
                         res_mechanics = None
 
-                    if(len(line_list) > 10 and line_list[10]):
-                        notes = line_list[10]
+                    if(len(line_list) > 9 and line_list[9]):
+                        notes = line_list[9]
                     else:
                         notes = ""
 
@@ -205,8 +205,8 @@ class PhenoDB(dict):
                     # Requied mutations are stored in a tuple of tuples
                     # of MutationGenotypes. Outer tuple seperate
                     # groups, inner tuples seperate mutations.
-                    if(len(line_list) > 11 and line_list[11]):
-                        mut_groups_str = PhenoDB.get_csv_tuple(line_list[11],
+                    if(len(line_list) > 10 and line_list[10]):
+                        mut_groups_str = PhenoDB.get_csv_tuple(line_list[10],
                                                                sep=";",
                                                                lower=False)
                         if(mut_groups_str):
@@ -229,8 +229,8 @@ class PhenoDB(dict):
                     else:
                         mut_groups = None
 
-                    if(len(line_list) > 12 and line_list[12]):
-                        species = self.get_csv_tuple(line_list[12])
+                    if(len(line_list) > 11 and line_list[11]):
+                        species = self.get_csv_tuple(line_list[11])
                     else:
                         species = ()
 
@@ -257,7 +257,7 @@ class PhenoDB(dict):
                     # be found with just one.
                     # Alternative unique ids are therefore made using just a
                     # single res_codon.
-                    res_codon = self.get_csv_tuple(line_list[6].lower())
+                    res_codon = self.get_csv_tuple(line_list[5].lower())
                     if(len(res_codon) > 1):
                         for codon in res_codon:
                             unique_id_alt = (phenodb_id + "_" + codon_pos
