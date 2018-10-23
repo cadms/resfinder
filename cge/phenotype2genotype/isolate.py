@@ -26,15 +26,17 @@ class Isolate(dict):
 
     def load_resfinder_tab(self, tabbed_output):
         with open(tabbed_output, "r") as fh:
-            for line in fh:
+            while(True):
+                line = fh.readline()
+                if(not line):
+                    break
 
                 line = line.rstrip()
                 if(not line):
                     continue
 
                 db_name = line
-                second_line = fh.readline()
-                second_line = second_line.rstrip()
+                second_line = fh.readline().rstrip()
 
                 if(second_line == "No hit found"):
                     continue
