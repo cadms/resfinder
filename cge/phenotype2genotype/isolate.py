@@ -33,7 +33,8 @@ class Isolate(dict):
                     continue
 
                 db_name = line
-                second_line = fh.readline().rstrip()
+                second_line = fh.readline()
+                second_line = second_line.rstrip()
 
                 if(second_line == "No hit found"):
                     continue
