@@ -142,6 +142,9 @@ class ResSumTable(dict):
         if(name in self.panels):
             return name
 
+        if(name == "complete"):
+            return name
+
         genus_name = " ".split(name)[0]
         if(genus_name in self.panels):
             return genus_name
@@ -231,7 +234,7 @@ class ResSumTable(dict):
 
         output_str += indent + '    <tbody>\n'
 
-        if(panel_name == "Complete"):
+        if(panel_name == "complete"):
             for ab in self:
                 na_list = [ab, "NA", "NA", "NA", "Not in database"]
                 ab_list = self.get(ab, na_list)
