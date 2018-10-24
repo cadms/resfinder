@@ -437,7 +437,7 @@ else:
 res_pheno_db = PhenoDB(acquired_file=args.db_path_res + "/phenotypes.txt",
                        point_file=point_file)
 
-# Isolate object stores results
+# Isolate object store results
 isolate = Isolate(name=sample_name)
 
 if(args.acquired):

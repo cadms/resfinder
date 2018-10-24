@@ -9,7 +9,7 @@ from signal import *
 import tempfile
 import sys
 import subprocess
-from .feature import Feature, Gene, Mutation
+from .feature import Feature, ResGene, Mutation
 
 
 def eprint(*args, **kwargs):
@@ -37,10 +37,11 @@ class PhenoDB(dict):
             self.load_point_db(point_file)
 
         self.unknown_pheno = Phenotype(unique_id="unknown",
-                                       phenotype="unknown",
+                                       phenotype=[],
                                        ab_class="-", sug_phenotype=(),
                                        pub_phenotype=(),
-                                       pmid="-")
+                                       pmid="-",
+                                       notes="Phenotype not found in database")
 
     def load_acquired_db(self, txt_file):
 
@@ -521,7 +522,7 @@ class Antibiotics():
         names = {}
         for f in self.features:
             feature = self.features[f]
-            if(not isinstance(feature, Gene)):
+            if(not isinstance(feature, ResGene)):
                 continue
 
             if(feature.hit.name):
@@ -588,6 +589,10 @@ class ResProfile():
 # DEBUG
                 eprint("DB:\n" + str(list(phenodb.keys())))
                 self.missing_db_features.append(feature)
+                if(isinstance(feature, ResGene)):
+                    if(feature.ab_class not in self.resistance_classes):
+                        self.resistance_classes[feature.ab_class] = set()
+                    self.resistance_classes[feature.ab_class].add(feature)
         self.update_profile()
 
     def add_phenotype(self, feature, phenotype, update=True):

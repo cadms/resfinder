@@ -10,7 +10,7 @@ import sys
 import subprocess
 # import urllib.parse
 from itertools import chain
-from .feature import Feature, Gene, Mutation
+from .feature import Feature, ResGene, Mutation
 from .phenodbpoint import PhenoDBPoint
 from .res_profile import PhenoDB, ResProfile, FeatureGroup
 from .dbhit import DBHit
@@ -35,7 +35,7 @@ class Isolate(dict):
                 if(not line):
                     continue
 
-                db_name = line
+                ab_class = line
                 second_line = fh.readline().rstrip()
 
                 if(second_line == "No hit found"):
@@ -61,9 +61,10 @@ class Isolate(dict):
                         start_feat = None
                         end_feat = None
 
-                    gene_feat = Gene(unique_id=hit_list[8],
-                                     seq_region=hit_list[5],
-                                     start=start_feat, end=end_feat, hit=hit)
+                    gene_feat = ResGene(unique_id=hit_list[8],
+                                        seq_region=hit_list[5],
+                                        start=start_feat, end=end_feat,
+                                        hit=hit, ab_class=ab_class)
 
                     if(hit_list[8] in self):
                         temp_list = self[hit_list[8]]

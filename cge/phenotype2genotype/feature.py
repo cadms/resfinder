@@ -45,6 +45,15 @@ class Gene(Feature):
             self.end = None
 
 
+class ResGene(Gene):
+    """
+    """
+    def __init__(self, unique_id, seq_region=None, start=None, end=None,
+                 hit=None, isolate=None, ab_class=None):
+        Gene.__init__(self, unique_id, seq_region, start, end, hit, isolate)
+        self.ab_class = ab_class.lower()
+
+
 class Mutation(Feature):
     """
     """
