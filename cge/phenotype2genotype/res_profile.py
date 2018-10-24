@@ -38,7 +38,8 @@ class PhenoDB(dict):
 
         self.unknown_pheno = Phenotype(unique_id="unknown",
                                        phenotype="unknown",
-                                       ab_class="-", (), (),
+                                       ab_class="-", sug_phenotype=(),
+                                       pub_phenotype=(),
                                        pmid="-")
 
     def load_acquired_db(self, txt_file):
