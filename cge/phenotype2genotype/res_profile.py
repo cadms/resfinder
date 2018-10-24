@@ -36,6 +36,11 @@ class PhenoDB(dict):
         if(point_file):
             self.load_point_db(point_file)
 
+        self.unknown_pheno = Phenotype(unique_id="unknown",
+                                       phenotype="unknown",
+                                       ab_class="-", (), (),
+                                       pmid="-")
+
     def load_acquired_db(self, txt_file):
 
         # Test file for illegal encodings
