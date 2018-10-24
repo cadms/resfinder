@@ -581,18 +581,14 @@ class ResProfile():
                 self.features[feature.unique_id] = feature
                 # Several phenotypes can exist for a single feature ID.
                 for phenotype in phenodb[feature.unique_id]:
-# DEBUG
-                    eprint("Phenotype: " + feature.unique_id)
                     self.add_phenotype(feature, phenotype, update=False)
             else:
-                eprint("Not found in PhenoDB: " + feature.unique_id)
-# DEBUG
-                eprint("DB:\n" + str(list(phenodb.keys())))
                 self.missing_db_features.append(feature)
                 if(isinstance(feature, ResGene)):
-                    if(feature.ab_class not in self.resistance_classes):
-                        self.resistance_classes[feature.ab_class] = set()
-                    self.resistance_classes[feature.ab_class].add(feature)
+                    for _class in feature.ab_class:
+                        if(_class not in self.resistance_classes):
+                            self.resistance_classes[_class] = set()
+                        self.resistance_classes[_class].add(feature)
         self.update_profile()
 
     def add_phenotype(self, feature, phenotype, update=True):

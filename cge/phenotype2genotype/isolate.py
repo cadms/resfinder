@@ -64,7 +64,7 @@ class Isolate(dict):
                     gene_feat = ResGene(unique_id=hit_list[8],
                                         seq_region=hit_list[5],
                                         start=start_feat, end=end_feat,
-                                        hit=hit, ab_class=ab_class)
+                                        hit=hit, ab_class=[ab_class.lower()])
 
                     if(hit_list[8] in self):
                         temp_list = self[hit_list[8]]
