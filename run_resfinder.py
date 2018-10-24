@@ -346,7 +346,7 @@ if args.acquired is True:
                                             threshold=threshold,
                                             blast=blast)
 
-      acquired_finder.write_results(out_path=out_res_blast,
+      acquired_finder.write_results(out_path=args.out_path,
                                     result=blast_results,
                                     res_type=ResFinder.TYPE_BLAST)
 
@@ -366,7 +366,7 @@ if args.acquired is True:
                                     kma_pm="p",
                                     kma_fpm="p")
 
-      acquired_finder.write_results(out_path=out_res_kma,
+      acquired_finder.write_results(out_path=args.out_path,
                                     result=kma_run.results,
                                     res_type=ResFinder.TYPE_KMA)
 
@@ -442,9 +442,9 @@ isolate = Isolate(name=sample_name)
 
 if(args.acquired):
    if(method == PointFinder.TYPE_BLAST):
-      isolate.load_resfinder_tab(out_res_blast + "/results_table.txt")
+      isolate.load_resfinder_tab(args.out_path + "/results_table.txt")
    else:
-      isolate.load_resfinder_tab(out_res_kma + "/results_table.txt")
+      isolate.load_resfinder_tab(args.out_path + "/results_table.txt")
 if(args.point):
    isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt")
 

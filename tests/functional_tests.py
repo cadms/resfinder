@@ -70,14 +70,11 @@ class ResFinderRunTest(unittest.TestCase):
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
-        # Expected output files
-        res_out = test1_dir + "/resfinder_blast"
-
-        fsa_hit = res_out + "/Hit_in_genome_seq.fsa"
-        fsa_res = res_out + "/Resistance_gene_seq.fsa"
-        res_table = res_out + "/results_table.txt"
-        res_tab = res_out + "/results_tab.txt"
-        results = res_out + "/results.txt"
+        fsa_hit = test1_dir + "/Hit_in_genome_seq.fsa"
+        fsa_res = test1_dir + "/Resistance_gene_seq.fsa"
+        res_table = test1_dir + "/results_table.txt"
+        res_tab = test1_dir + "/results_tab.txt"
+        results = test1_dir + "/results.txt"
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
@@ -131,14 +128,11 @@ class ResFinderRunTest(unittest.TestCase):
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
-        # Expected output files
-        res_out = test2_dir + "/resfinder_kma"
-
-        fsa_hit = res_out + "/Hit_in_genome_seq.fsa"
-        fsa_res = res_out + "/Resistance_gene_seq.fsa"
-        res_table = res_out + "/results_table.txt"
-        res_tab = res_out + "/results_tab.txt"
-        results = res_out + "/results.txt"
+        fsa_hit = test2_dir + "/Hit_in_genome_seq.fsa"
+        fsa_res = test2_dir + "/Resistance_gene_seq.fsa"
+        res_table = test2_dir + "/results_table.txt"
+        res_tab = test2_dir + "/results_tab.txt"
+        results = test2_dir + "/results.txt"
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
