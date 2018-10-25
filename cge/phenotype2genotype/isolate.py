@@ -24,7 +24,7 @@ class Isolate(dict):
         self.resprofile = None
         self.species = None
 
-    def load_resfinder_tab(self, tabbed_output):
+    def load_resfinder_tab(self, tabbed_output, phenodb):
         with open(tabbed_output, "r") as fh:
             while(True):
                 line = fh.readline()
@@ -35,7 +35,7 @@ class Isolate(dict):
                 if(not line):
                     continue
 
-                ab_class = line
+                db_name = line
                 second_line = fh.readline().rstrip()
 
                 if(second_line == "No hit found"):
@@ -49,10 +49,11 @@ class Isolate(dict):
                     hit_list = res_hit.split("\t")
                     match_length, ref_length = hit_list[2].split("/")
                     start_ref, end_ref = hit_list[4].split("..")
+                    accno = hit_list[8]
                     hit = DBHit(name=hit_list[0], identity=hit_list[1],
                                 match_length=match_length,
                                 ref_length=ref_length, start_ref=start_ref,
-                                end_ref=end_ref, acc=hit_list[8],
+                                end_ref=end_ref, acc=accno,
                                 db="resfinder")
 
                     start_feat, end_feat = hit_list[6].split("..")
@@ -61,17 +62,23 @@ class Isolate(dict):
                         start_feat = None
                         end_feat = None
 
-                    gene_feat = ResGene(unique_id=hit_list[8],
+                    phenotypes = phenodb.get(accno, None)
+                    if(phenotypes):
+                        ab_class = phenotypes[0].ab_class
+                    else:
+                        ab_class = [db_name]
+
+                    gene_feat = ResGene(unique_id=accno,
                                         seq_region=hit_list[5],
                                         start=start_feat, end=end_feat,
-                                        hit=hit, ab_class=[ab_class.lower()])
+                                        hit=hit, ab_class=ab_class)
 
-                    if(hit_list[8] in self):
-                        temp_list = self[hit_list[8]]
+                    if(accno in self):
+                        temp_list = self[accno]
                         temp_list.append(gene_feat)
-                        self[hit_list[8]] = temp_list
+                        self[accno] = temp_list
                     else:
-                        self[hit_list[8]] = [gene_feat]
+                        self[accno] = [gene_feat]
 
                     res_hit = fh.readline().rstrip()
 
@@ -300,6 +307,23 @@ class Isolate(dict):
                     output_str += "\t"
                 else:
                     output_str += str(feature.hit.db) + "\t" + feature.hit.name
+
+                output_str += "\n"
+
+        if(self.resprofile.unknown_db_features):
+            output_str += ("\n# WARNING: Features with unknown phenotype \n")
+            output_str += "# Feature_ID\tRegion\tDatabase\tHit\tClass\n"
+
+            for feature in self.resprofile.unknown_db_features:
+                output_str += (feature.unique_id + "\t"
+                               + feature.seq_region + "\t")
+
+                if(feature.hit is None):
+                    output_str += "\t"
+                else:
+                    output_str += str(feature.hit.db) + "\t" + feature.hit.name
+
+                output_str += "\t" + ",".join(feature.ab_class)
 
                 output_str += "\n"
 

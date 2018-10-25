@@ -75,13 +75,17 @@ def create_tab_acquired(isolate, phenodb):
 
 # TODO: Add fix species choice
 species_transl = {"c. jejuni": "campylobacter jejuni",
+                  "c.jejuni": "campylobacter jejuni",
                   "c jejuni": "campylobacter jejuni",
                   "c. coli": "campylobacter coli",
+                  "c.coli": "campylobacter coli",
                   "c coli": "campylobacter coli",
                   "e. coli": "escherichia coli",
+                  "e.coli": "escherichia coli",
                   "e coli": "escherichia coli",
                   "ecoli": "escherichia coli",
                   "s. enterica": "salmonella enterica",
+                  "s.enterica": "salmonella enterica",
                   "s enterica": "salmonella enterica",
                   "senterica": "salmonella enterica",
                   }
@@ -441,10 +445,8 @@ res_pheno_db = PhenoDB(acquired_file=args.db_path_res + "/phenotypes.txt",
 isolate = Isolate(name=sample_name)
 
 if(args.acquired):
-   if(method == PointFinder.TYPE_BLAST):
-      isolate.load_resfinder_tab(args.out_path + "/results_table.txt")
-   else:
-      isolate.load_resfinder_tab(args.out_path + "/results_table.txt")
+   isolate.load_resfinder_tab(args.out_path + "/results_table.txt",
+                              res_pheno_db)
 if(args.point):
    isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt")
 

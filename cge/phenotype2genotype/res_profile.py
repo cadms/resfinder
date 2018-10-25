@@ -574,22 +574,35 @@ class ResProfile():
         self.susceptibile = {}
         self.resistance_classes = {}
         self.missing_db_features = []
+        self.unknown_db_features = []
 
         for feature in features:
             if(feature.unique_id in phenodb):
                 # Add feature
                 self.features[feature.unique_id] = feature
+# DEBUG
+                eprint("FEATURE: " + feature.unique_id)
                 # Several phenotypes can exist for a single feature ID.
                 for phenotype in phenodb[feature.unique_id]:
-                    self.add_phenotype(feature, phenotype, update=False)
+                    eprint("\tpheno: " + str(phenotype.unique_id))
+                    if(phenotype.phenotype):
+                        self.add_phenotype(feature, phenotype, update=False)
+                    else:
+                        self.unknown_db_features.append(feature)
+                        self.add_res_classes(feature)
             else:
                 self.missing_db_features.append(feature)
-                if(isinstance(feature, ResGene)):
-                    for _class in feature.ab_class:
-                        if(_class not in self.resistance_classes):
-                            self.resistance_classes[_class] = set()
-                        self.resistance_classes[_class].add(feature)
+                self.add_res_classes(feature)
         self.update_profile()
+
+    def add_res_classes(self, feature):
+        """
+        """
+        if(isinstance(feature, ResGene)):
+            for _class in feature.ab_class:
+                if(_class not in self.resistance_classes):
+                    self.resistance_classes[_class] = set()
+                self.resistance_classes[_class].add(feature)
 
     def add_phenotype(self, feature, phenotype, update=True):
         """
@@ -630,13 +643,19 @@ class ResProfile():
                     if(len(fg) > len(feature)):
                         feature = fg
 
+# DEBUG
+        print("\t\tABs: " + str(phenotype.pub_phenotype))
         for antibiotic in phenotype.pub_phenotype:
 
             # Create collection of features grouped with respect to ab class
             for _class in phenotype.ab_class:
+                eprint("\t\tclass: " + str(_class))
+# DEBUG
                 if(_class not in self.resistance_classes):
                     self.resistance_classes[_class] = set()
                 self.resistance_classes[_class].add(feature)
+# DEBUG
+                eprint("\t\t" + str(_class) + "<--" + feature.unique_id)
 
             if(antibiotic not in self.resistance):
                 self.resistance[antibiotic] = Antibiotics(antibiotic,
