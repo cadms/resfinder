@@ -66,7 +66,7 @@ You can run resfinder command line using python3
 
 # Example of running resfinder
 python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
--b /path/to/blastn -d aminoglycoside -k 90.00 -l 0.60
+-b /path/to/blastn -d aminoglycoside -t 90.00 -l 0.60
 
 # The program can be invoked with the -h option 
 Usage: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
