@@ -10,7 +10,8 @@ import sys
 import subprocess
 # import urllib.parse
 from itertools import chain
-from .feature import Feature, ResGene, Mutation
+
+from .feature import Feature, ResGene, Mutation, ResMutation
 from .phenodbpoint import PhenoDBPoint
 from .res_profile import PhenoDB, ResProfile, FeatureGroup
 from .dbhit import DBHit
@@ -64,7 +65,9 @@ class Isolate(dict):
 
                     phenotypes = phenodb.get(accno, None)
                     if(phenotypes):
-                        ab_class = phenotypes[0].ab_class
+                        ab_class = []
+                        for p in phenotypes:
+                            ab_class += p.ab_class
                     else:
                         ab_class = [db_name]
 
@@ -82,7 +85,7 @@ class Isolate(dict):
 
                     res_hit = fh.readline().rstrip()
 
-    def load_pointfinder_tab(self, tabbed_output):
+    def load_pointfinder_tab(self, tabbed_output, phenodb):
         with open(tabbed_output, "r") as fh:
             for line in fh:
 
@@ -177,16 +180,25 @@ class Isolate(dict):
                                   "unique ID. 'mutation_list' contains: "
                                   + str(mutation_list)))
 
-                    mut_feat = Mutation(unique_id=unique_id,
-                                        seq_region=mut_name_str,
-                                        pos=pos, ref_codon=ref_codon,
-                                        mut_codon=mut_codon, ref_aa=ref_aa,
-                                        mut_aa=mut_aa,
-                                        isolate=self,
-                                        insertion=ins,
-                                        deletion=deletion,
-                                        end=mut_end,
-                                        nuc=nucleotide_mut)
+                    phenotypes = phenodb.get(unique_id, None)
+                    if(phenotypes):
+                        ab_class = []
+                        for p in phenotypes:
+                            ab_class += p.ab_class
+                    else:
+                        ab_class = ["No class defined"]
+
+                    mut_feat = ResMutation(unique_id=unique_id,
+                                           seq_region=mut_name_str,
+                                           pos=pos, ref_codon=ref_codon,
+                                           mut_codon=mut_codon, ref_aa=ref_aa,
+                                           mut_aa=mut_aa,
+                                           isolate=self,
+                                           insertion=ins,
+                                           deletion=deletion,
+                                           end=mut_end,
+                                           nuc=nucleotide_mut,
+                                           ab_class=ab_class)
 
                     if(unique_id in self):
                         temp_list = self[unique_id]

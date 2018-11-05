@@ -438,7 +438,9 @@ if(db_path_point is not None):
    point_file = db_path_point + "/resistens-overview.txt"
 else:
    point_file = None
-res_pheno_db = PhenoDB(acquired_file=args.db_path_res + "/phenotypes.txt",
+res_pheno_db = PhenoDB(abclassdef_file=(args.db_path_res
+                                        + "/antibiotic_classes.txt"),
+                       acquired_file=args.db_path_res + "/phenotypes.txt",
                        point_file=point_file)
 
 # Isolate object store results
@@ -448,7 +450,8 @@ if(args.acquired):
    isolate.load_resfinder_tab(args.out_path + "/results_table.txt",
                               res_pheno_db)
 if(args.point):
-   isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt")
+   isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
+                                res_pheno_db)
 
 isolate.calc_res_profile(res_pheno_db)
 

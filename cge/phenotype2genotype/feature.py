@@ -92,3 +92,16 @@ class Mutation(Feature):
                                      + self.mut_aa.upper())
             self.mut_string = (str(self.seq_region) + "_"
                                + self.mut_string_short)
+
+
+class ResMutation(Mutation):
+    """
+    """
+    def __init__(self, unique_id, seq_region=None, pos=None, hit=None,
+                 ref_codon=None, mut_codon=None, ref_aa=None, mut_aa=None,
+                 isolate=None, insertion=None, deletion=None, end=None,
+                 nuc=False, ab_class=None):
+        Mutation.__init__(self, unique_id, seq_region, pos, hit, ref_codon,
+                          mut_codon, ref_aa, mut_aa, isolate, insertion,
+                          deletion, end, nuc)
+        self.ab_class = ab_class

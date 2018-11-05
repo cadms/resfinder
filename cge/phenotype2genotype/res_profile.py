@@ -9,7 +9,8 @@ from signal import *
 import tempfile
 import sys
 import subprocess
-from .feature import Feature, ResGene, Mutation
+from .feature import Feature, ResGene, Mutation, ResMutation
+from .abclassdef import ABClassDefinition
 
 
 def eprint(*args, **kwargs):
@@ -21,10 +22,12 @@ class PhenoDB(dict):
         The dict consists of Phenotype objects. The keys are unique ids.
     """
 
-    def __init__(self, acquired_file=None, point_file=None):
+    def __init__(self, abclassdef_file, acquired_file=None, point_file=None):
 
         # Stores non-redundant complete list of antibiotics in DB.
         self.antibiotics = {}
+
+        self.ab_class_defs = ABClassDefinition(abclassdef_file)
 
         if(acquired_file is None and point_file is None):
             eprint("ERROR: No pheotype database files where specified.")
@@ -176,8 +179,6 @@ class PhenoDB(dict):
                     unique_id = (phenodb_id + "_" + codon_pos + "_"
                                  + res_codon_str)
 
-                    ab_class = self.get_csv_tuple(line_list[6].lower())
-
                     pub_phenotype = self.get_csv_tuple(line_list[6].lower())
                     if("unknown" in pub_phenotype or "none" in pub_phenotype):
                         pub_phenotype = ()
@@ -198,6 +199,12 @@ class PhenoDB(dict):
                         notes = line_list[9]
                     else:
                         notes = ""
+
+                    ab_class = []
+                    for ab in phenotype:
+                        _class = self.ab_class_defs.get(ab, None)
+                        if(_class):
+                            ab_class.append(_class)
 
                     # Load required mutations.
                     # A mutation can dependent on a group of other
