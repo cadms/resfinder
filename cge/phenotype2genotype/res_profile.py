@@ -203,6 +203,8 @@ class PhenoDB(dict):
                     ab_class = []
                     for ab in phenotype:
                         _class = self.ab_class_defs.get(ab, None)
+# DEBUG
+                        eprint("ABCLASS: " + str(ab) + " >>> " + str(_class))
                         if(_class):
                             ab_class.append(_class)
 

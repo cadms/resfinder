@@ -10,7 +10,7 @@ class ABClassDefinition(dict):
                 if(line.startswith("#")):
                     continue
 
-                line = line.rstrip()
+                line = line.rstrip().lower()
 
                 if(not line):
                     continue
