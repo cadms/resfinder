@@ -87,7 +87,10 @@ class Isolate(dict):
 
     def load_pointfinder_tab(self, tabbed_output, phenodb):
         with open(tabbed_output, "r") as fh:
-            for line in fh:
+            while(True):
+                line = fh.readline()
+                if(not line):
+                    break
 
                 line = line.rstrip()
                 if(not line):

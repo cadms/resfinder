@@ -30,7 +30,7 @@ class PhenoDB(dict):
         self.ab_class_defs = ABClassDefinition(abclassdef_file)
 
         if(acquired_file is None and point_file is None):
-            eprint("ERROR: No pheotype database files where specified.")
+            eprint("ERROR: No phenotype database files where specified.")
             quit(1)
 
         if(acquired_file):
