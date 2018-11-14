@@ -256,10 +256,10 @@ class PointFinder(CGEFinder):
         # Go throug mutation file line by line
 
         with open(mut_db_path, "r") as fh:
-            drugfile = fh.readlines()
-        drugfile = [line.strip() for line in drugfile]
+            mutdb_file = fh.readlines()
+        mutdb_file = [line.strip() for line in mutdb_file]
 
-        for line in drugfile:
+        for line in mutdb_file:
             # Ignore headers and check where the indel section starts
             if line.startswith("#"):
                 if "indel" in line.lower():

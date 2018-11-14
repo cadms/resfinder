@@ -203,8 +203,6 @@ class PhenoDB(dict):
                     ab_class = []
                     for ab in phenotype:
                         _class = self.ab_class_defs.get(ab, None)
-# DEBUG
-                        eprint("ABCLASS: " + str(ab) + " >>> " + str(_class))
                         if(_class):
                             ab_class.append(_class)
 
@@ -589,11 +587,8 @@ class ResProfile():
             if(feature.unique_id in phenodb):
                 # Add feature
                 self.features[feature.unique_id] = feature
-# DEBUG
-                eprint("FEATURE: " + feature.unique_id)
                 # Several phenotypes can exist for a single feature ID.
                 for phenotype in phenodb[feature.unique_id]:
-                    eprint("\tpheno: " + str(phenotype.unique_id))
                     if(phenotype.phenotype):
                         self.add_phenotype(feature, phenotype, update=False)
                     else:
@@ -652,19 +647,13 @@ class ResProfile():
                     if(len(fg) > len(feature)):
                         feature = fg
 
-# DEBUG
-        print("\t\tABs: " + str(phenotype.pub_phenotype))
         for antibiotic in phenotype.pub_phenotype:
 
             # Create collection of features grouped with respect to ab class
             for _class in phenotype.ab_class:
-                eprint("\t\tclass: " + str(_class))
-# DEBUG
                 if(_class not in self.resistance_classes):
                     self.resistance_classes[_class] = set()
                 self.resistance_classes[_class].add(feature)
-# DEBUG
-                eprint("\t\t" + str(_class) + "<--" + feature.unique_id)
 
             if(antibiotic not in self.resistance):
                 self.resistance[antibiotic] = Antibiotics(antibiotic,
