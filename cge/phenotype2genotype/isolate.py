@@ -132,15 +132,15 @@ class Isolate(dict):
                         # Ex. ins: n.-13_-14insG    (TODO: Verify)
                         # Ex. del: n.42delT         (TODO: Verify)
                         # Ex. del: n.42_45del       (TODO: Verify)
-                        elif(m.startswith("n.")):
+                    elif(m.startswith("n.") or m.startswith("r.")):
                             nucleotide_mut = True
                             ref_aa = None
                             mut_aa = None
 
                             sub_match = re.search(
-                                r"^n.(-{0,1}\d+)(\D{1})>(\D{1})$", m)
+                                r"^[nr]{1}\.(-{0,1}\d+)(\D{1})>(\D{1})$", m)
                             ins_match = re.search(
-                                r"^n.(-{0,1}\d+)_(-{0,1}\d+)ins([CTGA]+)$", m)
+                                r"^[nr]{1}\.(-{0,1}\d+)_(-{0,1}\d+)ins([CTGA]+)$", m)
                             del_match = re.search((r"^n.(-{0,1}\d+)_{0,1}(-{0,1}\d*)del[CTGA]*$"), m)
                             if(sub_match):
                                 pos = sub_match.group(1)
