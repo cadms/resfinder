@@ -132,7 +132,7 @@ class Isolate(dict):
                         # Ex. ins: n.-13_-14insG    (TODO: Verify)
                         # Ex. del: n.42delT         (TODO: Verify)
                         # Ex. del: n.42_45del       (TODO: Verify)
-                    elif(m.startswith("n.") or m.startswith("r.")):
+                        elif(m.startswith("n.") or m.startswith("r.")):
                             nucleotide_mut = True
                             ref_aa = None
                             mut_aa = None
