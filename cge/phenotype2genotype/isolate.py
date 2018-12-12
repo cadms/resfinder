@@ -51,7 +51,9 @@ class Isolate(dict):
                     match_length, ref_length = hit_list[2].split("/")
                     start_ref, end_ref = hit_list[4].split("..")
                     accno = hit_list[8]
-                    hit = DBHit(name=hit_list[0], identity=hit_list[1],
+                    gene_name = hit_list[0]
+                    unique_id = "{0}_{1}".format(gene_name, accno)
+                    hit = DBHit(name=gene_name, identity=hit_list[1],
                                 match_length=match_length,
                                 ref_length=ref_length, start_ref=start_ref,
                                 end_ref=end_ref, acc=accno,
@@ -63,7 +65,7 @@ class Isolate(dict):
                         start_feat = None
                         end_feat = None
 
-                    phenotypes = phenodb.get(accno, None)
+                    phenotypes = phenodb.get(unique_id, None)
                     if(phenotypes):
                         ab_class = []
                         for p in phenotypes:
@@ -71,17 +73,17 @@ class Isolate(dict):
                     else:
                         ab_class = [db_name]
 
-                    gene_feat = ResGene(unique_id=accno,
+                    gene_feat = ResGene(unique_id=unique_id,
                                         seq_region=hit_list[5],
                                         start=start_feat, end=end_feat,
                                         hit=hit, ab_class=ab_class)
 
-                    if(accno in self):
-                        temp_list = self[accno]
+                    if(unique_id in self):
+                        temp_list = self[unique_id]
                         temp_list.append(gene_feat)
-                        self[accno] = temp_list
+                        self[unique_id] = temp_list
                     else:
-                        self[accno] = [gene_feat]
+                        self[unique_id] = [gene_feat]
 
                     res_hit = fh.readline().rstrip()
 

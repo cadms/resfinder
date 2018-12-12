@@ -55,7 +55,8 @@ class PhenoDB(dict):
                 for line in fh:
                     line_counter += 1
             except UnicodeDecodeError:
-                eprint("Error in line " + str(line_counter))
+                eprint("PhenoDB load_acquired_dbacq UnicodeDecodeError in "
+                       "line {0}".format(line_counter))
                 eprint("\t\"" + line + "\"")
                 sys.exit("UnicodeDecodeError")
 
@@ -74,10 +75,17 @@ class PhenoDB(dict):
                     line_list = list(map(str.rstrip, line_list))
 
                     # ID in DB is <gene>_<group>_<acc>. Ex: blaB-2_1_AF189300.
-                    # The acc should be unique and is used here.
+                    # The gene + acc should be unique and is used here.
                     phenodb_id = line_list[0]
                     phenodb_id = phenodb_id.split("_")
-                    unique_id = "_".join(phenodb_id[2:])
+
+                    # This code is temporary
+                    # TODO: Remove when database has been reformatted.
+                    if(len(phenodb_id) < 3):
+                        unique_id = phenodb_id
+                    else:
+                        accno = "_".join(phenodb_id[2:])
+                        unique_id = "{0}_{1}".format(phenodb_id[0], accno)
 
                     ab_class = self.get_csv_tuple(line_list[1].lower())
 
@@ -147,8 +155,9 @@ class PhenoDB(dict):
                     self[unique_id] = pheno_lst
 
                 except IndexError:
-                    eprint("Error in line " + str(line_counter))
-                    eprint("Split line:\n" + str(line_list))
+                    eprint("PhenoDB load_acquired_dbacq IndexError in line {0}"
+                           .format(line_counter))
+                    eprint("Split line:\n{0}".format(str(line_list)))
 
     def load_point_db(self, txt_file):
 
