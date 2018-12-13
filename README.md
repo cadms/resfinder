@@ -69,40 +69,53 @@ python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
 -b /path/to/blastn -d aminoglycoside -t 90.00 -l 0.60
 
 # The program can be invoked with the -h option 
-Usage: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
-                    [-b BLAST_PATH] [-p DB_PATH] [-k KMA_PATH]
-                    [-q DB_PATH_KMA] [-d DATABASES] [-l MIN_COV]
-                    [-t THRESHOLD]
+usage: run_resfinder.py [-h] [-ifa INPUTFASTA]
+                        [-ifq INPUTFASTQ [INPUTFASTQ ...]] [-scripts SCRIPTS]
+                        [-o OUT_PATH] [-b BLAST_PATH] [-k KMA_PATH]
+                        [-s SPECIES] [-l MIN_COV] [-t THRESHOLD]
+                        [-db_res DB_PATH_RES] [-db_res_kma DB_PATH_RES_KMA]
+                        [-d DATABASES] [-acq] [-c] [-db_point DB_PATH_POINT]
+                        [-g SPECIFIC_GENE [SPECIFIC_GENE ...]] [-u]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i INPUTFILE, --inputfile INPUTFILE
-                        Input file
-  -1 FASTQ1, --fastq1 FASTQ1
-                        Raw read data file 1.
-  -2 FASTQ2, --fastq2 FASTQ2
-                        Raw read data file 2 (only required if data is paired-
-                        end).
+  -ifa INPUTFASTA, --inputfasta INPUTFASTA
+                        Input fasta file.
+  -ifq INPUTFASTQ [INPUTFASTQ ...], --inputfastq INPUTFASTQ [INPUTFASTQ ...]
+                        Input fastq file(s). Assumed to be single-end fastq if
+                        only one file is provided, and assumed to be paired-
+                        end data if two files are provided.
   -o OUT_PATH, --outputPath OUT_PATH
-                        Path to blast output
+                        All output will be stored in this directory.
   -b BLAST_PATH, --blastPath BLAST_PATH
-                        Path to blast
-  -p DB_PATH, --databasePath DB_PATH
-                        Path to the databases
+                        Path to blastn
   -k KMA_PATH, --kmaPath KMA_PATH
-                        Path to KMA
-  -q DB_PATH_KMA, --databasePathKMA DB_PATH_KMA
-                        Path to the directories containing the KMA indexed
-                        databases. Defaults to the directory 'kma_indexing'
-                        inside the databasePath directory.
-  -d DATABASES, --databases DATABASES
-                        Databases chosen to search in - if none are specified
-                        all are used
+                        Path to kma
+  -s SPECIES, --species SPECIES
+                        Species in the sample
   -l MIN_COV, --min_cov MIN_COV
-                        Minimum coverage default 0.6
+                        Minimum (breadth-of) coverage
   -t THRESHOLD, --threshold THRESHOLD
-                        Blast threshold for identity
-                        default minimum 0.9 
+                        Threshold for identity
+  -db_res DB_PATH_RES, --db_path_res DB_PATH_RES
+                        Path to the databases for ResFinder
+  -db_res_kma DB_PATH_RES_KMA, --db_path_res_kma DB_PATH_RES_KMA
+                        Path to the ResFinder databases indexed with KMA.
+                        Defaults to the 'kma_indexing' directory inside the
+                        given database directory.
+  -d DATABASES, --databases DATABASES
+                        Databases chosen to search in - if none is specified
+                        all is used
+  -acq, --acquired      Run resfinder for acquired resistance genes
+  -c, --point           Run pointfinder for chromosomal mutations
+  -db_point DB_PATH_POINT, --db_path_point DB_PATH_POINT
+                        Path to the databases for PointFinder
+  -g SPECIFIC_GENE [SPECIFIC_GENE ...]
+                        Specify genes existing in the database to search for -
+                        if none is specified all genes are included in the
+                        search.
+  -u, --unknown_mut     Show all mutations found even if in unknown to the
+                        resistance database
 ```
 
 ### Web-server
