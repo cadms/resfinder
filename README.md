@@ -17,14 +17,26 @@ that the perl script uses, is avail to download.
 3. test.fsa     - test fasta file
 
 ## Installation
+The installation described here will first install the actual ResFinder software, 
+then the dependencies, and finally the databases. A more detailed breakdown of the 
+installation is provided below:
+1. Install ResFinder tool
+2. Install python module BioPython
+3. Install python module CGECore
+4. Install BLAST (optional)
+5. install KMA (optional)
+6. Download ResFinder database
+7. Download PointFinder database
+8. Index databases with KMA (if installed)
 
+### ResFinder tool
 Setting up ResFinder script and database
 ```bash
 # Go to wanted location for resfinder
 cd /path/to/some/dir
 
-# Clone and enter the resfinder directory
-git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git
+# Clone branch 4.0 and enter the resfinder directory
+git clone -b 4.0 https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
 
 
@@ -38,31 +50,53 @@ cd resfinder_db
 
 ```
 
-### Installing dependencies (for python script):
+### Dependencies:
+Depending on how you plan to run ResFinder BLAST and KMA can be optional.
+BLAST is used to analyse assemblies (ie. FASTA files).
+KMA is used to analyse read data (ie. FASTQ files).
 
-The BlastAll and FormatDB that the perl script uses are no longer available 
-for downloading through ncbi. Therefor we have provided the resfinder.py 
-scriot that uses Blastn instead. Note, this is not not script that is running 
-on the CGE server. The CGE server is running the perl script using BlastAll
-
-
-#### Download Blastn and BioPython
-```url
-http://biopython.org/DIST/docs/install/Installation.html
+#### BioPython
+To install BioPython you can use pip
+```bash
+pip3 install biopython
 ```
+For more information visit the BioPython website
+```url
+http://biopython.org
+```
+
+#### CGECore
+To install CGECore you can use pip
+```bash
+pip3 install cgecore
+```
+Source code is available from:
+```url
+https://bitbucket.org/genomicepidemiology/cge_core_module/src/master/
+```
+
+#### BLAST (optional)
+If you don't want to specify the path of blastn every time you run
+ResFinder, make sure that blastn is in you PATH.
+
+Blastn can be obtained from:
 ```url
 ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
-#### Install the cgecore module to python3
+
+#### KMA (optional)
+The instructions here will install KMA in the default location ResFinder uses. KMA 
+can be installed in another location but the path to KMA will then need to be 
+specified every time you run ResFinder.
 ```bash
-pip3 install cgecore
+git clone https://bitbucket.org/genomicepidemiology/kma.git
 ```
 
 ## Usage 
 
 You can run resfinder command line using python3
    
-```bash
+```
 
 # Example of running resfinder
 python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
