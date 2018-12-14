@@ -95,7 +95,7 @@ ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 #### KMA (optional)
 The instructions here will install KMA in the default location ResFinder uses. KMA 
 can be installed in another location but the path to KMA will then need to be 
-specified every time you run ResFinder.
+specified every time you run ResFinder unless you add the kma program to your PATH.
 ```bash
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
