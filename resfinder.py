@@ -104,15 +104,20 @@ class ResFinder(CGEFinder):
              continue
 
          # Clean up dbs with only excluded hits
+         if isinstance(results[db], str):
+             results[db] = "No hit found"
+             print("No hits in: " + str(db))
+             continue
+
          no_hits = True
          for hit in results[db]:
              if(hit not in results["excluded"]):
-                 print("hit not excluded: " + str(hit))
+                 print("Hit not excluded: " + str(hit))
                  print("\tIn DB: " + str(db))
                  no_hits = False
-                 break
+
          if(no_hits):
-             print("No hits in: " + str(db))
+             print("No hits in: " + str(db) + " (hit(s) excluded)")
              results[db] = "No hit found"
 
          profile = str(self.configured_dbs[db][0])
@@ -467,8 +472,8 @@ if __name__ == '__main__':
 
    # Defining varibales
 
-   min_cov = args.min_cov
-   threshold = args.threshold
+   min_cov = float(args.min_cov)
+   threshold = float(args.threshold)
 
    # Check if valid database is provided
    if args.db_path is None:
@@ -546,7 +551,10 @@ if __name__ == '__main__':
                          notes=notes_path)
 
       # if input_fastq2 is None, it is ignored by the kma method.
-      kma_run = finder.kma(inputfile_1=input_fastq1, inputfile_2=input_fastq2)
+      kma_run = finder.kma(inputfile_1=input_fastq1, inputfile_2=input_fastq2,
+                           out_path=out_path, databases=finder.databases,
+                           db_path_kma=finder.db_path_kma, min_cov=min_cov,
+                           threshold=threshold, kma_path=args.kma_path)
 
-      finder.write_results(out_path=out_path, result=kma_run,
+      finder.write_results(out_path=out_path, result=kma_run.results,
                            res_type=ResFinder.TYPE_KMA)
