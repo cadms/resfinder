@@ -149,6 +149,28 @@ cge/kma/kma_index -i db_pointfinder/enterococcus_faecium/*.fsa -o db_pointfinder
 cge/kma/kma_index -i db_pointfinder/neisseria_gonorrhoeae/*.fsa -o db_pointfinder/neisseria_gonorrhoeae/neisseria_gonorrhoeae
 ```
 
+### Test ResFinder intallation
+If you did not install BLAST, test 1 and 3 will fail. If you did not install KMA, test 2
+and 4 will fail.
+The 4 tests will in total take approximately take 5-60 seconds, depending on your system.
+```
+# Go to the directoy in which you installed the ResFinder tool
+cd /path/to/some/dir/resfinder
+
+# Run tests
+python3 tests/functional_test.py
+
+# Output from successful tests
+....
+----------------------------------------------------------------------
+Ran 4 tests in 8.263s
+
+OK
+```
+
+### Test data
+Test data can be found in the sub-dierectory /tests/data
+
 ## Usage 
 
 You can run resfinder command line using python3
