@@ -1,20 +1,14 @@
 ResFinder documentation
 =============
 
-The ResFinder service contains one perl script *resfinder.pl* which is the
-script of the latest version of the ResFinder service. ResFinder identifies
-acquired antimicrobial resistance genes in total or partial sequenced isolates
-of bacteria.
-
-This repository also contains a python script *resfinder.py* which is  a new version 
-of ResFinder, but not yet running on the CGE server. This program was added because
-it uses a newer version of blastn,  which, in contrary from the blastall version 
-that the perl script uses, is avail to download.
+ResFinder identifies acquired antimicrobial resistance genes in total or partial
+sequenced isolates of bacteria.
 
 ## Content of the repository
-1. resfinder.pl - the program
-2. resfinder.py - (same program using an available blastn version - blastn-2.2.26+)
-3. test.fsa     - test fasta file
+1. run_resfinder.py - Use this script to run ResFinder
+2. tests/data       - Contains fasta and fastq data for testing. More information in the "Test data" section
+3. scripts/         - All scripts in this directory is unsupported but has been uploaded as they may be useful
+4. cge/             - ResFinder code
 
 ## Installation
 The installation described here will first install the actual ResFinder software, 
