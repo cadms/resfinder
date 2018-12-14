@@ -107,18 +107,13 @@ parser.add_argument("-ifq", "--inputfastq",
                     nargs="+",
                     default=None)
 
-parser.add_argument("-scripts", "--scrtips",
-                    dest="scripts",
-                    help="Path to ResFinder and PointFinder scritps. Defaults\
-                          to the directory of run_resfinder.py",
-                    default=None)
 parser.add_argument("-o", "--outputPath",
                     dest="out_path",
                     help="Path to blast output",
                     default='')
 parser.add_argument("-b", "--blastPath",
                     dest="blast_path",
-                    help="Path to blast",
+                    help="Path to blastn",
                     default='blastn')
 parser.add_argument("-k", "--kmaPath",
                     dest="kma_path",
@@ -195,7 +190,6 @@ else:
    method = PointFinder.TYPE_KMA
 
 # TODO: Add input data check
-scripts = args.scripts
 if(args.inputfastq):
    inputfastq_1 = args.inputfastq[0]
    inputfastq_1 = os.path.abspath(inputfastq_1)
@@ -210,6 +204,31 @@ if(args.inputfastq):
       inputfastq_2 = None
 
 blast = args.blast_path
+if(args.inputfasta):
+    try:
+        _ = subprocess.check_output([blast, "-h"])
+    except FileNotFoundError as e:
+       sys.exit("ERROR: Unable to execute blastn from the path: {}"
+                .format(blast))
+
+# Check KMA path cge/kma/kma
+if(args.inputfastq):
+   if(args.kma_path is None):
+      kma = (os.path.dirname(
+          os.path.realpath(__file__)) + "/cge/kma/kma")
+      kma = os.path.abspath(kma)
+      try:
+         _ = subprocess.check_output([kma, "-h"])
+      except FileNotFoundError as e:
+         kma = "kma"
+   else:
+      kma = args.kma_path
+   try:
+      _ = subprocess.check_output([kma, "-h"])
+   except FileNotFoundError as e:
+      sys.exit("ERROR: Unable to execute kma from the path: {}".format(kma))
+else:
+   kma = None
 
 if(args.species):
     args.species = args.species.lower()
@@ -252,30 +271,9 @@ if(args.species):
 
         db_path_point = db_path_point + "/" + point_species
 
-# Check KMA path cge/kma/kma
-if(args.inputfastq):
-   if(args.kma_path is None):
-      kma = (os.path.dirname(
-          os.path.realpath(__file__)) + "/cge/kma/kma")
-      kma = os.path.abspath(kma)
-   else:
-      kma = args.kma_path
-else:
-   kma = None
-
 # Check output directory
 args.out_path = os.path.abspath(args.out_path)
 os.makedirs(args.out_path, exist_ok=True)
-
-# Check script directory.
-if(not args.scripts):
-    script_resfinder = os.path.dirname(
-        os.path.realpath(__file__)) + "/ResFinder.py"
-    script_pointfinder = os.path.dirname(
-        os.path.realpath(__file__)) + "/PointFinder.py"
-else:
-   script_resfinder = scritps + "/ResFinder.py"
-   script_pointfinder = scritps + "/PointFinder.py"
 
 if args.acquired is False and args.point is False:
    sys.exit("Please specify to look for acquired resistance genes, "
