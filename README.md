@@ -9,6 +9,7 @@ sequenced isolates of bacteria.
 2. tests/data       - Contains fasta and fastq data for testing. More information in the "Test data" section
 3. scripts/         - All scripts in this directory is unsupported but has been uploaded as they may be useful
 4. cge/             - ResFinder code
+5. dockerfile       - Used to build ResFinder docker image (See Docker section near the end)
 
 ## Installation
 The installation described here will first install the actual ResFinder software, 
@@ -230,6 +231,14 @@ optional arguments:
 A webserver implementing the methods is available at the [CGE 
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
+
+### Docker
+
+The docker image should be used as an executable.
+Example:
+```bash
+docker run --rm -v $(pwd):/workdir resfinder -o test_dock_out -s "Escherichia coli" -l 0.6 -t 0.8 -acquired --point -ifq test_isolate_01_*
+```
 
 ### Documentation
 
