@@ -178,6 +178,11 @@ parser.add_argument("-u", "--unknown_mut",
 
 args = parser.parse_args()
 
+if(args.point and not args.species):
+   sys.exit("ERROR: Chromosomal point mutations cannot be located if no "
+            "species has been provided. Please provide species using the "
+            "--species option.")
+
 # Create a "sample" name
 if(args.inputfasta):
    args.inputfasta = os.path.abspath(args.inputfasta)
@@ -189,7 +194,6 @@ else:
    sample_name = os.path.basename(args.inputfastq[0])
    method = PointFinder.TYPE_KMA
 
-# TODO: Add input data check
 if(args.inputfastq):
    inputfastq_1 = args.inputfastq[0]
    inputfastq_1 = os.path.abspath(inputfastq_1)
@@ -230,6 +234,7 @@ if(args.inputfastq):
 else:
    kma = None
 
+db_path_point = None
 if(args.species):
     args.species = args.species.lower()
 
@@ -242,7 +247,6 @@ if(args.species):
         sys.exit("ERROR: Species name must contain 1 or 2 names.")
 
     # Check Poinfinder database
-    db_path_point = None
     if(args.point):
         if(len(tmp_list) == 2):
             point_species = "_".join(tmp_list)
@@ -376,7 +380,7 @@ if args.acquired is True:
 # PointFinder
 ##########################################################################
 
-if args.point is True:
+if args.point is True and args.species:
 
    if(args.inputfasta):
       out_point = os.path.abspath(args.out_path + "/pointfinder_blast")
@@ -432,7 +436,7 @@ if args.point is True:
 ##########################################################################
 
 # Load genotype to phenotype database
-if(db_path_point is not None):
+if(db_path_point):
    point_file = db_path_point + "/resistens-overview.txt"
 else:
    point_file = None
