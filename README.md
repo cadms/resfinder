@@ -173,8 +173,7 @@ You can run resfinder command line using python3
 ```
 
 # Example of running resfinder
-python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
--b /path/to/blastn -d aminoglycoside -t 90.00 -l 0.60
+python3 run_resfinder.py -o path/to/outdir -s "Escherichia coli" -l 0.6 -t 0.8 -acquired --point -ifq test_isolate_01_*
 
 # The program can be invoked with the -h option 
 usage: run_resfinder.py [-h] [-ifa INPUTFASTA]
@@ -239,11 +238,6 @@ Example:
 ```bash
 docker run --rm -v $(pwd):/workdir resfinder -o test_dock_out -s "Escherichia coli" -l 0.6 -t 0.8 -acquired --point -ifq test_isolate_01_*
 ```
-
-### Documentation
-
-The documentation available as of the date of this release can be found at
-https://bitbucket.org/genomicepidemiology/resfinder/overview.
 
 
 Citation
