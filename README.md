@@ -177,7 +177,7 @@ You can run resfinder command line using python3
 ```
 
 # Example of running resfinder
-python3 run_resfinder.py -o path/to/outdir -s "Escherichia coli" -l 0.6 -t 0.8 -acquired --point -ifq test_isolate_01_*
+python3 run_resfinder.py -o path/to/outdir -s "Escherichia coli" -l 0.6 -t 0.8 --acquired --point -ifq test_isolate_01_*
 
 # The program can be invoked with the -h option 
 usage: run_resfinder.py [-h] [-ifa INPUTFASTA]
