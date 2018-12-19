@@ -170,8 +170,8 @@ Test data can be found in the sub-dierectory /tests/data
 
 You can run resfinder command line using python3
 
-_NOTE_: Species should be entered with their full scientific names (e.g. "escherichia coli"), using quotation marks, not case sensitive.
-        An attempt has been made to capture some deviations like "ecoli" and "e.coli", but it is far from all deviations that will be captured.
+**NOTE**: Species should be entered with their full scientific names (e.g. "escherichia coli"), using quotation marks, not case sensitive.
+          An attempt has been made to capture some deviations like "ecoli" and "e.coli", but it is far from all deviations that will be captured.
 
 
 ```
