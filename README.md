@@ -251,6 +251,17 @@ PF_DB=/Users/rolf/ownCloud2/Scripts-CGE/database_pointfinder
 RF_DB=/Users/rolf/ownCloud2/Scripts-CGE/resfinder_db
 ```
 
+#### Build and test docker image
+```bash
+# Go to directory containing the dockerfile
+cd /some/dir
+# Build image
+docker build -t resfinder .
+# Test installation
+docker run --rm -v $(pwd):/workdir -v $PF_DB:/resfinder/db_pointfinder -v $RF_DB:/resfinder/db_resfinder --entrypoint /resfinder/tests/functional_tests.py resfinder
+```
+If you did not use environment variables, simply replace them with the appropriate paths.
+
 #### Runnning the docker image
 
 The docker image should be used as an executable.
