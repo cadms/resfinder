@@ -169,7 +169,11 @@ Test data can be found in the sub-dierectory /tests/data
 ## Usage 
 
 You can run resfinder command line using python3
-   
+
+_NOTE_: Species should be entered with their full scientific names (e.g. "escherichia coli"), using quotation marks, not case sensitive.
+        An attempt has been made to capture some deviations like "ecoli" and "e.coli", but it is far from all deviations that will be captured.
+
+
 ```
 
 # Example of running resfinder
@@ -233,12 +237,28 @@ https://cge.cbs.dtu.dk/services/ResFinder/
 
 ### Docker
 
+The databases needs to be cloned and possibly index seperately. This is described on each of the database bitbucket sites:
+```url
+https://bitbucket.org/genomicepidemiology/resfinder_db/overview
+https://bitbucket.org/genomicepidemiology/pointfinder_db/overview
+```
+
+The databases needs to be mounted when running docker using the -v option.
+
+It can be desirable to create environment variables:
+```bash
+PF_DB=/Users/rolf/ownCloud2/Scripts-CGE/database_pointfinder
+RF_DB=/Users/rolf/ownCloud2/Scripts-CGE/resfinder_db
+```
+
+#### Runnning the docker image
+
 The docker image should be used as an executable.
 Example:
 ```bash
-docker run --rm -v $(pwd):/workdir resfinder -o test_dock_out -s "Escherichia coli" -l 0.6 -t 0.8 -acquired --point -ifq test_isolate_01_*
+docker run --rm -v $(pwd):/workdir -v $PF_DB:/resfinder/db_pointfinder -v $RF_DB:/resfinder/db_resfinder resfinder -o <output_dir> -s "<species>" --acquired --point -ifq <path/to/*.fq>
 ```
-
+If you did not use environment variables, simply replace them with the appropriate paths.
 
 Citation
 =======
