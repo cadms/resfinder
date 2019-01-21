@@ -719,7 +719,7 @@ class FeatureGroup(dict):
         feature_ids = []
         for feature in features:
             feature_ids.append(feature.unique_id)
-            super().__setitem__(feature.unique_id, feature)
+            super(FeatureGroup, self).__setitem__(feature.unique_id, feature)
             # self[feature.unique_id] = feature
 
         self.unique_id = "_".join(feature_ids)
@@ -729,4 +729,4 @@ class FeatureGroup(dict):
 
     def __setitem__(self, k, v):
         self.unique_id = self.unique_id + "_" + k
-        return super().__setitem__(k, v)
+        return super(FeatureGroup, self).__setitem__(k, v)
