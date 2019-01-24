@@ -40,8 +40,8 @@ class PhenoDB(dict):
             self.load_point_db(point_file)
 
         self.unknown_pheno = Phenotype(unique_id="unknown",
-                                       phenotype=[],
-                                       ab_class="-", sug_phenotype=(),
+                                       antibiotics=[],
+                                       sug_phenotype=(),
                                        pub_phenotype=(),
                                        pmid="-",
                                        notes="Phenotype not found in database")
@@ -87,15 +87,36 @@ class PhenoDB(dict):
                         accno = "_".join(phenodb_id[2:])
                         unique_id = "{0}_{1}".format(phenodb_id[0], accno)
 
-                    ab_class = self.get_csv_tuple(line_list[1].lower())
+                    # ab_class = self.get_csv_tuple(line_list[1].lower())
 
                     pub_phenotype = self.get_csv_tuple(line_list[2].lower())
                     if("unknown" in pub_phenotype or "none" in pub_phenotype):
                         pub_phenotype = ()
 
-                    pmid = self.get_csv_tuple(line_list[3].lower())
+                    abs = []
+                    for ab_name in pub_phenotype:
+                        # TODO: Fix database
+                        if(ab_name == "see notes"):
+                            continue
+                        classes = self.ab_class_defs.get(ab_name, None)
+                        if(classes is None):
+                            eprint("Entry {id:s} contained antibiotic "
+                                   "'{ab:s}' not found in ab class "
+                                   "def file."
+                                   .format(id=unique_id, ab=ab_name))
+                            continue
+                        ab = Antibiotics(name=ab_name, classes=classes)
+                        abs.append(ab)
+                        for class_ in classes:
+                            if(class_ in self.antibiotics):
+                                self.antibiotics[class_][ab] = True
+                            else:
+                                self.antibiotics[class_] = {}
+                                self.antibiotics[class_][ab] = True
 
-                    phenotype = list(pub_phenotype)
+                    # phenotype = list(pub_phenotype)
+
+                    pmid = self.get_csv_tuple(line_list[3].lower())
 
                     if(len(line_list) > 4 and line_list[4]):
                         res_mechanics = line_list[4].lower()
@@ -107,44 +128,52 @@ class PhenoDB(dict):
                     else:
                         notes = ""
 
-                    if(len(line_list) > 6 and line_list[6]):
-                        sug_phenotype = self.get_csv_tuple(line_list[6])
-                        for p in sug_phenotype:
-                            if p not in pub_phenotype:
-                                phenotype.append(p)
-                    else:
-                        sug_phenotype = ()
+                    # Line list pos 6 is required genes
+
+                    #
+                    # The following should be written out
+                    #
+                    # if(len(line_list) > 6 and line_list[6]):
+                    #    sug_phenotype = self.get_csv_tuple(line_list[6])
+                    #    for p in sug_phenotype:
+                    #        if p not in pub_phenotype:
+                    #            phenotype.append(p)
+                    # else:
+                    sug_phenotype = ()
 
                     if(len(line_list) > 7 and line_list[7]):
                         gene_class = line_list[7].lower()
                     else:
                         gene_class = None
                     if(len(line_list) > 8 and line_list[8]):
-                        susceptibile = self.get_csv_tuple(line_list[6])
+                         susceptibile = self.get_csv_tuple(line_list[6])
                     else:
                         susceptibile = ()
                     if(len(line_list) > 9 and line_list[9]):
                         species = self.get_csv_tuple(line_list[9])
                     else:
                         species = None
+                    #
+                    # Write out the above
+                    #
 
-                    # Create non-redundant complete list of antibiotics in DB.
-                    for ab in phenotype:
-                        for _class in ab_class:
-                            if(_class in self.antibiotics):
-                                self.antibiotics[_class][ab] = True
-                            else:
-                                self.antibiotics[_class] = {}
-                                self.antibiotics[_class][ab] = True
-                    for ab in susceptibile:
-                        for _class in ab_class:
-                            if(_class in self.antibiotics):
-                                self.antibiotics[_class][ab] = True
-                            else:
-                                self.antibiotics[_class] = {}
-                                self.antibiotics[_class][ab] = True
+                    # for ab in phenotype:
+                    #    for _class in ab_class:
+                    #        if(_class in self.antibiotics):
+                    #            self.antibiotics[_class][ab] = True
+                    #        else:
+                    #            self.antibiotics[_class] = {}
+                    #            self.antibiotics[_class][ab] = True
+                    # eprint("ab: {} cl: {}".format(ab, _class))
+                    # for ab in susceptibile:
+                    #    for _class in ab_class:
+                    #        if(_class in self.antibiotics):
+                    #            self.antibiotics[_class][ab] = True
+                    #        else:
+                    #            self.antibiotics[_class] = {}
+                    #            self.antibiotics[_class][ab] = True
 
-                    pheno = Phenotype(unique_id, phenotype, ab_class,
+                    pheno = Phenotype(unique_id, abs,
                                       sug_phenotype, pub_phenotype, pmid,
                                       susceptibile=susceptibile,
                                       gene_class=gene_class, notes=notes,
@@ -447,12 +476,11 @@ class Phenotype():
                  reference aa/nucs found at the position. The MutationGenotype
                  objects contain information on known mutations.
     """
-    def __init__(self, unique_id, phenotype, ab_class, sug_phenotype,
+    def __init__(self, unique_id, antibiotics, sug_phenotype,
                  pub_phenotype, pmid, susceptibile=(), gene_class=None,
                  notes="", species=None, res_mechanics=None, req_muts=None):
         self.unique_id = unique_id
-        self.phenotype = phenotype
-        self.ab_class = ab_class
+        self.antibiotics = antibiotics
 
         self.sug_phenotype = sug_phenotype
         self.pub_phenotype = pub_phenotype
@@ -468,12 +496,13 @@ class Antibiotics():
     """ Class is implemented to be key in a dict. The class can be tested
         against isinstances of itself and strings.
     """
-    def __init__(self, name, class_, feature, published=None):
+    def __init__(self, name, classes, feature=None, published=None):
         self.name = name
-        self.class_ = class_
+        self.classes = classes
         self.published = published
         self.features = {}
-        self.features[feature.unique_id] = feature
+        if(feature):
+            self.add_feature(feature)
 
     def __hash__(self):
         return hash(self.name)
@@ -598,7 +627,7 @@ class ResProfile():
                 self.features[feature.unique_id] = feature
                 # Several phenotypes can exist for a single feature ID.
                 for phenotype in phenodb[feature.unique_id]:
-                    if(phenotype.phenotype):
+                    if(phenotype.antibiotics):
                         self.add_phenotype(feature, phenotype, update=False)
                     else:
                         self.unknown_db_features.append(feature)
@@ -656,24 +685,28 @@ class ResProfile():
                     if(len(fg) > len(feature)):
                         feature = fg
 
-        for antibiotic in phenotype.pub_phenotype:
+        for antibiotic in phenotype.antibiotics:
 
             # Create collection of features grouped with respect to ab class
-            for _class in phenotype.ab_class:
+            for _class in antibiotic.classes:
                 if(_class not in self.resistance_classes):
                     self.resistance_classes[_class] = set()
                 self.resistance_classes[_class].add(feature)
 
-            if(antibiotic not in self.resistance):
-                self.resistance[antibiotic] = Antibiotics(antibiotic,
-                                                          phenotype.ab_class,
-                                                          feature,
-                                                          published=True)
-            else:
-                if(not self.resistance[antibiotic].published):
-                    self.resistance[antibiotic].published = True
-                    self.resistance[antibiotic].add_feature(feature)
+            antibiotic.add_feature(feature)
 
+            if(antibiotic not in self.resistance):
+                self.resistance[antibiotic] = True
+#                self.resistance[antibiotic] = Antibiotics(antibiotic,
+#                                                          phenotype.ab_class,
+#                                                          feature,
+#                                                          published=True)
+#            else:
+#                if(not self.resistance[antibiotic].published):
+#                    self.resistance[antibiotic].published = True
+#                    self.resistance[antibiotic].add_feature(feature)
+
+        # TODO: delete this for-loop
         for antibiotic in phenotype.sug_phenotype:
 
             # Create collection of features grouped with respect to ab class
@@ -690,6 +723,7 @@ class ResProfile():
             else:
                 self.resistance[antibiotic].add_feature(feature)
 
+        # TODO: delete this for-loop
         for antibiotic in phenotype.susceptibile:
             if(antibiotic not in self.resistance):
                 self.susceptibile[antibiotic] = Antibiotics(antibiotic,

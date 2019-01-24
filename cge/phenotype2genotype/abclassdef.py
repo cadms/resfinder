@@ -19,4 +19,6 @@ class ABClassDefinition(dict):
                 ab_class = entries[0]
 
                 for antibiotic in entries[1:]:
-                    self[antibiotic] = ab_class
+                    classes = self.get(antibiotic, [])
+                    classes.append(ab_class)
+                    self[antibiotic] = classes

@@ -66,12 +66,13 @@ class Isolate(dict):
                         end_feat = None
 
                     phenotypes = phenodb.get(unique_id, None)
+                    ab_class = set()
                     if(phenotypes):
-                        ab_class = []
                         for p in phenotypes:
-                            ab_class += p.ab_class
+                            for ab in p.antibiotics:
+                                ab_class.update(ab.classes)
                     else:
-                        ab_class = [db_name]
+                        ab_class.add(db_name)
 
                     gene_feat = ResGene(unique_id=unique_id,
                                         seq_region=hit_list[5],
@@ -257,19 +258,17 @@ class Isolate(dict):
 
         # For each antibiotic class
         for ab_class in self.resprofile.phenodb.antibiotics.keys():
-
+            print("class: {}".format(ab_class))
             # For each antibiotic in current class
-            for ab_name in self.resprofile.phenodb.antibiotics[ab_class]:
-                output_str += ab_name + "\t" + ab_class
+            for ab in self.resprofile.phenodb.antibiotics[ab_class]:
+                output_str += ("{ab:s}\t{cl:s}"
+                               .format(ab=ab.name, cl=ab_class))
+                # output_str += ab.name + "\t" + ", ".join(ab_class)
 
                 # Isolate is resistant towards the antibiotic
-                if(ab_name in self.resprofile.resistance):
-                    ab = self.resprofile.resistance[ab_name]
-
-                    if(ab.published):
-                        output_str += "\tResistant"
-                    else:
-                        output_str += "\tResistant*"
+                if(ab in self.resprofile.resistance):
+                    # ab = self.resprofile.resistance[ab_name]
+                    output_str += "\tResistant"
 
                     # Find the resistance causing gene with the best match
                     # Mutations will always have best match as they are only
@@ -300,8 +299,9 @@ class Isolate(dict):
 
                     output_str += "\t" + gene_mut_str + "\n"
 
+                # TODO: delete elif clause.
                 # Isolate is susceptibile towards the antibiotic
-                elif(ab_name in self.resprofile.susceptibile):
+                elif(ab.name in self.resprofile.susceptibile):
                     ab = self.resprofile.susceptibile[ab_name]
                     # Genetic background is not written if susceptibile
                     gene_list = ""
