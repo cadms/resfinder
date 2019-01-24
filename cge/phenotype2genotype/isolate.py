@@ -187,12 +187,13 @@ class Isolate(dict):
                                   + str(mutation_list)))
 
                     phenotypes = phenodb.get(unique_id, None)
+                    ab_class = set()
                     if(phenotypes):
-                        ab_class = []
                         for p in phenotypes:
-                            ab_class += p.ab_class
+                            for ab in p.antibiotics:
+                                ab_class.update(ab.classes)
                     else:
-                        ab_class = ["No class defined"]
+                        ab_class.add("No class defined")
 
                     mut_feat = ResMutation(unique_id=unique_id,
                                            seq_region=mut_name_str,
@@ -258,16 +259,15 @@ class Isolate(dict):
 
         # For each antibiotic class
         for ab_class in self.resprofile.phenodb.antibiotics.keys():
-            print("class: {}".format(ab_class))
             # For each antibiotic in current class
-            for ab in self.resprofile.phenodb.antibiotics[ab_class]:
+            for ab_db in self.resprofile.phenodb.antibiotics[ab_class]:
                 output_str += ("{ab:s}\t{cl:s}"
-                               .format(ab=ab.name, cl=ab_class))
+                               .format(ab=ab_db.name, cl=ab_class))
                 # output_str += ab.name + "\t" + ", ".join(ab_class)
 
                 # Isolate is resistant towards the antibiotic
-                if(ab in self.resprofile.resistance):
-                    # ab = self.resprofile.resistance[ab_name]
+                if(ab_db in self.resprofile.resistance):
+                    ab = self.resprofile.resistance[ab_db]
                     output_str += "\tResistant"
 
                     # Find the resistance causing gene with the best match
@@ -301,8 +301,8 @@ class Isolate(dict):
 
                 # TODO: delete elif clause.
                 # Isolate is susceptibile towards the antibiotic
-                elif(ab.name in self.resprofile.susceptibile):
-                    ab = self.resprofile.susceptibile[ab_name]
+                elif(ab_db.name in self.resprofile.susceptibile):
+                    ab = self.resprofile.susceptibile[ab_db.name]
                     # Genetic background is not written if susceptibile
                     gene_list = ""
                     # Uncomment next line to write genetic background for susc.

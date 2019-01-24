@@ -176,8 +176,7 @@ class PhenoDB(dict):
                     pheno = Phenotype(unique_id, abs,
                                       sug_phenotype, pub_phenotype, pmid,
                                       susceptibile=susceptibile,
-                                      gene_class=gene_class, notes=notes,
-                                      species=species)
+                                      gene_class=gene_class, notes=notes)
 
                     pheno_lst = self.get(unique_id, [])
                     pheno_lst.append(pheno)
@@ -223,10 +222,31 @@ class PhenoDB(dict):
 
                     pmid = self.get_csv_tuple(line_list[7].lower())
 
-                    phenotype = list(pub_phenotype)
+                    # phenotype = list(pub_phenotype)
 
                     # TODO: Remove this tuple and its dependencies.
                     sug_phenotype = ()
+
+                    abs = []
+                    for ab_name in pub_phenotype:
+                        # TODO: Fix database
+                        if(ab_name == "see notes"):
+                            continue
+                        classes = self.ab_class_defs.get(ab_name, None)
+                        if(classes is None):
+                            eprint("Entry {id:s} contained antibiotic "
+                                   "'{ab:s}' not found in ab class "
+                                   "def file."
+                                   .format(id=unique_id, ab=ab_name))
+                            continue
+                        ab = Antibiotics(name=ab_name, classes=classes)
+                        abs.append(ab)
+                        for class_ in classes:
+                            if(class_ in self.antibiotics):
+                                self.antibiotics[class_][ab] = True
+                            else:
+                                self.antibiotics[class_] = {}
+                                self.antibiotics[class_][ab] = True
 
                     if(line_list[8]):
                         res_mechanics = line_list[8]
@@ -237,12 +257,6 @@ class PhenoDB(dict):
                         notes = line_list[9]
                     else:
                         notes = ""
-
-                    ab_class = []
-                    for ab in phenotype:
-                        _class = self.ab_class_defs.get(ab, None)
-                        if(_class):
-                            ab_class.append(_class)
 
                     # Load required mutations.
                     # A mutation can dependent on a group of other
@@ -281,24 +295,10 @@ class PhenoDB(dict):
                     else:
                         mut_groups = None
 
-                    if(len(line_list) > 11 and line_list[11]):
-                        species = self.get_csv_tuple(line_list[11])
-                    else:
-                        species = ()
-
-                    # Create non-redundant complete list of antibiotics in DB.
-                    for ab in phenotype:
-                        for _class in ab_class:
-                            if(_class in self.antibiotics):
-                                self.antibiotics[_class][ab] = True
-                            else:
-                                self.antibiotics[_class] = {}
-                                self.antibiotics[_class][ab] = True
-
-                    pheno = Phenotype(unique_id, phenotype, ab_class,
+                    pheno = Phenotype(unique_id, abs,
                                       sug_phenotype, pub_phenotype, pmid,
                                       notes=notes, res_mechanics=res_mechanics,
-                                      req_muts=mut_groups, species=species)
+                                      req_muts=mut_groups)
 
                     pheno_lst = self.get(unique_id, [])
                     pheno_lst.append(pheno)
@@ -524,7 +524,6 @@ class Antibiotics():
     # TODO: Overwrites idetical features. Should check to keep only
     #       the most resistant feature.
     def add_feature(self, feature):
-        eprint("Adding: " + feature.unique_id)
         self.features[feature.unique_id] = feature
 
     def get_mut_names(self, _list=False):
@@ -696,7 +695,7 @@ class ResProfile():
             antibiotic.add_feature(feature)
 
             if(antibiotic not in self.resistance):
-                self.resistance[antibiotic] = True
+                self.resistance[antibiotic.name] = antibiotic
 #                self.resistance[antibiotic] = Antibiotics(antibiotic,
 #                                                          phenotype.ab_class,
 #                                                          feature,
