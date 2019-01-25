@@ -66,6 +66,9 @@ class PhenoDB(dict):
             line_counter = 1
 
             for line in fh:
+                if(line.startswith("#")):
+                    continue
+
                 try:
                     line_counter += 1
 
@@ -195,6 +198,9 @@ class PhenoDB(dict):
             line_counter = 1
 
             for line in fh:
+                if(line.startswith("#")):
+                    continue
+
                 try:
                     line_counter += 1
 
