@@ -254,7 +254,7 @@ class PhenoDB(dict):
                                 self.antibiotics[class_] = {}
                                 self.antibiotics[class_][ab] = True
 
-                    if(line_list[8]):
+                    if(len(line_list) > 8 and line_list[8]):
                         res_mechanics = line_list[8]
                     else:
                         res_mechanics = None
