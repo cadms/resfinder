@@ -92,6 +92,7 @@ class ResSumTable(dict):
                 match_panel = re_panel.search(line)
                 if(match_panel):
                     panel_name = match_panel.group(1).lower()
+                    self.panels[panel_name] = []
                     species_panel_name = None
                     continue
 
