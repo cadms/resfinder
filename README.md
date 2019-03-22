@@ -42,15 +42,6 @@ cd /path/to/some/dir
 git clone -b 4.0 https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
 
-
-# Installing up the ResFinder database
-# Go to wanted location for resfinder database
-cd /path/to/some/dir
-
-# Clone and enter the resfinder directory
-git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git
-cd resfinder_db
-
 ```
 
 ### Dependencies:
@@ -104,14 +95,14 @@ This section describes how to install the databases at the ResFinder default loc
 The database locations can be changed, but must then be specified to ResFinder at run time.
 
 #### ResFinder database
-```
+```bash
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
 git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git db_resfinder
 ```
 
 #### PointFinder database
-```
+```bash
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
 git clone https://git@bitbucket.org/genomicepidemiology/pointfinder_db.git db_pointfinder
@@ -199,7 +190,7 @@ kma_index -i db_pointfinder/mycobacterium_tuberculosis/*.fsa -o db_pointfinder/m
 If you did not install BLAST, test 1 and 3 will fail. If you did not install KMA, test 2
 and 4 will fail.
 The 4 tests will in total take approximately take 5-60 seconds, depending on your system.
-```
+```bash
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
 
@@ -225,7 +216,7 @@ You can run resfinder command line using python3.
           An attempt has been made to capture some deviations like "ecoli" and "e.coli", but it is far from all deviations that will be captured.
 
 
-```
+```bash
 
 # Example of running resfinder
 python3 run_resfinder.py -o path/to/outdir -s "Escherichia coli" -l 0.6 -t 0.8 --acquired --point -ifq test_isolate_01_*
