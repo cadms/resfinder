@@ -66,12 +66,13 @@ class ResFinder(CGEFinder):
          fh.write(result_str[4])
 
    def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6,
-             blast="blastn"):
+             blast="blastn", allowed_overlap=0):
       """
       """
       blast_run = Blaster(inputfile=inputfile, databases=self.databases,
                           db_path=self.db_path, out_path=out_path,
-                          min_cov=min_cov, threshold=threshold, blast=blast)
+                          min_cov=min_cov, threshold=threshold, blast=blast,
+                          allowed_overlap=allowed_overlap)
       self.blast_results = blast_run.results
       return blast_run
 

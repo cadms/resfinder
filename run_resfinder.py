@@ -152,6 +152,11 @@ parser.add_argument("-acq", "--acquired",
                     dest="acquired",
                     help="Run resfinder for acquired resistance genes",
                     default=False)
+parser.add_argument("-ao", "--acq_overlap",
+                    help="Genes are allowed to overlap this number of\
+                          nucleotides. Default: 30.",
+                    type=int,
+                    default=30)
 
 # Point resistance option
 parser.add_argument("-c", "--point",
@@ -293,10 +298,10 @@ if(not os.path.exists(args.db_path_res)):
 
 # Check ResFinder KMA database
 if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
-    db_path_res_kma = (args.db_path_res + "/kma_indexing/")
-    if(not os.path.exists(db_path_res_kma)):
+    args.db_path_res_kma = (args.db_path_res + "/kma_indexing/")
+    if(not os.path.exists(args.db_path_res_kma)):
         sys.exit("Could not locate ResFinder database index path: %s"
-                 % db_path_res_kma)
+                 % args.db_path_res_kma)
 
 min_cov = float(args.min_cov)
 
@@ -340,7 +345,8 @@ if args.acquired is True:
    # Actually running ResFinder (for acquired resistance)
    acquired_finder = ResFinder(db_conf_file=db_config_file,
                                databases=args.databases, db_path=db_path_res,
-                               notes=notes_path, db_path_kma=db_path_res_kma)
+                               notes=notes_path,
+                               db_path_kma=args.db_path_res_kma)
 
    blast_results = None
    kma_results = None
@@ -350,7 +356,8 @@ if args.acquired is True:
                                             out_path=out_res_blast,
                                             min_cov=min_cov,
                                             threshold=threshold,
-                                            blast=blast)
+                                            blast=blast,
+                                            allowed_overlap=args.acq_overlap)
 
       acquired_finder.write_results(out_path=args.out_path,
                                     result=blast_results,
@@ -360,7 +367,7 @@ if args.acquired is True:
       kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
                                     inputfile_2=inputfastq_2,
                                     out_path=out_res_kma,
-                                    db_path_kma=db_path_res_kma,
+                                    db_path_kma=args.db_path_res_kma,
                                     databases=acquired_finder.databases,
                                     min_cov=min_cov,
                                     threshold=args.threshold,
