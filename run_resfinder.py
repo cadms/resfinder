@@ -292,7 +292,7 @@ if(not os.path.exists(args.db_path_res)):
              % args.db_path_res)
 
 # Check ResFinder KMA database
-if(args.db_path_res_kma is None and args.acquired):
+if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
     db_path_res_kma = (args.db_path_res + "/kma_indexing/")
     if(not os.path.exists(db_path_res_kma)):
         sys.exit("Could not locate ResFinder database index path: %s"
