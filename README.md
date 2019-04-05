@@ -37,73 +37,68 @@ git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git
 cd resfinder_db
 
 ```
-
-### Installing dependencies (for python script):
-
-The BlastAll and FormatDB that the perl script uses are no longer available 
-for downloading through ncbi. Therefor we have provided the resfinder.py 
-scriot that uses Blastn instead. Note, this is not not script that is running 
-on the CGE server. The CGE server is running the perl script using BlastAll
-
-
-#### Download Blastn and BioPython
-```url
-http://biopython.org/DIST/docs/install/Installation.html
-```
-```url
-ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
-```
-#### Install the cgecore module to python3
+Build Docker container
 ```bash
-pip3 install cgecore
+# Build container
+docker build -t pmlst
 ```
+## Download and install pMLST database
+```bash
+# Go to the directory where you want to store the ResFinder database
+cd /path/to/some/dir
+# Clone database from git repository (develop branch)
+git clone https://bitbucket.org/genomicepidemiology/resfinder_db.git
+cd resfinder_db
+ResFinder_DB=$(pwd)
+# Install ResFinder  database with executable kma_index program
+python3 INSTALL.py kma_index
+```
+If kma_index has not bin install please install kma_index from the kma repository: https://bitbucket.org/genomicepidemiology/kma
 
 ## Usage 
 
-You can run resfinder command line using python3
+The BlastAll and FormatDB that the perl script uses are no longer available 
+for downloading through ncbi. Therefore we have provided the resfinder.py 
+script that uses Blastn instead. Note, this is not not script that is running 
+on the CGE server. The CGE server is running the perl script using BlastAll.
+The python script can be used through the Dockerfile.
+
+The program can be invoked with the -h option to get help and more information of the service. Run Docker container
    
 ```bash
+# Run example container
+docker run --rm -it \
+       -v $ResFinder_DB:/database \
+       -v $(pwd):/workdir \
+       resfinder -i [INPUTFILE] -1 [FASTQ1] -2 [FASTQ2] -o . [-b] [-k] -p [DB_PATH] [-t] [-l]
 
-# Example of running resfinder
-python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
--b /path/to/blastn -d aminoglycoside -t 0.90 -l 0.60
-
-# The program can be invoked with the -h option 
-Usage: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
-                    [-b BLAST_PATH] [-p DB_PATH] [-k KMA_PATH]
-                    [-q DB_PATH_KMA] [-d DATABASES] [-l MIN_COV]
-                    [-t THRESHOLD]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -i INPUTFILE, --inputfile INPUTFILE
-                        Input file
-  -1 FASTQ1, --fastq1 FASTQ1
-                        Raw read data file 1.
-  -2 FASTQ2, --fastq2 FASTQ2
-                        Raw read data file 2 (only required if data is paired-
-                        end).
-  -o OUT_PATH, --outputPath OUT_PATH
-                        Path to blast output
-  -b BLAST_PATH, --blastPath BLAST_PATH
-                        Path to blast
-  -p DB_PATH, --databasePath DB_PATH
-                        Path to the databases
-  -k KMA_PATH, --kmaPath KMA_PATH
-                        Path to KMA
-  -q DB_PATH_KMA, --databasePathKMA DB_PATH_KMA
-                        Path to the directories containing the KMA indexed
-                        databases. Defaults to the directory 'kma_indexing'
-                        inside the databasePath directory.
-  -d DATABASES, --databases DATABASES
-                        Databases chosen to search in - if none are specified
-                        all are used
-  -l MIN_COV, --min_cov MIN_COV
-                        Minimum coverage default 0.6
-  -t THRESHOLD, --threshold THRESHOLD
-                        Blast threshold for identity
-                        default minimum 0.9 
+# Run resfinder container example
+docker run --rm -it \
+       -v $ResFinder_DB:/database \
+       -v $(pwd):/workdir \
+       resfinder -i test.fsa -o . -p /path/to/resfinder_db -b blastn -d aminoglycoside -t 0.90 -l 0.60
 ```
+When running the docker file you have to mount 2 directory: 
+ 1. pmlst_db (pMLST database) downloaded from bitbucket
+ 2. An output/input folder from where the input file can be reached and an output files can be saved. 
+Here we mount the current working directory (using $pwd) and use this as the output directory, 
+the input file should be reachable from this directory as well.
+
+Optional arguments:
+
+  `-h, --help     show this help message and exit`
+  `-i INPUTFILE, --inputfile inputfile      Input file`
+  `-1 FASTQ1, --fastq1 FASTQ1     Raw read data file 1.`
+  `-2 FASTQ2, --fastq2 FASTQ2      Raw read data file 2 (only required if data is paired-end).`
+  `-o OUT_PATH, --outputPath OUT_PATH      Path to blast output`
+  `-b BLAST_PATH, --blastPath BLAST_PATH      Path to blast`
+  `-p DB_PATH, --databasePath DB_PATH     Path to the databases`
+  `-k KMA_PATH, --kmaPath KMA_PATH      Path to KMA`
+  `-q DB_PATH_KMA, --databasePathKMA DB_PATH_KMA      Path to the directories containing the KMA indexed databases. Defaults to the directory 'kma_indexing' inside the databasePath directory.`
+  `-d DATABASES, --databases DATABASES      Databases chosen to search in - if none are specified all are used`
+  `-l MIN_COV, --min_cov MIN_COV      Minimum coverage default 0.6`
+  `-t THRESHOLD, --threshold THRESHOLD      Blast threshold for identity default minimum 0.9 `
+
 
 ### Web-server
 
