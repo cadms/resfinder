@@ -470,6 +470,14 @@ if __name__ == '__main__':
                              nucleotides. Default: 30.",
                        type=int,
                        default=30)
+   parser.add_argument("-matrix", "--matrix",
+                       help="Gives the counts all all called bases at each\
+                       position in each mapped template. Columns are: reference\
+                       base, A count, C count, G count, T count, N count,\
+                        - count.",
+                       dest="kma_matrix",
+                       action='store_true',
+                       default=False)
    args = parser.parse_args()
 
    ##########################################################################
@@ -480,6 +488,7 @@ if __name__ == '__main__':
 
    min_cov = float(args.min_cov)
    threshold = float(args.threshold)
+
 
    # Check if valid database is provided
    if args.db_path is None:
@@ -538,6 +547,11 @@ if __name__ == '__main__':
    else:
       out_path = args.out_path
 
+   if (args.kma_matrix):
+      extra_args = "-matrix"
+   else:
+      extra_args = None
+
    # If input is an assembly, then use BLAST
    if(inputfile is not None):
       finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
@@ -561,7 +575,8 @@ if __name__ == '__main__':
       kma_run = finder.kma(inputfile_1=input_fastq1, inputfile_2=input_fastq2,
                            out_path=out_path, databases=finder.databases,
                            db_path_kma=finder.db_path_kma, min_cov=min_cov,
-                           threshold=threshold, kma_path=args.kma_path)
+                           threshold=threshold, kma_path=args.kma_path,
+                           kma_add_args=extra_args)
 
       finder.write_results(out_path=out_path, result=kma_run.results,
                            res_type=ResFinder.TYPE_KMA)
