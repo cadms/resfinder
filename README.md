@@ -103,6 +103,10 @@ optional arguments:
   -t THRESHOLD, --threshold THRESHOLD
                         Blast threshold for identity
                         default minimum 0.9 
+  -matrix, --matrix
+                        If used, gives the counts all all called bases at each position
+                        in each mapped template. Columns are: reference base,
+                        A count, C count, G count, T count, N count, - count.
 ```
 
 ### Web-server
