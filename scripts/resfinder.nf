@@ -4,7 +4,7 @@ python3 = "python3"
 resfinder = "/home/projects/cge/people/rkmo/resfinder4/src/resfinder/run_resfinder.py"
 
 params.indir = './'
-params.ext = '*.fq.gz'
+params.ext = '.fq.gz'
 params.outdir = '.'
 params.species
 
@@ -29,7 +29,7 @@ process resfinder{
     stdout result
 
     """
-    module load ncbi-blast/2.6.0+
+    module load ncbi-blast/2.8.1+
     $python3 $resfinder -acq --point -ifq $reads -o '$params.outdir/$sampleID' -s '$params.species'
     """
 }
