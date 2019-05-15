@@ -112,7 +112,7 @@ class PointFinder(CGEFinder):
             promtr_gene_objt = re.search(regex, db_name)
 
             if promtr_gene_objt:
-                gene_name = gene.split("_")[0]
+                gene_name = db_name.split("_")[0]
 
             # Find and save mis_matches in gene
             sbjct_start = db["sbjct_start"]
