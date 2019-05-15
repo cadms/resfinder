@@ -5,3 +5,5 @@ blast-2.2.26
 __pycache__
 running_test
 cge/kma
+db_pointfinder
+db_resfinder
