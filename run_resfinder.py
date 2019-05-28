@@ -378,11 +378,9 @@ if args.acquired is True:
                                       threshold=args.threshold,
                                       kma_path=kma,
                                       sample_name="",
-                                      kma_mrs=0.5, kma_gapopen=-3,
-                                      kma_gapextend=-1, kma_penalty=-2,
-                                      kma_reward=1,
-                                      kma_pm="p",
-                                      kma_fpm="p")
+                                      kma_cge=True,
+                                      kma_apm="p",
+                                      kma_1t1=True)
 
         new_std_res = ResFinder.old_results_to_standard_output(
             kma_run.results, software="ResFinder", version="4.0.0",
@@ -434,9 +432,12 @@ if args.point is True and args.species:
                              threshold=args.threshold,
                              kma_path=kma,
                              sample_name="",
-                             kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
-                             kma_penalty=-3, kma_reward=1, kma_pm="p",
-                             kma_fpm="p")
+                             kma_cge=True,
+                             kma_apm="p",
+                             kma_1t1=True)
+#                             kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
+#                             kma_penalty=-3, kma_reward=1, kma_pm="p",
+#                             kma_fpm="p")
 
         results = kma_run.results
 
