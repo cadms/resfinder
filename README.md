@@ -17,14 +17,13 @@ then the dependencies, and finally the databases. A more detailed breakdown of t
 installation is provided below:
 
 1. Install ResFinder tool
-2. Install python module BioPython
-3. Install python module CGECore
-4. Install BLAST (optional)
-5. install KMA (optional)
-6. Download ResFinder database
-7. Download PointFinder database
-8. Index databases with KMA (if installed)
-9. Test installation
+2. Install python modules: Tabulate, BioPython, CGECore
+3. Install BLAST (optional)
+4. install KMA (optional)
+5. Download ResFinder database
+6. Download PointFinder database
+7. Index databases with KMA (if installed)
+8. Test installation
 
 A small script has been written to automate this process. It is available from the
 scripts directory and is named install_resfinder.sh. It is very simple and might
@@ -49,24 +48,16 @@ Depending on how you plan to run ResFinder BLAST and KMA can be optional.
 BLAST is used to analyse assemblies (ie. FASTA files).
 KMA is used to analyse read data (ie. FASTQ files).
 
-#### BioPython
-To install BioPython you can use pip
+#### Python modules: Tabulate, BioPython, and CGECore
+To install the needed python modules you can use pip
 ```bash
-pip3 install biopython
+pip3 install tabulate biopython cgecore
 ```
-For more information visit the BioPython website
+For more information visit the respective website
 ```url
-http://biopython.org
-```
-
-#### CGECore
-To install CGECore you can use pip
-```bash
-pip3 install cgecore
-```
-Source code is available from:
-```url
-https://bitbucket.org/genomicepidemiology/cge_core_module/src/master/
+https://bitbucket.org/astanin/python-tabulate
+https://biopython.org
+https://bitbucket.org/genomicepidemiology/cge_core_module
 ```
 
 #### BLAST (optional)
