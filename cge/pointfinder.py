@@ -17,6 +17,7 @@ from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
 from .output.table import TableResults
 from .phenotype2genotype.feature import ResMutation
+from .phenotype2genotype.res_profile import PhenoDB
 
 
 def eprint(*args, **kwargs):
@@ -39,28 +40,35 @@ class PointFinder(CGEFinder):
         """
         self.species = species
         self.specie_path = db_path
+        self.RNA_gene_list = []
+
         self.gene_list = PointFinder.get_file_content(
             self.specie_path + "/genes.txt")
-        self.RNA_gene_list = PointFinder.get_file_content(
-            self.specie_path + "/RNA_genes.txt")
 
-        # Creat user defined gene_list if applied
+        if os.path.isfile(self.specie_path + "/RNA_genes.txt"):
+            self.RNA_gene_list = PointFinder.get_file_content(
+                self.specie_path + "/RNA_genes.txt")
+
+        # Creat user defined gene_list if given
         if(gene_list is not None):
-            genes_specified = []
-            for gene in gene_list:
-                # Check that the genes are valid
-                if gene not in self.gene_list:
-                    raise(GeneListError(
-                        "Input Error: Specified gene not recognised "
-                        "(%s)\nChoose one or more of the following genes:"
-                        "\n%s" % (gene, "\n".join(self.gene_list))))
-                genes_specified.append(gene)
-            # Change the gene_list to the user defined gene_list
-            self.gene_list = genes_specified
+            self.gene_list = get_user_defined_gene_list(gene_list)
 
         self.known_mutations, self.drug_genes, self.known_stop_codon = (
             self.get_db_mutations(self.specie_path + "/resistens-overview.txt",
                                   self.gene_list))
+
+    def get_user_defined_gene_list(self, gene_list):
+        genes_specified = []
+        for gene in gene_list:
+            # Check that the genes are valid
+            if gene not in self.gene_list:
+                raise(GeneListError(
+                    "Input Error: Specified gene not recognised "
+                    "(%s)\nChoose one or more of the following genes:"
+                    "\n%s" % (gene, "\n".join(self.gene_list))))
+            genes_specified.append(gene)
+        # Change the gene_list to the user defined gene_list
+        return genes_specified
 
     def old_results_to_standard_output(self, result, software, version,
                                        run_date, run_cmd, id,
@@ -97,22 +105,13 @@ class PointFinder(CGEFinder):
 
         for db_name, db in result.items():
             if(db_name == "excluded"):
-                # DEBUG
-                print("EXCLUDED FOUND")
                 continue
 
             if(db == "No hit found"):
-                # DEBUG
-                print("NO HIT FOUND, FOUND")
                 continue
 
             # Start writing output string (to HTML tab file)
-            gene_name = db_name  # Not perfeft can differ from specific mut
-            regex = r"promoter_size_(\d+)(?:bp)"
-            promtr_gene_objt = re.search(regex, db_name)
-
-            if promtr_gene_objt:
-                gene_name = db_name.split("_")[0]
+            gene_name = PhenoDB.if_promoter_rename(db_name)
 
             # Find and save mis_matches in gene
             sbjct_start = db["sbjct_start"]
@@ -376,10 +375,8 @@ class PointFinder(CGEFinder):
                     stopcodonflag = False
                 continue
 
-            # Assert that all lines have the correct set of columns
             mutation = [data.strip() for data in line.split("\t")]
 
-            # Extract all info on the line (even though it is not all used)
             gene_ID = mutation[0]
 
             # Only consider mutations in genes found in the gene list
@@ -422,15 +419,6 @@ class PointFinder(CGEFinder):
                         mut_info[alt_aa[i]] = {"gene_name": gene_name,
                                                "drug": res_drug,
                                                "pmid": "-"}
-
-                # TODO: Remove column and dependencies in code. This
-                # feature has been implemented using the column named
-                # Required_mut (index 11).
-
-                # Check if more than one mutations is needed for resistance
-                # if no_of_mut != 1:
-                #    print("More than one mutation is needed, this is not "
-                #          "implemented", mutation)
 
                 # Add all possible types of mutations to the dict
                 if gene_ID not in known_mutations:
@@ -1344,11 +1332,71 @@ class PointFinder(CGEFinder):
                 m = frameshift_match.group(1)
                 out_dict["frameshift"] = True
 
-            mut_match = re.search(
-                r"^p.(\D{1})(\d+)(\D{1})$", m)
-            out_dict["ref_aa"] = mut_match.group(1).lower()
-            out_dict["pos"] = mut_match.group(2)
-            out_dict["mut_aa"] = mut_match.group(3).lower()
+            # Remove frame restored tag
+            framerestored_match = re.search(r"(.+) - Frame restored.*$", m)
+            if(framerestored_match):
+                m = framerestored_match.group(1)
+                out_dict["frame restored"] = True
+
+            # Remove premature stop tag
+            prem_stop_match = re.search(r"(.+) - Premature stop codon.*$", m)
+            if(prem_stop_match):
+                m = prem_stop_match.group(1)
+                out_dict["prem_stop"] = True
+
+            # TODO: premature or frameshift tag adds too many whitespaces
+            m = m.strip()
+
+            # Delins
+            multi_delins_match = re.search(
+                r"^p.(\D{1})(\d+)_(\D{1})(\d+)delins(\S+)$", m)
+            single_delins_match = re.search(
+                r"^p.(\D{1})(\d+)delins(\S+)$", m)
+            multi_ins_match = re.search(
+                r"^p.(\D{1})(\d+)_(\D{1})(\d+)ins(\D*)$", m)
+            if(multi_delins_match or single_delins_match):
+                out_dict["deletion"] = True
+                out_dict["insertion"] = True
+                if(single_delins_match):
+                    out_dict["ref_aa"] = single_delins_match.group(1)
+                    out_dict["pos"] = single_delins_match.group(2)
+                    out_dict["mut_aa"] = single_delins_match.group(3)
+                else:
+                    out_dict["ref_aa"] = multi_delins_match.group(1)
+                    out_dict["pos"] = multi_delins_match.group(2)
+                    out_dict["ref_aa_right"] = multi_delins_match.group(3)
+                    out_dict["mut_end"] = multi_delins_match.group(4)
+                    out_dict["mut_aa"] = multi_delins_match.group(5)
+            # Deletions
+            elif(m[-3:] == "del"):
+                single_del_match = re.search(
+                    r"^p.(\D{1})(\d+)del$", m)
+                multi_del_match = re.search(
+                    r"^p.(\D{1})(\d+)_(\D{1})(\d+)del$", m)
+                out_dict["deletion"] = True
+                if(single_del_match):
+                    out_dict["ref_aa"] = single_del_match.group(1)
+                    out_dict["pos"] = single_del_match.group(2)
+                else:
+                    out_dict["ref_aa"] = multi_del_match.group(1)
+                    out_dict["pos"] = multi_del_match.group(2)
+                    out_dict["ref_aa_right"] = multi_del_match.group(3)
+                    out_dict["mut_end"] = multi_del_match.group(4)
+            # Insertions
+            elif(multi_ins_match):
+                out_dict["insertion"] = True
+                out_dict["ref_aa"] = multi_ins_match.group(1).lower()
+                out_dict["pos"] = multi_ins_match.group(2)
+                out_dict["ref_aa_right"] = multi_ins_match.group(3).lower()
+                if(multi_ins_match.group(4)):
+                    out_dict["mut_aa"] = multi_ins_match.group(4).lower()
+            # Substitutions
+            else:
+                sub_match = re.search(
+                    r"^p.(\D{1})(\d+)(\D{1})$", m)
+                out_dict["ref_aa"] = sub_match.group(1).lower()
+                out_dict["pos"] = sub_match.group(2)
+                out_dict["mut_aa"] = sub_match.group(3).lower()
 
         # Nucleotide mutations
         # Ex. sub: n.-42T>C
@@ -1361,20 +1409,29 @@ class PointFinder(CGEFinder):
             sub_match = re.search(
                 r"^[nr]{1}\.(-{0,1}\d+)(\D{1})>(\D{1})$", m)
             ins_match = re.search(
-                r"^[nr]{1}\.(-{0,1}\d+)_(-{0,1}\d+)ins([CTGA]+)$", m)
+                r"^[nr]{1}\.(-{0,1}\d+)_(-{0,1}\d+)ins(\S+)$", m)
+            # r.541delA
             del_match = re.search((
-                r"^n.(-{0,1}\d+)_{0,1}(-{0,1}\d*)del[CTGA]*$"), m)
+                r"^[nr]{1}\.(-{0,1}\d+)_{0,1}(-{0,1}\d*)del(\S*)$"), m)
             if(sub_match):
                 out_dict["pos"] = sub_match.group(1)
+                out_dict["ref_nuc"] = sub_match.group(2)
+                out_dict["mut_nuc"] = sub_match.group(3)
             elif(ins_match):
                 out_dict["insertion"] = True
                 out_dict["pos"] = ins_match.group(1)
                 out_dict["mut_end"] = ins_match.group(2)
+                out_dict["mut_nuc"] = ins_match.group(3)
             elif(del_match):
                 out_dict["deletion"] = True
                 out_dict["pos"] = del_match.group(1)
                 if(del_match.group(2)):
                     out_dict["mut_end"] = del_match.group(2)
+                if(del_match.group(3)):
+                    out_dict["ref_nuc"] = del_match.group(3)
+                else:
+                    sys.exit("ERROR: Nucleotide deletion did not contain any "
+                             "reference sequence. mut string: {}".format(m))
 
         return out_dict
 
@@ -1383,6 +1440,9 @@ class PointFinder(CGEFinder):
         if gene in self.RNA_gene_list:
             RNA = True
 
+        known_muts = []
+        unknown_muts = []
+
         # Go through each mutation
         for i in range(len(mis_matches)):
             m_type = mis_matches[i][0]
@@ -1390,8 +1450,8 @@ class PointFinder(CGEFinder):
             look_up_pos = mis_matches[i][2]
             look_up_mut = mis_matches[i][3]
             mut_name = mis_matches[i][4]
-            nuc_ref = mis_matches[i][5]
-            nuc_alt = mis_matches[i][6]
+            # nuc_ref = mis_matches[i][5]
+            # nuc_alt = mis_matches[i][6]
             ref = mis_matches[i][-2]
             alt = mis_matches[i][-1]
 
@@ -1401,17 +1461,22 @@ class PointFinder(CGEFinder):
                       .format(gene=gene_name, pos=pos, alt=alt.lower()))
 
             ref_aa = mut_dict.get("ref_aa", None)
+            ref_aa_right = mut_dict.get("ref_aa_right", None)
             mut_aa = mut_dict.get("mut_aa", None)
+            ref_nuc = mut_dict.get("ref_nuc", None)
+            mut_nuc = mut_dict.get("mut_nuc", None)
             is_nuc = mut_dict.get("nucleotide", None)
             is_ins = mut_dict.get("insertion", None)
             is_del = mut_dict.get("deletion", None)
             mut_end = mut_dict.get("mut_end", None)
+            prem_stop = mut_dict.get("prem_stop", False)
 
             mut = ResMutation(unique_id=mut_id, seq_region=gene_name, pos=pos,
-                              hit=hit, ref_codon=nuc_ref, mut_codon=nuc_alt,
-                              ref_aa=ref_aa, mut_aa=mut_aa, insertion=is_ins,
-                              deletion=is_del, end=mut_end, nuc=is_nuc,
-                              ab_class=None)
+                              hit=hit, ref_codon=ref_nuc, mut_codon=mut_nuc,
+                              ref_aa=ref_aa, ref_aa_right=ref_aa_right,
+                              mut_aa=mut_aa, insertion=is_ins, deletion=is_del,
+                              end=mut_end, nuc=is_nuc,
+                              premature_stop=prem_stop, ab_class=None)
 
             if "Premature stop codon" in mut_name:
                 sbjct_len = hit['sbjct_length']
@@ -1427,9 +1492,6 @@ class PointFinder(CGEFinder):
             gene_mut_name, resistence, pmid = self.look_up_known_muts(
                 gene, look_up_pos, look_up_mut, m_type, gene_name)
 
-            known_muts = []
-            unknown_muts = []
-
             # Collect known mutations
             if resistence != "Unknown":
                 known_muts.append(mut)
@@ -1440,7 +1502,7 @@ class PointFinder(CGEFinder):
             # TODO: Use ResMutation class to make sure identical mutations are
             #       not kept.
 
-            return (known_muts, unknown_muts)
+        return (known_muts, unknown_muts)
 
     def mut2str(self, gene, gene_name, mis_matches, unknown_flag, hit):
         """

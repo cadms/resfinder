@@ -213,11 +213,7 @@ class PhenoDB(dict):
                     res_codon_str = line_list[5].lower()
 
                     # Check if the entry is with a promoter
-                    regex = r"^(.+)_promoter_size_\d+bp$"
-                    promoter_match = re.search(regex, phenodb_id)
-                    if(promoter_match):
-                        reg_name = promoter_match.group(1)
-                        phenodb_id = reg_name + "-promoter"
+                    phenodb_id = PhenoDB.if_promoter_rename(phenodb_id)
 
                     unique_id = (phenodb_id + "_" + codon_pos + "_"
                                  + res_codon_str)
@@ -324,6 +320,16 @@ class PhenoDB(dict):
                 except IndexError:
                     eprint("Error in line " + str(line_counter))
                     eprint("Split line:\n" + str(line_list))
+
+    @staticmethod
+    def if_promoter_rename(s):
+        out_string = s
+        regex = r"^(.+)_promoter_size_\d+bp$"
+        promoter_match = re.search(regex, s)
+        if(promoter_match):
+            reg_name = promoter_match.group(1)
+            out_string = reg_name + "-promoter"
+        return out_string
 
     @staticmethod
     def get_csv_tuple(csv_string, sep=",", lower=True):
@@ -527,7 +533,7 @@ class Antibiotics():
             return result
         return not result
 
-    # TODO: Overwrites idetical features. Should check to keep only
+    # TODO: Overwrites identical features. Should check to keep only
     #       the most resistant feature.
     def add_feature(self, feature):
         self.features[feature.unique_id] = feature
@@ -691,6 +697,9 @@ class ResProfile():
                         feature = fg
 
         for antibiotic in phenotype.antibiotics:
+            resprofile_ab = self.resistance.get(antibiotic, None)
+            if(resprofile_ab):
+                antibiotic = resprofile_ab
 
             # Create collection of features grouped with respect to ab class
             for _class in antibiotic.classes:
@@ -699,17 +708,7 @@ class ResProfile():
                 self.resistance_classes[_class].add(feature)
 
             antibiotic.add_feature(feature)
-
-            if(antibiotic not in self.resistance):
-                self.resistance[antibiotic.name] = antibiotic
-#                self.resistance[antibiotic] = Antibiotics(antibiotic,
-#                                                          phenotype.ab_class,
-#                                                          feature,
-#                                                          published=True)
-#            else:
-#                if(not self.resistance[antibiotic].published):
-#                    self.resistance[antibiotic].published = True
-#                    self.resistance[antibiotic].add_feature(feature)
+            self.resistance[antibiotic] = antibiotic
 
         # TODO: delete this for-loop
         for antibiotic in phenotype.sug_phenotype:

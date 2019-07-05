@@ -23,14 +23,14 @@ process resfinder{
     executor "PBS"
 
     input:
-    set sampleID, file(reads) from infile_ch
+    set sampleID, file(datasetFile) from infile_ch
 
     output:
     stdout result
 
     """
     module load ncbi-blast/2.8.1+
-    $python3 $resfinder -acq --point -ifq $reads -o '$params.outdir/$sampleID' -s '$params.species'
+    $python3 $resfinder -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
     """
 }
 

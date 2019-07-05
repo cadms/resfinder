@@ -449,7 +449,10 @@ if args.point is True and args.species:
         results_pnt = finder.find_best_seqs(results, min_cov)
     else:
         results_pnt = results[finder.species]
-        results_pnt["excluded"] = results["excluded"]
+        if(results_pnt == "No hit found"):
+            results_pnt = {}
+        else:
+            results_pnt["excluded"] = results["excluded"]
 
     new_std_pnt = finder.old_results_to_standard_output(
         result=results_pnt, software="ResFinder", version="4.0.0",
@@ -476,6 +479,7 @@ if(db_path_point):
     point_file = db_path_point + "/resistens-overview.txt"
 else:
     point_file = None
+
 res_pheno_db = PhenoDB(
     abclassdef_file=(args.db_path_res + "/antibiotic_classes.txt"),
     acquired_file=args.db_path_res + "/phenotypes.txt", point_file=point_file)

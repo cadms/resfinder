@@ -85,6 +85,8 @@ class ResFinder(CGEFinder):
             std_db.lock_headers = True
 
             for unique_id, hit_db in db.items():
+                if(unique_id in result["excluded"]):
+                    continue
                 # TODO: unique_id == unique_db_id
                 sbjct = hit_db["sbjct_header"].split("_")
                 template = sbjct[0]
@@ -184,12 +186,9 @@ class ResFinder(CGEFinder):
             no_hits = True
             for hit in results[db]:
                  if(hit not in results["excluded"]):
-                      print("hit not excluded: " + str(hit))
-                      print("\tIn DB: " + str(db))
                       no_hits = False
                       break
             if(no_hits):
-                 print("No hits in: " + str(db))
                  results[db] = "No hit found"
 
             profile = str(self.configured_dbs[db][0])
