@@ -69,32 +69,21 @@ python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
 -b /path/to/blastn -d aminoglycoside -t 0.90 -l 0.60
 
 # The program can be invoked with the -h option 
-Usage: resfinder.py [-h] [-i INPUTFILE] [-1 FASTQ1] [-2 FASTQ2] [-o OUT_PATH]
-                    [-b BLAST_PATH] [-p DB_PATH] [-k KMA_PATH]
-                    [-q DB_PATH_KMA] [-d DATABASES] [-l MIN_COV]
-                    [-t THRESHOLD]
+Usage: resfinder.py [-h] [-i INPUTFILE] [-o OUT_PATH]
+                    [-tmp TMP_DIR] [-mp METHOD_PATH] [-ao ACQ_OVERLAP] 
+                    [-matrix MATRIX] [-p DB_PATH] [-d DATABASES] [-l MIN_COV]
+                    [-t THRESHOLD] [-x] [-q]
 
 optional arguments:
   -h, --help            show this help message and exit
   -i INPUTFILE, --inputfile INPUTFILE
-                        Input file
-  -1 FASTQ1, --fastq1 FASTQ1
-                        Raw read data file 1.
-  -2 FASTQ2, --fastq2 FASTQ2
-                        Raw read data file 2 (only required if data is paired-
-                        end).
+                        Input file (fasta or fastq(s) files)
   -o OUT_PATH, --outputPath OUT_PATH
                         Path to blast output
-  -b BLAST_PATH, --blastPath BLAST_PATH
-                        Path to blast
   -p DB_PATH, --databasePath DB_PATH
                         Path to the databases
-  -k KMA_PATH, --kmaPath KMA_PATH
-                        Path to KMA
-  -q DB_PATH_KMA, --databasePathKMA DB_PATH_KMA
-                        Path to the directories containing the KMA indexed
-                        databases. Defaults to the directory 'kma_indexing'
-                        inside the databasePath directory.
+  -mp METHOD_PATH --methodPath  METHOD_PATH
+                        Path to the method to use (kma or blastn)
   -d DATABASES, --databases DATABASES
                         Databases chosen to search in - if none are specified
                         all are used
@@ -103,10 +92,17 @@ optional arguments:
   -t THRESHOLD, --threshold THRESHOLD
                         Blast threshold for identity
                         default minimum 0.9 
+  -ao ACQ_OVERLAP --acq_overlap ACQ_OVERLAP
+                        Genes are allowed to overlap this number of nucleotides (30)
   -matrix, --matrix
                         If used, gives the counts all all called bases at each position
                         in each mapped template. Columns are: reference base,
                         A count, C count, G count, T count, N count, - count.
+  -x --extended_output 
+                        If used, give extented output with allignment files,
+                       "template and query hits in fasta and a tab 
+                       "seperated file with gene profile results
+  -q --quiet
 ```
 
 ### Web-server
