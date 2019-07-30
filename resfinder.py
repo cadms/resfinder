@@ -203,8 +203,6 @@ class ResFinder(CGEFinder):
                   if isinstance(db_hits, str):
                       content = [''] * len(header)
                       content[int(len(header) / 2)] = db_hits
-                      print([content])
-                      exit()
                       result_file.write(ResFinder.text_table(header, [content]) + "\n")
                       continue
 
@@ -227,8 +225,6 @@ class ResFinder(CGEFinder):
                       predicted_phenotype = gene_info["predicted_phenotype"]
                       acc = gene_info["accession"]
                       contig_name = gene_info["contig_name"]
-                      print(contig_name)
-                      exit()
 
                       # Add rows to result tables
                       db_rows.append([res_gene, identity, template_HSP, contig_name,
@@ -260,8 +256,6 @@ class ResFinder(CGEFinder):
                           sbjct_file.write(sbjct_seq[i:i + 60] + "\n")
 
                   # Write db results tables in results file and table file
-                  print(db_rows)
-                  exit()
                   result_file.write(ResFinder.text_table(header, db_rows) + "\n")
 
               result_file.write("\n")
