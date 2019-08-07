@@ -11,6 +11,7 @@ from tabulate import tabulate
 import collections
 import pprint
 import json
+import gzip
 
 from distutils.spawn import find_executable
 from cgecore.blaster import Blaster
