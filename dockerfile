@@ -34,7 +34,7 @@ RUN wget -q ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast
     rm ncbi-blast-2.7.1+-x64-linux.tar.gz
 
 # Install ResFinder and databases
-RUN pip install cgecore && \
+RUN pip install cgecore==1.5.1 && \
     git clone -b 4.0 https://bitbucket.org/genomicepidemiology/resfinder.git && \
     mkdir resfinder/db_resfinder && \
     mkdir resfinder/db_pointfinder && \
@@ -42,7 +42,7 @@ RUN pip install cgecore && \
     ln -s /resfinder/run_resfinder.py /usr/bin/resfinder && \
     # Install KMA \
     apt-get install -y -qq libz-dev && \
-    git clone --branch 1.0.1 https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
+    git clone --branch 1.2.11 https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
     cd resfinder/cge/kma && make && cd ../.. && \
     ln -s /resfinder/cge/kma/kma /usr/bin/kma && \
     ln -s /resfinder/cge/kma/kma_index /usr/bin/kma_index && \

@@ -11,6 +11,7 @@ from cge.pointfinder import PointFinder
 from cge.phenotype2genotype.isolate import Isolate
 from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
+from cge.phenotype2genotype.res_sumtable import PanelNameError
 
 # TODO list:
 # TODO: Add input data check
@@ -512,12 +513,19 @@ if(args.species is not None):
     input_amr_panels = args.db_path_res + "/phenotype_panels.txt"
     res_sum_table = ResSumTable(pheno_profile_str)
     res_sum_table.load_amr_panels(input_amr_panels)
-    panel_profile_str = res_sum_table.get_amr_panel_str(
-        panel_name_raw=args.species, header=True)
+
+    try:
+        panel_profile_str = res_sum_table.get_amr_panel_str(
+            panel_name_raw=args.species, header=True)
+    # If specified species does not have an associated panel, just ignore it
+    # and exit.
+    except PanelNameError:
+        sys.exit()
 
     amr_panel_filename = args.species.replace(" ", "_")
 
-    panel_tabel_file = pheno_table_file[:-4] + "_" + amr_panel_filename + ".txt"
+    panel_tabel_file = (pheno_table_file[:-4] + "_" + amr_panel_filename
+                        + ".txt")
     with open(panel_tabel_file, "w") as fh:
         fh.write(panel_profile_str)
 
