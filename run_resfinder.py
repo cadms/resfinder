@@ -3,6 +3,7 @@ import sys
 import os
 import subprocess
 from argparse import ArgumentParser
+import pickle
 
 from cge.resfinder import ResFinder
 from cge.pointfinder import PointFinder
@@ -180,6 +181,14 @@ parser.add_argument("-u", "--unknown_mut",
                     action="store_true",
                     help="Show all mutations found even if in unknown to the\
                           resistance database",
+                    default=False)
+
+# Temporary option only available temporary
+parser.add_argument("--pickle",
+                    action="store_true",
+                    help="Create a pickle dump of the Isolate object. \
+                          Currently needed in the CGE webserver. Dependency \
+                          and this option is being removed.",
                     default=False)
 
 args = parser.parse_args()
@@ -503,6 +512,11 @@ isolate.calc_res_profile(res_pheno_db)
 
 # Create and write the downloadable tab file
 pheno_profile_str = isolate.profile_to_str_table(header=True)
+
+# TODO: REMOVE THE NEED FOR THE PICKLED FILE
+if(args.pickle):
+    isolate_pickle = open("{}/isolate.p".format(args.out_path), "wb")
+    pickle.dump(isolate, isolate_pickle, protocol=2)
 
 pheno_table_file = args.out_path + '/pheno_table.txt'
 with open(pheno_table_file, 'w') as fh:
