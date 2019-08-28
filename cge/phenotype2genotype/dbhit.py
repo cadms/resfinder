@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-class DBHit():
+class DBHit(object):
     """ A DBHit describes an alignment of a feature to a reference/template.
         The db variable should be used to describe which database the alignment
         in question was done against. For example 'resfinder'

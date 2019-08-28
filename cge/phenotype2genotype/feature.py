@@ -12,7 +12,7 @@ import subprocess
 from itertools import chain
 
 
-class Feature():
+class Feature(object):
     """ A feature describes a location on a genome/contig.
         The 'type' variable should be used to describe the type of feature. For
         example 'gene', 'promoter' etc. It is suggested that features that only

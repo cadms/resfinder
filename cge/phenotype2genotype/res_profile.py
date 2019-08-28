@@ -375,7 +375,7 @@ class PhenoDB(dict):
         print("-------------------- END --------------------")
 
 
-class MutationGenotype():
+class MutationGenotype(object):
     """
     """
     def __init__(self, mut_string):
@@ -466,7 +466,7 @@ class MutationGenotype():
         return not result
 
 
-class Phenotype():
+class Phenotype(object):
     """ A Phenotype object describes the antibiotics a feature/gene causes
         resistance and susceptibility against.
         unique_id: the id is used to locate the specified phenotype.
@@ -504,7 +504,7 @@ class Phenotype():
         self.req_muts = req_muts
 
 
-class Antibiotics():
+class Antibiotics(object):
     """ Class is implemented to be key in a dict. The class can be tested
         against isinstances of itself and strings.
     """
@@ -613,7 +613,7 @@ class Antibiotics():
         return tuple(pmids.keys())
 
 
-class ResProfile():
+class ResProfile(object):
     """ Given a list of features and a PhenoDB object, an object is created
         that will contain a resistance profile based on the features given and
         the phenotypes described in the PhenoDB object.
