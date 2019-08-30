@@ -20,10 +20,13 @@ from .dbhit import DBHit
 class Isolate(dict):
     """ An isolate class is a dict of Features.
     """
+    NO_AB_CLASS = "No class defined"
+
     def __init__(self, name, species=None):
         self.name = name
         self.resprofile = None
         self.species = None
+        self.feature_classes = {}
 
     def load_resfinder_tab(self, tabbed_output, phenodb):
         with open(tabbed_output, "r") as fh:
@@ -103,7 +106,7 @@ class Isolate(dict):
                         for ab in p.antibiotics:
                             ab_class.update(ab.classes)
                 else:
-                    ab_class.add("No class defined")
+                    ab_class.add(Isolate.NO_AB_CLASS)
 
                 is_mut = feature.get("mutation", None)
 
@@ -145,6 +148,9 @@ class Isolate(dict):
                                        end=feature["query_end_pos"],
                                        hit=hit,
                                        ab_class=ab_class)
+
+                ResProfile.update_classes_dict_of_feature_sets(
+                    self.feature_classes, feat_res)
 
                 feat_list = self.get(unique_id, [])
                 feat_list.append(feat_res)

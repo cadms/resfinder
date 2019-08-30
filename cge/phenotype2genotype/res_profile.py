@@ -642,25 +642,27 @@ class ResProfile(object):
                         self.add_phenotype(feature, phenotype, update=False)
                     else:
                         self.unknown_db_features.append(feature)
-                        self.add_res_classes(feature)
+                        self.update_classes_dict_of_feature_sets(
+                            self.resistance_classes, feature)
             else:
                 self.missing_db_features.append(feature)
-                self.add_res_classes(feature)
+                self.update_classes_dict_of_feature_sets(
+                    self.resistance_classes, feature)
         self.update_profile()
 
-    def add_res_classes(self, feature):
+    @staticmethod
+    def update_classes_dict_of_feature_sets(classes, feature):
         """
         """
-        if(isinstance(feature, ResGene)):
+        if(isinstance(feature, ResGene) or isinstance(feature, ResMutation)):
             for _class in feature.ab_class:
-                if(_class not in self.resistance_classes):
-                    self.resistance_classes[_class] = set()
-                self.resistance_classes[_class].add(feature)
+                if(_class not in classes):
+                    classes[_class] = set()
+                classes[_class].add(feature)
 
     def add_phenotype(self, feature, phenotype, update=True):
         """
         """
-
         # Handle required mutations
         if(phenotype.req_muts is not None):
 

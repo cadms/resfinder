@@ -22,6 +22,11 @@ from cge.phenotype2genotype.res_sumtable import PanelNameError
 # #########                                 FUNCTIONS               ######### #
 # ########################################################################### #
 
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+
 def create_tab_acquired(isolate, phenodb):
     """ Alternative method to create the downloadeable tabbed result file. This
          method will include the additional information from the phenotype
@@ -534,6 +539,8 @@ if(args.species is not None):
     # If specified species does not have an associated panel, just ignore it
     # and exit.
     except PanelNameError:
+        eprint("Warning: No panel was detected for the species: {}"
+               .format(args.species))
         sys.exit()
 
     amr_panel_filename = args.species.replace(" ", "_")
