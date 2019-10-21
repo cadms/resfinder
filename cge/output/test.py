@@ -1,223 +1,126 @@
 #!/usr/bin/env python3
-from table import TableResults
-from table import SortList, SortListEntry
-from exceptions import DuplicateKeyError
+import unittest
+from subprocess import PIPE, run
+import os
+import shutil
+import sys
+from collections import namedtuple
 
-tr = TableResults("software X", "6.6.6", "20200128", "runsoft -i arg",
-                  "sampleX")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-slentry = SortListEntry(1, 2)
-print("Entry: {}".format(slentry))
+from cgecore.cgefinder import CGEFinder
+from cge.resfinder import ResFinder
+from cge.pointfinder import PointFinder
 
-list1 = [1, 2, 3, 4]
-list2 = ["d", "c", "b", "a"]
-list3 = [1, 2]
+run_test_dir = "running_test"
+working_dir = os.path.dirname(os.path.realpath(__file__))
 
-slist0 = SortList()
-slist0.append("k1", "v1")
-slist0.append("k2", "v2")
-print("slist0:\n{}".format(slist0))
+test_names = ["test1", "test2", "test3", "test4"]
 
-slist = SortList(unique_list=list1, val_list=list2)
 
-print(slist)
+class TestFinder(CGEFinder):
 
-try:
-    SortList(unique_list=list1, val_list=list3)
-except IndexError as e:
-    print("Caught expected IndexError:\n{}".format(e))
+    def __init__(results):
+        """
+        Marias minimalistic Finder class
+        """
+        self.results = results
 
-slist.sort()
-print("Sorted list:\n{}".format(slist))
+    def resistance_analysis_genes(self):
+        """
+        Running some analysis that yield results appropriate for resistance
+        type results
+        """
+        Gene = namedtuple("Gene",
+                          ["name", "length", "aln_ln", "aln_id", "aln_gaps",
+                           "name_variant", "acc", "query", "q_start", "q_end",
+                           "q_depth", "t_start", "t_end"])
 
-tr.add_table("My table")
-mytbl = tr.long["My table"]
-mytbl.add_headers(["header1", "header2", "header3"])
+        analysis_results = {
+            "group1": {
+                "gene1": None, "gene2": None},
+            "group2": {
+                "gene3": None},
+            "group3": {},
+            "group4": {
+                "gene1": None}
+        }
 
-mytbl["row2"] = {
-    "header1": "a",
-    "header2": "b",
-    "header3": "c",
-}
-mytbl["row1"] = {
-    "header1": "A",
-    "header2": "B",
-    "header3": "C",
-}
-mytbl["row3"] = {
-    "header1": 1,
-    "header3": 2,
-}
+        analysis_results["group1"]["gene1"] = Gene(
+            "gene1", 1000, 890, 0.97, 2, "gene1b", "NC_SOMEGENE", "contig12",
+            24, 1024, 50, 1, 1000)
+        analysis_results["group1"]["gene2"] = Gene(
+            "gene2", 500, 500, 1, 0, None, "NC_SOMEGENE2", "contig3",
+            24, 1024, None, 1, 500)
+        analysis_results["group2"]["gene3"] = Gene(
+            "gene3", 5000, 4500, 0.85, 10, None, "NC_SOMEGENE3", None,
+            None, None, 50, 1, 5000)
+        analysis_results["group4"]["gene1"] = Gene(
+            "gene1", 1000, 890, 0.97, 2, "gene1b", "NC_SOMEGENE", "contig12",
+            24, 1024, 49.74, 1, 1000)
 
-print("My table:\n{}".format(tr.long["My table"]))
+        for group in analysis_results:
+            for name, gene in group.items():
+                self.results.add_gene(
+                    template_name=gene.name,
+                    template_length=gene.length,
+                    template_start_pos=gene.t_start,
+                    templare_end_pos=gene.t_end,
+                    aln_length=gene.aln_ln,
+                    aln_identity=gene.aln_id,
+                    aln_gaps=gene.aln_gaps,
+                    query_id=gene.query,
+                    query_start_pos=gene.q_start,
+                    query_end_pos=gene.q_end,
+                    query_depth=gene.q_depth
+                )
 
-print("my table sort list:\n{}".format(tr.long["My table"]._sort_list))
+    def resistance_analysis_mutations(self):
+        """
+        Running some analysis that yield results appropriate for resistance
+        type results
+        """
+        pass
 
-print("row headers: {}"
-    .format(tr.long["My table"].extract_column("row_header")))
-print("header1: {}"
-    .format(tr.long["My table"].extract_column("header1")))
-print("header2: {}"
-    .format(tr.long["My table"].extract_column("header2")))
+    def resistance_analysis_phenotypes(self):
+        """
+        Running some analysis that yield results appropriate for resistance
+        type results
+        """
+        pass
 
-mytbl["row1"]["header4"] = "X"
-print("Added single value with new header:\n{}".format(mytbl))
-mytbl["row4"] = {
-    "header1": "Y",
-    "header3": "Y",
-    "header5": "Y",
-}
-print("Added new row with new header:\n{}".format(mytbl))
-mytbl["row1"] = {
-    "header1": "AA",
-    "header3": "BB",
-    "header5": "DD",
-}
-print("Added data via dict to existing row:\n{}".format(mytbl))
-print("\theader1\n{}".format(mytbl.extract_column("header1")))
 
-my_slist = tr.long["My table"].get_sort_list()
-print("My slist:\n{}".format(my_slist))
-tr.long["My table"].set_sort_key("header1")
-my_slist = tr.long["My table"].get_sort_list()
-print("My slist (sorted header1):\n{}".format(my_slist))
+class ResFinderRunTest(unittest.TestCase):
 
-try:
-    my_slist.append(2, 4)
-except IndexError as e:
-    print("Caught expected IndexError:\n{}".format(e))
+    def setUp(self):
+        # Change working dir to test dir
+        os.chdir(working_dir)
+        # Does not allow running two tests in parallel
+        os.makedirs(run_test_dir, exist_ok=False)
 
-print("Print rows in order")
-print("\t".join(tr.long["My table"].get_headers()))
-for row in tr.long["My table"]:
-    row_list = tr.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
+    def tearDown(self):
+        shutil.rmtree(run_test_dir)
 
-tr.add_table("My second table")
-mytbl2 = tr.long["My second table"]
-mytbl2.add_headers(["header4", "header5", "header6"])
-mytbl2.lock_headers = True
-mytbl2["row2"] = {
-    "header4": "a",
-    "header5": 10,
-    "header6": "c",
-}
-mytbl2["row1"] = {
-    "header4": "a",
-    "header5": 1,
-    "header6": "a",
-}
-mytbl2["row3"] = {
-    "header4": "b",
-    "header5": 1000,
-    "header6": "b",
-}
-my_slist2 = tr.long["My second table"].get_sort_list()
-print("My slist2 (no sort):\n{}".format(my_slist2))
-tr.long["My second table"].set_sort_key("header4")
-my_slist2 = tr.long["My second table"].get_sort_list()
-print("My slist2 (sort on 4):\n{}".format(my_slist2))
-tr.long["My second table"].set_sort_key("header6")
-my_slist2 = tr.long["My second table"].get_sort_list()
-print("My slist2 (sort on 6):\n{}".format(my_slist2))
-tr.long["My second table"].set_sort_key("header5")
-my_slist2 = tr.long["My second table"].get_sort_list()
-print("My slist2 (sort on 5):\n{}".format(my_slist2))
+    def test_create_and_store_results_in_resistance_type(self):
+        """
+        Maria has created a CGE service. The service use the cge_core_module
+        to create a CGEFinder object, then runs some analysis which stores its
+        results using the output module.
+        """
+        # Maria records when the script is being run
+        run_start = time.gmtime(time.time())
+        run_start_cge = ",".join(run_start[0], run_start[1], run_start[2],
+                                 run_start[3], run_start[4], run_start[5])
 
-print("Print second table")
-print("\t".join(tr.long["My second table"].get_headers()))
-for row in tr.long["My second table"]:
-    row_list = tr.long["My second table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
+        # First she creates a few directories to store her output.
+        test1_dir = run_test_dir + "/" + test_names[0]
+        os.makedirs(test1_dir)
 
-print("Tables in tr:")
-for name in tr.long:
-    print(name)
-
-tr2 = TableResults("software X", "6.6.6", "20200128", "runsoft -i arg",
-                   "sampleX")
-tr2.add_table(tr.long["My table"])
-del(tr.long["My table"])
-
-print("Tables in tr:")
-for name in tr.long:
-    print(name)
-print("Tables in tr2:")
-for name in tr2.long:
-    print(name)
-
-tr2.merge(tr)
-
-print("-------------------------------")
-
-print("Tables in tr2:")
-for name in tr2.long:
-    print(name)
-
-tr.add_table("My table")
-mytbl = tr.long["My table"]
-mytbl.add_headers(["header1", "header2", "header3", "headerA"])
-mytbl["row2"] = {
-    "header1": "override a",
-    "headerA": "new val",
-    "header3": "override c",
-}
-mytbl["row1"] = {
-    "header2": "override B"
-}
-print("Print tr My table:")
-for row in tr.long["My table"]:
-    row_list = tr.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
-
-print("Tables in tr:")
-for name in tr.long:
-    print(name)
-
-print("-------------------------------")
-
-del(tr.long["My second table"])
-
-print("Tables in tr2:")
-for name in tr2.long:
-    print(name)
-
-print("Print tr2 My table (before merge):")
-for row in tr2.long["My table"]:
-    row_list = tr2.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
-
-try:
-    tr2.merge(tr)
-except DuplicateKeyError:
-    print("Caught expected duplicate error.")
-
-tr2.long["My table"].rename_row("row1", "row10")
-tr2.long["My table"].rename_row("row2", "row20")
-
-print("Tables in tr2:")
-for name in tr2.long:
-    print(name)
-
-print("Print tr2 My table (after rename):")
-for row in tr2.long["My table"]:
-    row_list = tr2.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
-
-tr2.merge(tr)
-
-print("Print tr2 My table (after merge):")
-for row in tr2.long["My table"]:
-    row_list = tr2.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
-
-# tr2.long["My table"].set_sort_key("header1")
-print("SortList:\n{}".format(tr2.long["My table"].get_sort_list()))
-tr2.long["My table"].set_sort_key("header1")
-print("SortList:\n{}".format(tr2.long["My table"].get_sort_list()))
-tr2.long["My table"]["row3"]["header1"] = "AA"
-print("SortList:\n{}".format(tr2.long["My table"].get_sort_list()))
-print("Print tr2 My table (after row3,header1 change):")
-for row in tr2.long["My table"]:
-    row_list = tr2.long["My table"].get_row_as_list(row, as_txt=True)
-    print("\t".join(row_list))
+        # Create
+        results = Resistance(date=run_start_cge, name="TestFinder", "0.01", "Fake_ID", dbs)
+        finder = TestFinder()
+        finder.resistance_analysis_genes()
+        finder.resistance_analysis_mutations()
+        finder.resistance_analysis_phenotypes()
+        out_str = results.dump_json()
+        results.dump_json("{}/data.json".format(test1_dir))
