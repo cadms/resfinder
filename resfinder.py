@@ -93,11 +93,13 @@ class ResFinder(CGEFinder):
                       continue
 
                   bit_score = identity * coverage
-
                   if contig_id not in contig_res:
                       contig_res[contig_id] = []
                   contig_res[contig_id].append([hit["query_start"], hit["query_end"],
                                                bit_score, hit])
+
+          if not contig_res:
+              json_results[db_name][db] = "No hit found"
 
           # Check for overlapping hits, only report the best
           for contig_id, hit_lsts in contig_res.items():
@@ -135,8 +137,8 @@ class ResFinder(CGEFinder):
                   pheno = pheno.strip()
 
                   # Write JSON results dict
-                  json_results[db_name][db].update({header: {}})
-                  json_results[db_name][db][header] = {
+                  json_results[db_name][db].update({contig_id: {}})
+                  json_results[db_name][db][contig_id] = {
                       "resistance_gene": gene,
                       "identity": round(identity, 2),
                       "HSP_length": HSP,
@@ -148,7 +150,8 @@ class ResFinder(CGEFinder):
                       "accession": acc,
                       "predicted_phenotype": pheno,
                       "coverage": round(coverage, 2),
-                      "hit_id": contig_id}
+                      "hit_id": contig_id,
+                      "subject_header": header}
 
       # Get run info for JSON file
       service = os.path.basename(__file__).replace(".py", "")
