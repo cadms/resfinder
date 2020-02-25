@@ -1,0 +1,3 @@
+Database	Resistance gene	Identity	Query / Template length	Contig	Position in contig	Predicted phenotype	Accession number
+aminoglycoside	aac(2')-Ic	100.0	546 / 546	gi|375294201|ref|NC_016768.1| Mycobacterium tuberculosis KZN 4207 chromosome, complete genome	314249..314794	Aminoglycoside resistance	U72714
+macrolide	erm(37)	100.0	540 / 540	gi|375294201|ref|NC_016768.1| Mycobacterium tuberculosis KZN 4207 chromosome, complete genome	2187584..2188123	Warning: gene is missing from Notes file. Please inform curator.	AL123456
