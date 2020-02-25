@@ -7,9 +7,9 @@ WORKDIR /app
 COPY db db/
 COPY src src/
 COPY tests tests/
+COPY results results/
 COPY vendors/kma kma/
 COPY requirements.txt .
-RUN mkdir /app/results
 
 RUN apt update
 RUN apt install -y \
