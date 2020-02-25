@@ -7,7 +7,6 @@ WORKDIR /app
 COPY db db/
 COPY src src/
 COPY tests tests/
-COPY vendors/ncbi-blast-2.10.0+/bin /bin
 COPY vendors/kma kma/
 COPY requirements.txt .
 RUN mkdir /app/results
@@ -17,15 +16,26 @@ RUN apt install -y \
   gcc \
   libz-dev \
   make \
+  wget \
   vim
 
+# Install KMA
 RUN cd kma && make
 RUN chmod +x kma
 RUN mv kma/kma /bin
 RUN rm -rf /app/kma
 
+# Install BLASTn
+RUN wget ftp.ncbi.nlm.nih.gov/blast/executables/LATEST
+RUN wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/$(grep 'linux.tar.gz' LATEST -m 1 | grep -Eo '\".+\"' | cut -d'"' -f2)
+RUN tar -zxf $(grep 'linux.tar.gz' LATEST -m 1 | grep -Eo '\".+\"' | cut -d'"' -f2)
+RUN mv $(echo $(grep 'linux.tar.gz' LATEST -m 1 | grep -Eo '\".+\"' | cut -d'"' -f2) | sed 's/-x64-linux.tar.gz//')/bin/blastn /bin
+RUN rm -rf LATEST $(grep 'linux.tar.gz' LATEST -m 1 | grep -Eo '\".+\"' | cut -d'"' -f2) $(echo $(grep 'linux.tar.gz' LATEST -m 1 | grep -Eo '\".+\"' | cut -d'"' -f2) | sed 's/-x64-linux.tar.gz//')
+
+# Install python modules
 RUN pip3 install -r requirements.txt
 
+# Install resfinder
 RUN ln -s /app/src/resfinder.py /bin/resfinder
 
 RUN chown -R exec:exec /app
