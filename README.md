@@ -1,31 +1,28 @@
-# Description
+# DESCRIPTION
 
-ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria. Program uses the newest version of [blastn](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [KMA](https://bitbucket.org/genomicepidemiology/kma/src/master/), [biopython==1.7.6](https://pypi.org/project/biopython/), [cgecore==1.5.2](https://pypi.org/project/cgecore/).
+ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria. Program uses the newest version of **blastn**.
 
 # Installation
 
-**Requirements**, below software is required to install resfinder
-
-* [docker](https://docs.docker.com/install/)
-* [docker-compose](https://docs.docker.com/compose/install/) - recomended
-
 ```bash
-# Clone repository
+# Clone repository with dependencies and install pip3 modules
 $ git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git --recursive
-$ cd resfinder
-
-# Chagne ownershipt on results directory - docker volume trick!
-$ sudo chown 9999:9999 results
-
-# Build docker image with docker-compose or manualy
-$ docker-compose build
-$ docker build -t genomicepidemiology/resfinder:v3 -f docker/Dockerfile .
+$ pip3 install -r requirements.txt
 ```
 
-# Program API
+**Install standalone dependencies**
 
+* [BioPython](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)
+
+The BlastAll and FormatDB that `resfinder.pl` uses are no longer available for downloading through ncbi. Therefor we have provided the resfinder.py script that uses Blastn instead. Note, this is no script that is running on the CGE server. The CGE server is running perl script using BlastAll.
+
+**Warning:** Due to bugs in the BioPython 1.74, do not use this version if not using Python 3.7.
+
+
+# Usage
 ```
-$ resfinder -h
+# ./resfinder.py -h
+$ python3 resfinder.py -h
 usage: resfinder.py [-h] -i INPUTFILE [INPUTFILE ...] [-o OUT_PATH]
                     [-tmp TMP_DIR] [-mp METHOD_PATH] [-p DB_PATH]
                     [-d DATABASES] [-l MIN_COV] [-t THRESHOLD]
@@ -45,18 +42,6 @@ optional arguments:
   -matrix, --matrix     Gives the counts all all called bases at each position in each mapped template. Columns are: reference base, A count, C count, G count, T count, N count, - count.
   -x, --extented_output Give extented output with allignment files, template and query hits in fasta and a tab seperated file with gene profile results.
   -q, --quiet
-```
-
-# Usage
-
-```bash
-# One time run
-$ docker run --rm genomicepidemiology/resfinder:v3 resfinder -i /app/tests/test.fsa -mp /bin/blastn -t 0.90 -l 0.60 -p /app/db -o /app/results -d aminoglycoside,beta-lactam
-
-# Multiple time run
-$ docker-compose up -d
-$ docker exec -it resfinder bash
-$ resfinder -i /app/tests/test.fsa -p /app/db -mp /bin/blastn -t 0.90 -l 0.60 -o /app/results -x
 ```
 
 # Web

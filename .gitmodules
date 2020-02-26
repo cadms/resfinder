@@ -1,6 +1,3 @@
 [submodule "db"]
 	path = db
 	url = https://git@bitbucket.org/genomicepidemiology/resfinder_db.git
-[submodule "vendors/kma"]
-	path = vendors/kma
-	url = git@bitbucket.org:genomicepidemiology/kma.git
