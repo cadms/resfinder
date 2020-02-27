@@ -13,4 +13,4 @@ services:
     environment:
       - PYTHONUNBUFFERED=True
       - PYTHONIOENCODING=UTF-8
-    command: /bin/sleep infinity
+    command: /bin/sleep 36000
