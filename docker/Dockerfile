@@ -16,7 +16,7 @@ FROM debian:buster-slim as kma-builder
 
 WORKDIR /app
 
-COPY vendors/kma .
+COPY vendors/kma /app
 
 RUN apt update
 RUN apt install -y \
@@ -38,7 +38,7 @@ COPY db db/
 COPY src src/
 COPY tests tests/
 COPY results results/
-COPY requirements.txt .
+COPY requirements.txt requirements.txt
 COPY --from=kma-builder /app/kma /bin
 COPY --from=blast-builder /app/blastn /bin
 
