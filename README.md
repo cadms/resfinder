@@ -6,9 +6,9 @@ script of the latest version of the ResFinder service. ResFinder identifies
 acquired antimicrobial resistance genes in total or partial sequenced isolates
 of bacteria.
 
-This repository also contains a python script *resfinder.py* which is  a new version 
+This repository also contains a python script *resfinder.py* which is  a new version
 of ResFinder, but not yet running on the CGE server. This program was added because
-it uses a newer version of blastn,  which, in contrary from the blastall version 
+it uses a newer version of blastn,  which, in contrary from the blastall version
 that the perl script uses, is avail to download.
 
 ## Content of the repository
@@ -40,9 +40,9 @@ cd resfinder_db
 
 ### Installing dependencies (for python script):
 
-The BlastAll and FormatDB that the perl script uses are no longer available 
-for downloading through ncbi. Therefor we have provided the resfinder.py 
-scriot that uses Blastn instead. Note, this is not not script that is running 
+The BlastAll and FormatDB that the perl script uses are no longer available
+for downloading through ncbi. Therefor we have provided the resfinder.py
+scriot that uses Blastn instead. Note, this is not not script that is running
 on the CGE server. The CGE server is running the perl script using BlastAll
 **Warning:** Due to bugs in the BioPython 1.74, do not use this version if
 not using Python 3.7.
@@ -60,19 +60,25 @@ ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 pip3 install cgecore
 ```
 
-## Usage 
+### Build docker image
+```bash
+# Build container
+docker build -t resfinder .
+```
+
+## Usage
 
 You can run resfinder command line using python3
-   
+
 ```bash
 
 # Example of running resfinder
 python3 resfinder.py -i test.fsa -o . -p /path/to/resfinder_db \
 -mp /path/to/blastn -d aminoglycoside -t 0.90 -l 0.60
 
-# The program can be invoked with the -h option 
+# The program can be invoked with the -h option
 Usage: resfinder.py [-h] [-i INPUTFILE] [-o OUT_PATH]
-                    [-tmp TMP_DIR] [-mp METHOD_PATH] [-ao ACQ_OVERLAP] 
+                    [-tmp TMP_DIR] [-mp METHOD_PATH] [-ao ACQ_OVERLAP]
                     [-matrix MATRIX] [-p DB_PATH] [-d DATABASES] [-l MIN_COV]
                     [-t THRESHOLD] [-x] [-q]
 
@@ -93,23 +99,23 @@ optional arguments:
                         Minimum coverage default 0.6
   -t THRESHOLD, --threshold THRESHOLD
                         Blast threshold for identity
-                        default minimum 0.9 
+                        default minimum 0.9
   -ao ACQ_OVERLAP --acq_overlap ACQ_OVERLAP
                         Genes are allowed to overlap this number of nucleotides (30)
   -matrix, --matrix
                         If used, gives the counts all all called bases at each position
                         in each mapped template. Columns are: reference base,
                         A count, C count, G count, T count, N count, - count.
-  -x --extended_output 
+  -x --extended_output
                         If used, give extented output with allignment files,
-                       "template and query hits in fasta and a tab 
+                       "template and query hits in fasta and a tab
                        "seperated file with gene profile results
   -q --quiet
 ```
 
 ### Web-server
 
-A webserver implementing the methods is available at the [CGE 
+A webserver implementing the methods is available at the [CGE
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
@@ -125,7 +131,7 @@ Citation
 When using the method please cite:
 
 Identification of acquired antimicrobial resistance genes.
-Zankari E, Hasman H, Cosentino S, Vestergaard M, Rasmussen S, Lund O, Aarestrup 
+Zankari E, Hasman H, Cosentino S, Vestergaard M, Rasmussen S, Lund O, Aarestrup
 FM, Larsen MV.
 J Antimicrob Chemother. 2012 Jul 10.
 PMID: 22782487         doi: 10.1093/jac/dks261
