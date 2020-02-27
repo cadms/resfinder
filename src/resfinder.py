@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 from __future__ import division
 import sys
 import os
@@ -20,10 +21,7 @@ from cgecore.cgefinder import CGEFinder
 
 class ResFinder(CGEFinder):
 
-   def __init__(self, db_conf_file, notes, db_path, db_path_kma=None,
-                databases=None):
-      """
-      """
+   def __init__(self, db_conf_file, notes, db_path, db_path_kma=None, databases=None):
       self.db_path = db_path
 
       if(db_path_kma is None):
@@ -42,14 +40,9 @@ class ResFinder(CGEFinder):
       self.phenos = dict()
       self.load_notes(notes=notes)
       self.blast_results = None
-      # self.kma_results = None
-      # self.results = None
 
 
-   def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6,
-             blast="blastn", allowed_overlap=0):
-      """
-      """
+   def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6, blast="blastn", allowed_overlap=0):
       blast_run = Blaster(inputfile=inputfile, databases=self.databases,
                           db_path=self.db_path, out_path=out_path,
                           min_cov=min_cov, threshold=threshold, blast=blast,
@@ -359,10 +352,8 @@ class ResFinder(CGEFinder):
                   self.phenos[tmp[2][16:]] = "%s %s" % (tmp[1], tmp[2])
 
    def load_databases(self, databases):
-      """
-      """
       # Check if databases and config file are correct/correponds
-      if databases is '':
+      if databases == '':
             sys.exit("Input Error: No database was specified!\n")
       elif databases is None:
          # Choose all available databases from the config file
@@ -379,8 +370,6 @@ class ResFinder(CGEFinder):
                         "recognised! (%s)\n" % db_prefix)
 
    def load_db_config(self, db_conf_file):
-      """
-      """
       extensions = []
       with open(db_conf_file) as f:
          for line in f:
@@ -488,51 +477,47 @@ if __name__ == '__main__':
                        required=True)
    parser.add_argument("-o", "--outputPath",
                        dest="out_path",
-                       help="Path to blast output",
+                       help="Path to blast output.",
                        default='.')
    parser.add_argument("-tmp", "--tmp_dir",
-                       help=("Temporary directory for storage of the results "
-                       "from the external software."))
+                       help=("Temporary directory for storage of the results from the external software."))
 
    parser.add_argument("-mp", "--methodPath",
                        dest="method_path",
-                       help="Path to method to use (kma or blastn)")
+                       help="Path to method to use (kma or blastn).")
 
    parser.add_argument("-p", "--databasePath",
                        dest="db_path",
-                       help="Path to the databases",
+                       help="Path to the databases.",
                        default='')
 
    parser.add_argument("-d", "--databases",
                        dest="databases",
-                       help="Databases chosen to search in - if none are \
-                             specified all are used",
+                       help="Databases chosen to search in - if none are specified all are used.",
                        default=None)
    parser.add_argument("-l", "--min_cov",
                        dest="min_cov",
-                       help="Minimum coverage",
+                       help="Minimum coverage.",
                        default=0.60)
    parser.add_argument("-t", "--threshold",
                        dest="threshold",
-                       help="Blast threshold for identity",
+                       help="Blast threshold for identity.",
                        default=0.90)
    parser.add_argument("-ao", "--acq_overlap",
-                       help="Genes are allowed to overlap this number of\
-                             nucleotides. Default: 30.",
+                       help="Genes are allowed to overlap this number of nucleotides. Default: 30.",
                        type=int,
                        default=30)
    parser.add_argument("-matrix", "--matrix",
-                       help="Gives the counts all all called bases at each\
-                       position in each mapped template. Columns are: reference\
-                       base, A count, C count, G count, T count, N count,\
-                        - count.",
+                       help="Gives the counts all all called bases at each \
+                       position in each mapped template. Columns are: reference \
+                       base, A count, C count, G count, T count, N count, - count.",
                        dest="kma_matrix",
                        action='store_true',
                        default=False)
    parser.add_argument("-x", "--extented_output",
-                       help=("Give extented output with allignment files, "
-                       "template and query hits in fasta and a tab "
-                       "seperated file with gene profile results"),
+                       help="Give extented output with allignment files, \
+                       template and query hits in fasta and a tab \
+                       seperated file with gene profile results.",
                        action="store_true")
    parser.add_argument("-q", "--quiet",
                        action="store_true",
@@ -554,14 +539,11 @@ if __name__ == '__main__':
    threshold = float(args.threshold)
    method_path = args.method_path
 
-
-
    # Check if valid database is provided
    if args.db_path is None:
-         sys.exit("Input Error: No database directory was provided!\n")
+         sys.exit("Input Error: Missing database directory!\n")
    elif not os.path.exists(args.db_path):
-      sys.exit("Input Error: The specified database directory does not "
-               "exist!\n")
+      sys.exit(f"Input Error: Database directory '{args.db_path}' does not exist!\n")
    else:
       # Check existence of config file
       db_config_file = '%s/config' % (args.db_path)
@@ -587,9 +569,11 @@ if __name__ == '__main__':
    else:
        infile = args.inputfile
 
-   # Check if valid output directory is provided
+   # Check if valid output directory exist
    if not os.path.exists(args.out_path):
-      sys.exit("Input Error: Output dirctory does not exists!\n")
+      # sys.exit(f"Input Error: Output dirctory '{args.out_path}' does not exists!\n")
+      os.system('mkdir -m 775 ' + args.out_path)
+      out_path = args.out_path
    else:
       out_path = args.out_path
 
@@ -602,8 +586,7 @@ if __name__ == '__main__':
    # Check if valid tmp directory is provided
    if args.tmp_dir:
        if not os.path.exists(args.tmp_dir):
-           sys.exit("Input Error: Tmp dirctory, {}, does not exist!\n"
-                    .format(args.tmp_dir))
+           sys.exit(f"Input Error: Tmp dirctory, '{args.tmp_dir}', does not exist!\n")
        else:
            tmp_dir = os.path.abspath(args.tmp_dir)
    else:
