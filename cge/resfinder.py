@@ -24,7 +24,7 @@ class ResFinder(CGEFinder):
         self.db_path = db_path
 
         if(db_path_kma is None):
-            self.db_path_kma = db_path + "/kma_indexing"
+            self.db_path_kma = db_path
         else:
             self.db_path_kma = db_path_kma
 

@@ -3,20 +3,21 @@
 python3 = "python3"
 resfinder = "/home/projects/cge/people/rkmo/resfinder4/src/resfinder/run_resfinder.py"
 
-params.indir = './'
-params.ext = '.fq.gz'
+params.input = './*.fa'
+// params.indir = './'
+// params.ext = '.fa'
 params.outdir = '.'
 params.species
 
-println("Search pattern: $params.indir*{1,2}$params.ext")
+println("Search pattern: $params.input")
 
-Channel
-    .fromFilePairs("$params.indir*{1,2}$params.ext", followLinks: true)
-    .set{ infile_ch }
+infile_ch = Channel
+              .fromPath("$params.input", followLinks: true)
+              .map{ file -> tuple(file.baseName, file) }
 
 process resfinder{
 
-    cpus 5
+    cpus 1
     time '30m'
     memory '1 GB'
     clusterOptions '-V -W group_list=cge -A cge'
@@ -29,9 +30,11 @@ process resfinder{
     stdout result
 
     """
+    set +u
+    module unload perl
     source /home/projects/cge/apps/env/rf4_env/bin/activate
     module load ncbi-blast/2.8.1+
-    $python3 $resfinder -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
+    $python3 $resfinder -acq --point -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
     """
 }
 
