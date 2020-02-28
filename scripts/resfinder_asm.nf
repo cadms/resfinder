@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 python3 = "python3"
-resfinder = "/home/projects/cge/people/rkmo/resfinder4/src/resfinder/run_resfinder.py"
+resfinder = "/home/projects/cge/apps/resfinder/resfinder/run_resfinder.py"
 
 params.input = './*.fa'
 // params.indir = './'

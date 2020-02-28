@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 python3 = "python3"
-resfinder = "/home/projects/cge/people/rkmo/resfinder4/src/resfinder/run_resfinder.py"
+resfinder = "/home/projects/cge/apps/resfinder/resfinder/run_resfinder.py"
 
 params.indir = './'
 params.ext = '.fq.gz'
@@ -29,6 +29,8 @@ process resfinder{
     stdout result
 
     """
+    set +u
+    module unload perl
     source /home/projects/cge/apps/env/rf4_env/bin/activate
     module load ncbi-blast/2.8.1+
     $python3 $resfinder -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
