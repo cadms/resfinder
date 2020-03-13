@@ -1,6 +1,14 @@
 # Description
 
-ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria. Program uses the newest version of [blastn](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/), [KMA](https://bitbucket.org/genomicepidemiology/kma/src/master/), [biopython==1.7.6](https://pypi.org/project/biopython/), [cgecore==1.5.2](https://pypi.org/project/cgecore/).
+ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria. 
+
+# Dependencies
+ResFinder uses:  
+
+* [biopython==1.7.6](https://pypi.org/project/biopython/)
+* [cgecore==1.5.2](https://pypi.org/project/cgecore/).
+* The newest version of [blastn](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)
+* The newest version of [KMA](https://bitbucket.org/genomicepidemiology/kma/src/master/) 
 
 # Installation
 
