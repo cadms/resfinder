@@ -1,3 +1,4 @@
+pika==1.0.0
 biopython==1.76
 cgecore==1.5.2
 tabulate==0.8.6

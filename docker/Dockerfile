@@ -30,6 +30,11 @@ RUN chmod +x kma
 ### Install ResFinder ###
 FROM python:3.8-slim
 
+ARG SERVICE_NAME=resfinder
+ENV SERVICE_NAME=$SERVICE_NAME
+ARG SERVICE_VERSION=v3
+ENV SERVICE_VERSION=$SERVICE_VERSION
+
 RUN useradd -u 9999 exec
 
 WORKDIR /app
