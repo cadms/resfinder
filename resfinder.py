@@ -57,7 +57,7 @@ class ResFinder(CGEFinder):
       self.blast_results = blast_run.results
       return blast_run
 
-   def create_results(self,results_method,outdir):
+   def create_results(self, results_method, outdir, json_out=False):
 
       results = results_method.results
       query_aligns = results_method.gene_align_query
@@ -170,7 +170,10 @@ class ResFinder(CGEFinder):
       data[service]["run_info"] = run_info
       data[service]["results"] = json_results
 
-      pprint.pprint(data)
+      if(json_out):
+          print(json.dumps(data))
+      else:
+          pprint.pprint(data)
 
       # Save json output
       result_file = "{}/data_resfinder.json".format(tmp_dir)
@@ -178,8 +181,9 @@ class ResFinder(CGEFinder):
           json.dump(data, outfile)
 
       # Getting and writing out the results
-      header = ["Resistance gene", "Identity", "Query / Template length", "Contig",
-                "Position in contig", "Predicted phenotype", "Accession number"]
+      header = ["Resistance gene", "Identity", "Query / Template length",
+                "Contig", "Position in contig", "Predicted phenotype",
+                "Accession number"]
 
       if args.extented_output:
           # Define extented output
@@ -474,6 +478,7 @@ def get_file_format(input_files):
         return "mixed"
     return ",".join(set(file_format))
 
+
 if __name__ == '__main__':
 
    ##########################################################################
@@ -492,7 +497,7 @@ if __name__ == '__main__':
                        default='.')
    parser.add_argument("-tmp", "--tmp_dir",
                        help=("Temporary directory for storage of the results "
-                       "from the external software."))
+                             "from the external software."))
 
    parser.add_argument("-mp", "--methodPath",
                        dest="method_path",
@@ -522,19 +527,22 @@ if __name__ == '__main__':
                        type=int,
                        default=30)
    parser.add_argument("-matrix", "--matrix",
-                       help="Gives the counts all all called bases at each\
-                       position in each mapped template. Columns are: reference\
-                       base, A count, C count, G count, T count, N count,\
-                        - count.",
+                       help=("Gives the counts all all called bases at each "
+                             "position in each mapped template. Columns are: "
+                             "reference base, A count, C count, G count, T "
+                             "count, N count,- count."),
                        dest="kma_matrix",
                        action='store_true',
                        default=False)
    parser.add_argument("-x", "--extented_output",
                        help=("Give extented output with allignment files, "
-                       "template and query hits in fasta and a tab "
-                       "seperated file with gene profile results"),
+                             "template and query hits in fasta and a tab "
+                             "seperated file with gene profile results"),
                        action="store_true")
    parser.add_argument("-q", "--quiet",
+                       action="store_true",
+                       default=False)
+   parser.add_argument("--json",
                        action="store_true",
                        default=False)
 
@@ -630,7 +638,6 @@ if __name__ == '__main__':
                     if data from more runs is avaliable for the same\
                     sample, please concatinate the reads into two files")
 
-
        sample_name = os.path.basename(sorted(args.inputfile)[0])
        method = "kma"
        finder = ResFinder(db_conf_file=db_config_file, databases=args.databases,
@@ -640,13 +647,12 @@ if __name__ == '__main__':
        kma_run = finder.kma(inputfile_1=infile_1, inputfile_2=infile_2,
                             out_path=tmp_dir, databases=finder.databases,
                             db_path_kma=finder.db_path_kma,
-                            min_cov=min_cov,threshold=threshold,
+                            min_cov=min_cov, threshold=threshold,
                             kma_path=method_path,
                             kma_add_args=extra_args)
 
-       finder.create_results(results_method=kma_run,outdir=out_path)
-
-
+       finder.create_results(results_method=kma_run, outdir=out_path,
+                             json_out=args.json)
    elif file_format == "fasta":
        if not method_path:
            method_path = "blastn"
@@ -665,4 +671,5 @@ if __name__ == '__main__':
                                 min_cov=min_cov, threshold=threshold,
                                 blast=method_path,
                                 allowed_overlap=args.acq_overlap)
-       finder.create_results(results_method=blast_run,outdir=out_path)
+       finder.create_results(results_method=blast_run, outdir=out_path,
+                             json_out=args.json)
