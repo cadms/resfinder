@@ -197,11 +197,11 @@ class ResFinder(CGEFinder):
           result_file = open(result_filename, "w")
           # Make results file
           result_file.write("{} Results\n\nAntibiotic(s): {}\n\n"
-                            .format(service, ",".join(self.configured_dbs)))
+                            .format(service, ", ".join(self.configured_dbs)))
           # Write tsv table
           ## TODO##
           rows = [["Database"] + header]
-          for species, dbs_info in json_results.items():
+          for species, dbs_info in sorted(json_results.items()):
               for db_name, db_hits in dbs_info.items():
                   result_file.write("*" * len("\t".join(header)) + "\n")
                   result_file.write(db_name.capitalize() + "\n")
