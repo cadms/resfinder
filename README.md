@@ -1,6 +1,6 @@
 # Description
 
-ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria. 
+ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria.
 
 # Dependencies
 ResFinder uses:  
@@ -8,7 +8,7 @@ ResFinder uses:
 * [biopython==1.7.6](https://pypi.org/project/biopython/)
 * [cgecore==1.5.2](https://pypi.org/project/cgecore/).
 * The newest version of [blastn](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)
-* The newest version of [KMA](https://bitbucket.org/genomicepidemiology/kma/src/master/) 
+* The newest version of [KMA](https://bitbucket.org/genomicepidemiology/kma/src/master/)
 
 # Installation
 
@@ -52,6 +52,7 @@ optional arguments:
   -ao ACQ_OVERLAP, --acq_overlap ACQ_OVERLAP Genes are allowed to overlap this number of nucleotides. Default: 30.
   -matrix, --matrix     Gives the counts all all called bases at each position in each mapped template. Columns are: reference base, A count, C count, G count, T count, N count, - count.
   -x, --extented_output Give extented output with allignment files, template and query hits in fasta and a tab seperated file with gene profile results.
+  -j, --json JSON is program's default output
   -q, --quiet
 ```
 
