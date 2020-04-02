@@ -524,7 +524,7 @@ if __name__ == '__main__':
                              "template and query hits in fasta and a tab "
                              "seperated file with gene profile results"),
                        action="store_true")
-   parser.add_argument("j", "--json",
+   parser.add_argument("-j", "--json",
                        help=("JSON is program's default output"),
                        action="store_true",
                        default=True)
