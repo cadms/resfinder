@@ -42,8 +42,8 @@ cd resfinder_db
 
 The BlastAll and FormatDB that the perl script uses are no longer available
 for downloading through ncbi. Therefor we have provided the resfinder.py
-scriot that uses Blastn instead. Note, this is not not script that is running
-on the CGE server. The CGE server is running the perl script using BlastAll
+scriot that uses Blastn instead. Note, the python script is the one running
+in the server.
 **Warning:** Due to bugs in the BioPython 1.74, do not use this version if
 not using Python 3.7.
 
