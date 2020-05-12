@@ -5,7 +5,6 @@ import os
 import time
 import random
 import re
-import subprocess
 from argparse import ArgumentParser
 from tabulate import tabulate
 import collections

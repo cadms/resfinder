@@ -13,6 +13,7 @@ from cge.phenotype2genotype.isolate import Isolate
 from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
+from cge.output.result import Result
 
 # TODO list:
 # TODO: Add input data check
@@ -229,11 +230,11 @@ if(args.inputfastq):
 
 blast = args.blast_path
 if(args.inputfasta):
-     try:
-          _ = subprocess.check_output([blast, "-h"])
-     except FileNotFoundError as e:
-         sys.exit("ERROR: Unable to execute blastn from the path: {}"
-                  .format(blast))
+    try:
+        _ = subprocess.check_output([blast, "-h"])
+    except FileNotFoundError as e:
+        sys.exit("ERROR: Unable to execute blastn from the path: {}"
+                 .format(blast))
 
 # Check KMA path cge/kma/kma
 if(args.inputfastq):
@@ -286,11 +287,11 @@ if(args.species):
             # If not db for species is found check if db for genus is found
             # and use that instead
             if(tmp_list[0] in point_dbs):
-                 point_species = tmp_list[0]
+                point_species = tmp_list[0]
             else:
-                 sys.exit("ERROR: species '%s' (%s) does not seem to exist"
-                          " as a PointFinder database."
-                          % (args.species, point_species))
+                sys.exit("ERROR: species '%s' (%s) does not seem to exist"
+                         " as a PointFinder database."
+                         % (args.species, point_species))
 
         db_path_point = db_path_point + "/" + point_species
 
@@ -307,17 +308,21 @@ if(args.db_path_res is None):
         os.path.realpath(__file__)) + "/db_resfinder")
 args.db_path_res = os.path.abspath(args.db_path_res)
 if(not os.path.exists(args.db_path_res)):
-     sys.exit("Could not locate ResFinder database path: %s"
-              % args.db_path_res)
+    sys.exit("Could not locate ResFinder database path: %s"
+             % args.db_path_res)
 
 # Check ResFinder KMA database
 if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
-     args.db_path_res_kma = args.db_path_res
-     if(not os.path.exists(args.db_path_res_kma)):
-          sys.exit("Could not locate ResFinder database index path: %s"
-                   % args.db_path_res_kma)
+    args.db_path_res_kma = args.db_path_res
+    if(not os.path.exists(args.db_path_res_kma)):
+        sys.exit("Could not locate ResFinder database index path: %s"
+                 % args.db_path_res_kma)
 
 min_cov = float(args.min_cov)
+
+# Initialise result dict
+init_software_result = {"software_name": "ResFinder"}
+
 
 ##########################################################################
 # ResFinder
@@ -357,14 +362,15 @@ if args.acquired is True:
     if not os.path.exists(notes_path):
         sys.exit('Input Error: notes.txt not found! (%s)' % (notes_path))
 
+    # DEPRECATED
+    blast_results = None
+    kma_results = None
+
     # Actually running ResFinder (for acquired resistance)
     acquired_finder = ResFinder(db_conf_file=db_config_file,
                                 databases=args.databases, db_path=db_path_res,
                                 notes=notes_path,
                                 db_path_kma=args.db_path_res_kma)
-
-    blast_results = None
-    kma_results = None
 
     if(args.inputfasta):
         blast_results = acquired_finder.blast(inputfile=args.inputfasta,
@@ -432,7 +438,7 @@ if args.point is True and args.species:
         results = blast_run.results
 
     # Note: ResFinder is able to do a fasta and a fastq call, hence its
-    #         two if statements. PointFinder can only handle eiter fasta
+    #         two if statements. PointFinder can only handle either fasta
     #         or fastq, hence the if-else statement.
     else:
 
@@ -450,9 +456,6 @@ if args.point is True and args.species:
                              kma_cge=True,
                              kma_apm="p",
                              kma_1t1=True)
-#                             kma_mrs=0.5, kma_gapopen=-5, kma_gapextend=-2,
-#                             kma_penalty=-3, kma_reward=1, kma_pm="p",
-#                             kma_fpm="p")
 
         results = kma_run.results
 
@@ -477,13 +480,6 @@ if args.point is True and args.species:
     finder.write_results(out_path=args.out_path, result=results,
                          res_type=method, unknown_flag=args.unknown_mutations,
                          min_cov=min_cov)
-
-# if(args.acquired and args.point):
-#    new_std_res.merge(new_std_pnt)
-# elif(args.point):
-#    new_std_res = new_std_pnt
-
-# print(new_std_res.as_txt(type="long"))
 
 ##########################################################################
 # Phenotype to genotype
