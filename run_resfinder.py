@@ -229,11 +229,11 @@ if(args.inputfastq):
 
 blast = args.blast_path
 if(args.inputfasta):
-     try:
-          _ = subprocess.check_output([blast, "-h"])
-     except FileNotFoundError as e:
-         sys.exit("ERROR: Unable to execute blastn from the path: {}"
-                  .format(blast))
+    try:
+        _ = subprocess.check_output([blast, "-h"])
+    except FileNotFoundError as e:
+        sys.exit("ERROR: Unable to execute blastn from the path: {}"
+                 .format(blast))
 
 # Check KMA path cge/kma/kma
 if(args.inputfastq):
@@ -286,11 +286,11 @@ if(args.species):
             # If not db for species is found check if db for genus is found
             # and use that instead
             if(tmp_list[0] in point_dbs):
-                 point_species = tmp_list[0]
+                point_species = tmp_list[0]
             else:
-                 sys.exit("ERROR: species '%s' (%s) does not seem to exist"
-                          " as a PointFinder database."
-                          % (args.species, point_species))
+                sys.exit("ERROR: species '%s' (%s) does not seem to exist"
+                         " as a PointFinder database."
+                         % (args.species, point_species))
 
         db_path_point = db_path_point + "/" + point_species
 
@@ -307,15 +307,15 @@ if(args.db_path_res is None):
         os.path.realpath(__file__)) + "/db_resfinder")
 args.db_path_res = os.path.abspath(args.db_path_res)
 if(not os.path.exists(args.db_path_res)):
-     sys.exit("Could not locate ResFinder database path: %s"
-              % args.db_path_res)
+    sys.exit("Could not locate ResFinder database path: %s"
+             % args.db_path_res)
 
 # Check ResFinder KMA database
 if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
-     args.db_path_res_kma = args.db_path_res
-     if(not os.path.exists(args.db_path_res_kma)):
-          sys.exit("Could not locate ResFinder database index path: %s"
-                   % args.db_path_res_kma)
+    args.db_path_res_kma = args.db_path_res
+    if(not os.path.exists(args.db_path_res_kma)):
+        sys.exit("Could not locate ResFinder database index path: %s"
+                 % args.db_path_res_kma)
 
 min_cov = float(args.min_cov)
 
