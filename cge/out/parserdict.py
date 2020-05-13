@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from valueparsers import ValueParsers
+from .valueparsers import ValueParsers
 
 
 class ParserDict(dict):

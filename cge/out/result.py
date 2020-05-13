@@ -3,8 +3,8 @@
 import json
 import os.path
 
-from parserdict import ParserDict
-from exceptions import CGECoreOutTypeError, CGECoreOutInputError
+from .parserdict import ParserDict
+from .exceptions import CGECoreOutTypeError, CGECoreOutInputError
 
 
 class Result(dict):

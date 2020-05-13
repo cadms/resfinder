@@ -13,7 +13,7 @@ from cge.phenotype2genotype.isolate import Isolate
 from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
-from cge.output.result import Result
+from cge.out.result import Result
 
 # TODO list:
 # TODO: Add input data check
