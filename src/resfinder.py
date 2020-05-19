@@ -178,7 +178,7 @@ class ResFinder(CGEFinder):
                 "Contig", "Position in contig", "Predicted phenotype",
                 "Accession number"]
 
-      if args.extented_output:
+      if args.extended_output:
           # Define extented output
           table_filename = "{}/results_tab.tsv".format(outdir)
           query_filename = "{}/Hit_in_genome_seq.fsa".format(outdir)
@@ -519,7 +519,7 @@ if __name__ == '__main__':
                        dest="kma_matrix",
                        action='store_true',
                        default=False)
-   parser.add_argument("-x", "--extented_output",
+   parser.add_argument("-x", "--extended_output",
                        help=("Give extented output with allignment files, "
                              "template and query hits in fasta and a tab "
                              "seperated file with gene profile results"),
