@@ -137,6 +137,11 @@ J Antimicrob Chemother. 2012 Jul 10.
 PMID: 22782487         doi: 10.1093/jac/dks261
 [Epub ahead of print]
 
+References
+=======
+
+1. Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, Madden TL. BLAST+: architecture and applications. BMC Bioinformatics 2009; 10:421. 
+2. Clausen PTLC, Aarestrup FM, Lund O. Rapid and precise alignment of raw reads against redundant databases with KMA. BMC Bioinformatics 2018; 19:307. 
 
 License
 =======
