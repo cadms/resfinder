@@ -51,8 +51,8 @@ RUN pip3 install -r requirements.txt
 RUN ln -s /app/src/resfinder.py /bin/resfinder
 RUN chown -R exec:exec /app
 
-VOLUME /app/results
+VOLUME /app/results /app/data
 
 USER exec
 
-CMD ["/bin/sh"]
+CMD ["/bin/bash"]
