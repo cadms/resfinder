@@ -55,6 +55,4 @@ VOLUME /app/db /app/data /app/results
 
 USER exec
 
-EXPOSE 5672
-
 CMD ["/bin/bash"]
