@@ -23,7 +23,7 @@ class ValueParsers():
 
     def parse_integer(val):
         try:
-            val = int(val)
+            val = int(float(val))
         except ValueError:
             return "Value must be an integer. Value was: {}".format(val)
 
@@ -41,3 +41,9 @@ class ValueParsers():
             val = str(val)
         except ValueError:
             return "Value could not be converted to a string."
+
+    def parse_float(val):
+        try:
+            val = float(val)
+        except ValueError:
+            return "Value must be a float. Value was: {}".format(val)

@@ -13,7 +13,8 @@ from cge.phenotype2genotype.isolate import Isolate
 from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
-from cge.out.result import Result
+from cge.out.util.generator import Generator
+from cge.standardize_results import ResFinderResultHandler
 
 # TODO list:
 # TODO: Add input data check
@@ -322,6 +323,8 @@ min_cov = float(args.min_cov)
 
 # Initialise result dict
 init_software_result = {"software_name": "ResFinder"}
+git_path = os.path.abspath(os.path.dirname(__file__))
+std_result = Generator.init_software_result(name="ResFinder", gitdir=git_path)
 
 
 ##########################################################################
@@ -380,14 +383,20 @@ if args.acquired is True:
                                               blast=blast,
                                               allowed_overlap=args.acq_overlap)
 
+        # new_std_res is DEPRECATED
+        # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
             blast_results.results, software="ResFinder", version="4.0.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
+        # DEPRECATED
+        # use std_result
         acquired_finder.write_results(out_path=args.out_path,
                                       result=blast_results,
                                       res_type=ResFinder.TYPE_BLAST)
+
+        ResFinderResultHandler.standardize_results(std_result, blast_results)
 
     if(args.inputfastq):
         kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,

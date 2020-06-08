@@ -10,18 +10,23 @@ from .exceptions import CGECoreOutTypeError, CGECoreOutInputError
 class Result(dict):
 
     BEONE_JSON_FILE = "beone.json"
-
     beone_json_path = os.path.join(os.path.dirname(__file__), BEONE_JSON_FILE)
-    beone_defs = {}
-    with open(beone_json_path, "r") as fh:
-        beone_defs = json.load(fh)
 
-    val_parsers = ParserDict()
+    def __init__(self, result_type=None, fmt_file=beone_json_path,
+                 parsers=None, **kwargs):
 
-    def __init__(self, result_type=None, **kwargs):
+        self.defs = {}
+        with open(fmt_file, "r") as fh:
+            self.defs = json.load(fh)
+
+        if(parsers is None):
+            self.val_parsers = ParserDict()
+        else:
+            self.val_parsers = ParserDict(parsers)
+
         type = self._get_type(result_type, **kwargs)
         self._set_type(type)
-        self._parser = ResultParser(result_def=self.beone_defs[type])
+        self._parser = ResultParser(result_def=self.defs[type])
         for d in self._parser.arrays:
             self[d] = []
         for d in self._parser.dicts:
@@ -30,12 +35,12 @@ class Result(dict):
         self.add(**kwargs)
 
     def _set_type(self, type):
-        if(type in self.beone_defs):
+        if(type in self.defs):
             self["type"] = type
         else:
             raise CGECoreOutTypeError(
                 "Unknown result type given. Type given: {}. Type must be one "
-                "of:\n{}".format(type, list(self.beone_defs.keys())))
+                "of:\n{}".format(type, list(self.defs.keys())))
 
     def _get_type(self, result_type=None, **kwargs):
         type = None
@@ -61,7 +66,7 @@ class Result(dict):
         for key, val in kwargs.items():
             if(val is None):
                 continue
-            self[key] = val
+            self[key] = str(val)
 
     def add_class(self, cl, result_type=None, **kwargs):
         type = self._get_type(result_type, **kwargs)
@@ -78,6 +83,9 @@ class Result(dict):
 
         for key, val in self.items():
             if(key == "type"):
+                continue
+            # The key is not defined, and is not checked
+            elif(key not in self.defs[self["type"]]):
                 continue
             self._check_result(key, val, self.errors)
 
@@ -105,6 +113,18 @@ class Result(dict):
             self._check_result_list(key, val, errors)
         else:
             self._check_result_val(key, val, errors, index)
+
+    def del_entries_by_values(self, values):
+        values = tuple(values)
+        deleted_keys = []
+        for key, entry_val in self.items():
+            if(key == "type"):
+                continue
+            if(entry_val in values):
+                deleted_keys.append(key)
+        for key in deleted_keys:
+            del self[key]
+        return deleted_keys
 
     def _no_errors(self, errors):
         no_errors = True
@@ -155,10 +175,10 @@ class ResultParser(dict):
         for key, val_def_str in result_def.items():
             val_def, *sub_def = val_def_str.split(" ")
             if(sub_def and val_def == "dict"):
-                self.dicts[key] = sub_def
-                self[key] = sub_def
+                self.dicts[key] = sub_def[0]
+                self[key] = sub_def[0]
             elif(sub_def and val_def == "array"):
-                self.arrays[key] = sub_def
-                self[key] = sub_def
+                self.arrays[key] = sub_def[0]
+                self[key] = sub_def[0]
             else:
                 self[key] = val_def

@@ -4,8 +4,14 @@ from .valueparsers import ValueParsers
 
 
 class ParserDict(dict):
+
     def __init__(self):
-        val_parser_list = self.get_method_names(ValueParsers)
+
+        if(input_parser is None):
+            val_parser_list = self.get_method_names(ValueParsers)
+        else:
+            val_parser_list = self.get_method_names(input_parser)
+
         for parser in val_parser_list:
             if(parser.startswith("parse_")):
                 parse_key = parser[6:]
