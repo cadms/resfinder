@@ -5,7 +5,7 @@ from .valueparsers import ValueParsers
 
 class ParserDict(dict):
 
-    def __init__(self):
+    def __init__(self, input_parser=None):
 
         if(input_parser is None):
             val_parser_list = self.get_method_names(ValueParsers)

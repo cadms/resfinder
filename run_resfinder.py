@@ -396,7 +396,8 @@ if args.acquired is True:
                                       result=blast_results,
                                       res_type=ResFinder.TYPE_BLAST)
 
-        ResFinderResultHandler.standardize_results(std_result, blast_results)
+        ResFinderResultHandler.standardize_results(std_result,
+                                                   blast_results.results)
 
     if(args.inputfastq):
         kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
