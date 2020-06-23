@@ -3,6 +3,7 @@
 ResFinder identifies acquired antimicrobial resistance genes in total or partial sequenced isolates of bacteria.
 
 # Dependencies
+
 ResFinder uses:  
 
 * [biopython==1.7.6](https://pypi.org/project/biopython/)
