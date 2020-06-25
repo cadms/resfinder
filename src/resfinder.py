@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+from __future__ import division
+from argparse import ArgumentParser
+from cgecore.blaster import Blaster
+from cgecore.cgefinder import CGEFinder
+from distutils.spawn import find_executable
+from tabulate import tabulate
 import collections
 import gzip
 import json
@@ -9,12 +15,6 @@ import re
 import subprocess
 import sys
 import time
-from __future__ import division
-from argparse import ArgumentParser
-from cgecore.blaster import Blaster
-from cgecore.cgefinder import CGEFinder
-from distutils.spawn import find_executable
-from tabulate import tabulate
 
 
 class ResFinder(CGEFinder):
