@@ -41,16 +41,18 @@ RUN useradd -Mru 999 exec
 
 WORKDIR /app
 
+COPY data data/
 COPY db db/
+COPY results results/
 COPY src src/
 COPY tests tests/
-COPY results results/
 COPY requirements.txt requirements.txt
 COPY --from=kma-builder /app/kma /bin
 COPY --from=blast-builder /app/blastn /bin
 
 RUN pip3 install -r requirements.txt
 RUN ln -s /app/src/resfinder.py /bin/resfinder
+
 RUN chown -R exec:exec /app
 
 VOLUME /app/db /app/data /app/results

@@ -1,7 +1,7 @@
 version: '3'
 services:
   resfinder:
-    image: genomicepidemiology/resfinder:v3
+    image: genomicepidemiology/resfinder:v3-kubernetes
     build:
       context: .
       dockerfile: docker/Dockerfile
