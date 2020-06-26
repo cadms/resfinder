@@ -93,8 +93,19 @@ class Isolate(dict):
 
     @staticmethod
     def get_phenodb_id(feat_res_dict, type):
+
         if(type == "seq_variations"):
-            return feat_res_dict["ref_id"]
+            ref_id = feat_res_dict["ref_id"]
+            var_aa = feat_res_dict.get("var_aa", None)
+
+            # Not Amino acid mutation
+            if(var_aa is None):
+                phenodb_id = ref_id
+            # Amino acid mutation
+            else:
+                phenodb_id = ref_id[:-3] + feat_res_dict["var_aa"]
+            return phenodb_id
+
         elif(type == "genes"):
             return "{}_{}".format(feat_res_dict["name"],
                                   feat_res_dict["ref_acc"])
