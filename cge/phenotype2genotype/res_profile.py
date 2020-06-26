@@ -27,6 +27,14 @@ class PhenoDB(dict):
         # Stores non-redundant complete list of antibiotics in DB.
         self.antibiotics = {}
 
+        # ID in DB is <gene>_<group>_<acc>. Ex: blaB-2_1_AF189300
+        # The <group> should be redundant, as the acc will be enough to
+        # define which variant it is.
+        # This code uses the 'new' ID <gene>_<acc>, but has this dict so other
+        # parts can translate the new ids into the old ones that includes
+        # <group>
+        self.id_to_idwithvar = {}
+
         self.ab_class_defs = ABClassDefinition(abclassdef_file)
 
         if(acquired_file is None and point_file is None):
@@ -79,8 +87,8 @@ class PhenoDB(dict):
 
                     # ID in DB is <gene>_<group>_<acc>. Ex: blaB-2_1_AF189300.
                     # The gene + acc should be unique and is used here.
-                    phenodb_id = line_list[0]
-                    phenodb_id = phenodb_id.split("_")
+                    id_with_group = line_list[0]
+                    phenodb_id = id_with_group.split("_")
 
                     # This code is temporary
                     # TODO: Remove when database has been reformatted.
@@ -89,6 +97,8 @@ class PhenoDB(dict):
                     else:
                         accno = "_".join(phenodb_id[2:])
                         unique_id = "{0}_{1}".format(phenodb_id[0], accno)
+
+                    self.id_to_idwithvar[unique_id] = id_with_group
 
                     # ab_class = self.get_csv_tuple(line_list[1].lower())
 
@@ -149,32 +159,13 @@ class PhenoDB(dict):
                     else:
                         gene_class = None
                     if(len(line_list) > 8 and line_list[8]):
-                         susceptibile = self.get_csv_tuple(line_list[6])
+                        susceptibile = self.get_csv_tuple(line_list[6])
                     else:
                         susceptibile = ()
                     if(len(line_list) > 9 and line_list[9]):
                         species = self.get_csv_tuple(line_list[9])
                     else:
                         species = None
-                    #
-                    # Write out the above
-                    #
-
-                    # for ab in phenotype:
-                    #    for _class in ab_class:
-                    #        if(_class in self.antibiotics):
-                    #            self.antibiotics[_class][ab] = True
-                    #        else:
-                    #            self.antibiotics[_class] = {}
-                    #            self.antibiotics[_class][ab] = True
-                    # eprint("ab: {} cl: {}".format(ab, _class))
-                    # for ab in susceptibile:
-                    #    for _class in ab_class:
-                    #        if(_class in self.antibiotics):
-                    #            self.antibiotics[_class][ab] = True
-                    #        else:
-                    #            self.antibiotics[_class] = {}
-                    #            self.antibiotics[_class][ab] = True
 
                     pheno = Phenotype(unique_id, abs,
                                       sug_phenotype, pub_phenotype, pmid,
@@ -223,8 +214,6 @@ class PhenoDB(dict):
                         pub_phenotype = ()
 
                     pmid = self.get_csv_tuple(line_list[7].lower())
-
-                    # phenotype = list(pub_phenotype)
 
                     # TODO: Remove this tuple and its dependencies.
                     sug_phenotype = ()

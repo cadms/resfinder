@@ -66,7 +66,7 @@ class Result(dict):
         for key, val in kwargs.items():
             if(val is None):
                 continue
-            self[key] = str(val)
+            self[key] = val
 
     def add_class(self, cl, result_type=None, **kwargs):
         type = self._get_type(result_type, **kwargs)

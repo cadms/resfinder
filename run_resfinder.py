@@ -14,8 +14,10 @@ from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
 from cge.out.util.generator import Generator
-from cge.standardize_results import ResFinderResultHandler
+from cge.standardize_results import ResFinderResultHandler, DatabaseHandler
+from cge.standardize_results import PointFinderResultHandler
 
+import json
 # TODO list:
 # TODO: Add input data check
 
@@ -294,6 +296,7 @@ if(args.species):
                          " as a PointFinder database."
                          % (args.species, point_species))
 
+        db_path_point_root = db_path_point
         db_path_point = db_path_point + "/" + point_species
 
 # Check output directory
@@ -326,6 +329,12 @@ init_software_result = {"software_name": "ResFinder"}
 git_path = os.path.abspath(os.path.dirname(__file__))
 std_result = Generator.init_software_result(name="ResFinder", gitdir=git_path)
 
+if(args.acquired):
+    DatabaseHandler.load_database_metadata("ResFinder", std_result,
+                                           args.db_path_res)
+if(args.point):
+    DatabaseHandler.load_database_metadata("PointFinder", std_result,
+                                           db_path_point_root)
 
 ##########################################################################
 # ResFinder
@@ -365,7 +374,6 @@ if args.acquired is True:
     if not os.path.exists(notes_path):
         sys.exit('Input Error: notes.txt not found! (%s)' % (notes_path))
 
-    # DEPRECATED
     blast_results = None
     kma_results = None
 
@@ -383,7 +391,7 @@ if args.acquired is True:
                                               blast=blast,
                                               allowed_overlap=args.acq_overlap)
 
-        # new_std_res is DEPRECATED
+        # DEPRECATED
         # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
             blast_results.results, software="ResFinder", version="4.0.0",
@@ -397,9 +405,12 @@ if args.acquired is True:
                                       res_type=ResFinder.TYPE_BLAST)
 
         ResFinderResultHandler.standardize_results(std_result,
-                                                   blast_results.results)
+                                                   blast_results.results,
+                                                   "ResFinder")
+#DEBUG
+#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 
-    if(args.inputfastq):
+    else:
         kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
                                       inputfile_2=inputfastq_2,
                                       out_path=out_res_kma,
@@ -413,14 +424,24 @@ if args.acquired is True:
                                       kma_apm="p",
                                       kma_1t1=True)
 
+        # DEPRECATED
+        # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
             kma_run.results, software="ResFinder", version="4.0.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
+        # DEPRECATED
+        # use std_result
         acquired_finder.write_results(out_path=args.out_path,
                                       result=kma_run.results,
                                       res_type=ResFinder.TYPE_KMA)
+
+        ResFinderResultHandler.standardize_results(std_result,
+                                                   kma_run.results,
+                                                   "ResFinder")
+#DEBUG
+#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 
 ##########################################################################
 # PointFinder
@@ -447,9 +468,6 @@ if args.point is True and args.species:
                                  cut_off=False)
         results = blast_run.results
 
-    # Note: ResFinder is able to do a fasta and a fastq call, hence its
-    #         two if statements. PointFinder can only handle either fasta
-    #         or fastq, hence the if-else statement.
     else:
 
         method = PointFinder.TYPE_KMA
@@ -482,14 +500,28 @@ if args.point is True and args.species:
         else:
             results_pnt["excluded"] = results["excluded"]
 
+    # DEPRECATED
+    # use std_result
     new_std_pnt = finder.old_results_to_standard_output(
         result=results_pnt, software="ResFinder", version="4.0.0",
         run_date="fake_run_date", run_cmd="Fake run cmd",
         id=sample_name)
 
+    # DEPRECATED
+    # use std_result
     finder.write_results(out_path=args.out_path, result=results,
                          res_type=method, unknown_flag=args.unknown_mutations,
                          min_cov=min_cov)
+
+#DEBUG
+#    print("POINT RES:\n{}".format(json.dumps(results_pnt)))
+
+    PointFinderResultHandler.standardize_results(std_result,
+                                                 results_pnt,
+                                                 "PointFinder")
+
+#DEBUG
+#    print("\n\nSTD RES:\n{}".format(json.dumps(std_result)))
 
 ##########################################################################
 # Phenotype to genotype
@@ -509,17 +541,30 @@ res_pheno_db = PhenoDB(
 isolate = Isolate(name=sample_name)
 
 if(args.acquired):
-    # isolate.load_resfinder_tab(args.out_path + "/results_table.txt",
-    #                            res_pheno_db)
-    isolate.load_finder_results(std_table=new_std_res,
-                                phenodb=res_pheno_db)
+    isolate.load_finder_results(std_table=std_result,
+                                phenodb=res_pheno_db,
+                                type="genes")
+    # isolate.load_finder_results(std_table=std_result,
+    #                             phenodb=res_pheno_db)
+    # isolate.load_finder_results(std_table=new_std_res,
+    #                             phenodb=res_pheno_db)
 if(args.point):
-    isolate.load_finder_results(std_table=new_std_pnt,
-                                phenodb=res_pheno_db)
+    isolate.load_finder_results(std_table=std_result,
+                                phenodb=res_pheno_db,
+                                type="seq_variations")
+    # isolate.load_finder_results_old(std_table=new_std_pnt,
+    #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
 
 isolate.calc_res_profile(res_pheno_db)
+
+ResFinderResultHandler.load_res_profile(std_result, isolate)
+
+#TODO
+std_result_file = "{}/std_format_under_development.json".format(args.out_path)
+with open(std_result_file, 'w') as fh:
+    fh.write(json.dumps(std_result))
 
 # Create and write the downloadable tab file
 pheno_profile_str = isolate.profile_to_str_table(header=True)

@@ -70,6 +70,7 @@ class PointFinder(CGEFinder):
         # Change the gene_list to the user defined gene_list
         return genes_specified
 
+    #DELETE
     def old_results_to_standard_output(self, result, software, version,
                                        run_date, run_cmd, id,
                                        unknown_mut=False, tableresults=None):
@@ -464,7 +465,7 @@ class PointFinder(CGEFinder):
         """
         This function finds gene sequences with the largest coverage based on
         the blast results. If more hits covering different sequences parts
-        exists it concatinates parial gene hits into one hit.
+        exists it concatinates partial gene hits into one hit.
         If different overlap sequences occurs they are saved in the list
         alternative_overlaps. The function returns a new results dict where
         each gene has an inner dict with hit information corresponding to
@@ -483,7 +484,7 @@ class PointFinder(CGEFinder):
             if gene == 'excluded':
                 GENES[gene] = hits
                 continue
-            elif type(hits) is dict and len(hits) > 0:
+            elif isinstance(hits, dict) and len(hits) > 0:
                 GENES[gene]['found'] = 'partially'
                 GENES[gene]['hits'] = hits
             else:

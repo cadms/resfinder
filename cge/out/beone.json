@@ -17,9 +17,10 @@
 "database": {
     "type": "database",
     "key": "string*",
-    "name": "string*",
-    "id": "string",
-    "version": "string",
+    "database_name": "string*",
+    "database_version": "string",
+    "database_branch": "string",
+    "database_commit": "string",
     "checksum_sha256": "char64"
   },
 "gene": {
@@ -30,6 +31,7 @@
     "alignment_length": "integer",
     "ref_gene_lenght": "integer",
     "coverage": "percentage",
+    "depth": "float",
     "ref_id": "string*",
     "ref_acc": "string",
     "ref_start_pos": "integer",
@@ -37,37 +39,57 @@
     "query_id": "string",
     "query_start_pos": "integer",
     "query_end_pos": "integer",
-    "phenotypes": "array phenotype.id"
+    "phenotypes": "array phenotype.key",
+    "ref_database": "database.key"
   },
+"seq_region": {
+      "type": "seq_region",
+      "key": "string*",
+      "name": "string*",
+      "gene": "bool_or_unknown",
+      "identity": "percentage",
+      "alignment_length": "integer",
+      "ref_gene_lenght": "integer",
+      "coverage": "percentage",
+      "depth": "float",
+      "ref_id": "string*",
+      "ref_acc": "string",
+      "ref_start_pos": "integer",
+      "ref_end_pos": "integer",
+      "query_id": "string",
+      "query_start_pos": "integer",
+      "query_end_pos": "integer",
+      "phenotypes": "array phenotype.key",
+      "ref_database": "database.key"
+    },
 "seq_variation": {
     "type": "seq_variation",
     "key": "string*",
     "ref_id": "string*",
-    "database": "database.id",
     "seq_var": "seq_var_string",
     "codon_change": "codon_change_string",
-    "genes": "array gene.id",
-    "phenotypes": "array phenotype.id"
+    "ref_codon": "nucleotides",
+    "var_codon": "nucleotides",
+    "ref_aa": "aminoacid_1_char",
+    "var_aa": "aminoacid_1_char",
+    "ref_start_pos": "integer",
+    "ref_end_pos": "integer",
+    "substitution": "bool",
+    "insertion": "bool",
+    "deletion": "bool",
+    "ref_database": "database.key",
+    "genes": "array gene.key",
+    "phenotypes": "array phenotype.key"
   },
 "phenotype": {
     "type": "phenotype",
     "key": "string*",
-    "category": "vocabulary",
-    "phenotype": "vocabulary_antibiotics"
-  },
-"gene_resistance": {
-    "type": "gene_resistance",
-    "inherit": "gene",
-    "ab_class": "vocabulary_antibiotics_class"
-  },
-"seq_variation_resistance": {
-    "type": "seq_variation_resistance",
-    "inherit": "seq_variation",
-    "ab_class": "vocabulary_antibiotics_class"
-  },
-"phenotype_resistance": {
-    "type": "phenotype_resistance",
-    "inherit": "phenotype",
-    "resistant": "bool_or_unknown"
+    "category": "vocabulary*",
+    "amr_classes": "array vocabulary",
+    "amr_resistance": "vocabulary",
+    "amr_resistant": "bool_or_unknown",
+    "genes": "array gene.key",
+    "seq_variations": "array seq_variation.key",
+    "ref_database": "database.key"
   }
 }
