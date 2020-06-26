@@ -12,7 +12,7 @@ class DBHit(object):
             3: Match == 100% identity AND match_length == ref_length
     """
     def __init__(self, name, identity, match_length, ref_length, start_ref,
-                 end_ref, acc, db=None):
+                 end_ref, acc, depth=None, db=None):
         self.name = name
         self.identity = float(identity)
         if(match_length == "NA"):
@@ -23,6 +23,7 @@ class DBHit(object):
         self.start_ref = int(start_ref)
         self.end_ref = int(end_ref)
         self.acc = acc
+        self.depth = depth
         self.db = db
 
         if(self.match_length is not None

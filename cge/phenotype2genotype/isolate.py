@@ -171,6 +171,7 @@ class Isolate(dict):
                     start_ref=gene_info["ref_start_pos"],
                     end_ref=gene_info["ref_end_pos"],
                     acc=gene_info["ref_acc"],
+                    depth=gene_info.get("depth", None),
                     db="resfinder")
 
         query_start = gene_info.get("query_start_pos", None)
