@@ -102,6 +102,10 @@ class Isolate(dict):
     def load_finder_results(self, std_table, phenodb, type):
         for key, feat_info in std_table[type].items():
 
+            if(type == "genes"
+               and re.search("PointFinder", feat_info["ref_database"])):
+               continue
+
             unique_id = Isolate.get_phenodb_id(feat_info, type)
 
             phenotypes = phenodb.get(unique_id, None)
