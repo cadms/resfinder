@@ -20,7 +20,7 @@ ResFinder uses:
 
 ```bash
 # Clone repository
-$ git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git --recursive
+$ git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git -b kubernetes --recursive
 $ cd resfinder
 
 # Chagne ownershipt on results directory - docker volume trick!
