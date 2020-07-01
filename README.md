@@ -61,12 +61,12 @@ optional arguments:
 
 ```bash
 # One time run
-$ docker run --rm genomicepidemiology/resfinder:v3 resfinder -i /app/tests/test.fsa -mp /bin/blastn -t 0.90 -l 0.60 -p /app/db -o /app/results -d aminoglycoside,beta-lactam
+$ docker run --rm genomicepidemiology/resfinder:v3 resfinder -i /app/tests/test.fsa -mp /bin/kma -t 0.90 -l 0.60 -p /app/db -o /app/results -d aminoglycoside,beta-lactam
 
 # Multiple time run
 $ docker-compose up -d
 $ docker exec -it resfinder bash
-$ resfinder -i /app/tests/test.fsa -p /app/db -mp /bin/blastn -t 0.90 -l 0.60 -o /app/results -x
+$ resfinder -i /app/tests/test.fsa -p /app/db -mp /bin/kma -t 0.90 -l 0.60 -o /app/results -x
 ```
 
 # Web
