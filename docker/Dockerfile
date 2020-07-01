@@ -50,6 +50,9 @@ COPY requirements.txt requirements.txt
 COPY --from=kma-builder /app/kma /bin
 COPY --from=blast-builder /app/blastn /bin
 
+# Index databases
+RUN for file in /app/db/*.fsa; do kma index -i $file -o ${file%.fsa} -NI; done
+
 RUN pip3 install -r requirements.txt
 RUN ln -s /app/src/resfinder.py /bin/resfinder
 RUN chown -R exec:exec /app

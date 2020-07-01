@@ -24,7 +24,7 @@ $ git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git -b kuber
 $ cd resfinder
 
 # Chagne ownershipt on results directory - docker volume trick!
-$ sudo chown 9999:9999 results
+$ sudo chown 999:999 results
 
 # Build docker image with docker-compose or manualy
 $ docker-compose build

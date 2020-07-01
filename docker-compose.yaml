@@ -9,6 +9,7 @@ services:
     container_name: resfinder
     hostname: app
     volumes:
+      - ./data:/app/data
       - ./results:/app/results
     environment:
       - PYTHONUNBUFFERED=True
