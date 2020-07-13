@@ -41,16 +41,19 @@ cd resfinder_db
 ### Installing dependencies (for python script):
 
 The BlastAll and FormatDB that the perl script uses are no longer available
-for downloading through ncbi. Therefor we have provided the resfinder.py
-scriot that uses Blastn instead. Note, the python script is the one running
+for downloading through ncbi. Therefore, we have provided the resfinder.py
+script that uses Blastn instead. Note, the python script is not the one running
 in the server.
 **Warning:** Due to bugs in the BioPython 1.74, do not use this version if
 not using Python 3.7.
 
 
-#### Download Blastn and BioPython
+#### Download Blastn, kma and BioPython
 ```url
 http://biopython.org/DIST/docs/install/Installation.html
+```
+```url
+https://bitbucket.org/genomicepidemiology/kma/src/master/
 ```
 ```url
 ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
@@ -68,7 +71,8 @@ docker build -t resfinder .
 
 ## Usage
 
-You can run resfinder command line using python3
+You can run resfinder command line using python3. Note that you should provide the path to blastn when inputting 
+fasta files - and to kma when inputting fastq files.
 
 ```bash
 
