@@ -105,7 +105,7 @@ species_transl = {"c. jejuni": "campylobacter jejuni",
 # PARSE COMMAND LINE OPTIONS
 ##########################################################################
 
-parser = ArgumentParser()
+parser = ArgumentParser(allow_abbrev=False)
 
 # General options
 parser.add_argument("-ifa", "--inputfasta",

@@ -12,8 +12,8 @@ sequenced isolates of bacteria.
 5. dockerfile       - Used to build ResFinder docker image (See Docker section near the end)
 
 ## Installation
-The installation described here will first install the actual ResFinder software, 
-then the dependencies, and finally the databases. A more detailed breakdown of the 
+The installation described here will first install the actual ResFinder software,
+then the dependencies, and finally the databases. A more detailed breakdown of the
 installation is provided below:
 
 1. Install ResFinder tool
@@ -27,8 +27,8 @@ installation is provided below:
 
 A small script has been written to automate this process. It is available from the
 scripts directory and is named install_resfinder.sh. It is very simple and might
-not work in all environments. It is only meant as a supplement and no support will 
-be provided for any scripts in this directory. However, specific suggestions (with code) 
+not work in all environments. It is only meant as a supplement and no support will
+be provided for any scripts in this directory. However, specific suggestions (with code)
 for improvement is very welcome.
 
 ### ResFinder tool
@@ -48,16 +48,17 @@ Depending on how you plan to run ResFinder BLAST and KMA can be optional.
 BLAST is used to analyse assemblies (ie. FASTA files).
 KMA is used to analyse read data (ie. FASTQ files).
 
-#### Python modules: Tabulate, BioPython, and CGECore
+#### Python modules: Tabulate, BioPython, CGECore and Python-Git
 To install the needed python modules you can use pip
 ```bash
-pip3 install tabulate biopython cgecore
+pip3 install tabulate biopython cgecore gitpython
 ```
 For more information visit the respective website
 ```url
 https://bitbucket.org/astanin/python-tabulate
 https://biopython.org
 https://bitbucket.org/genomicepidemiology/cge_core_module
+https://gitpython.readthedocs.io/en/stable/index.html
 ```
 
 #### BLAST (optional)
@@ -70,8 +71,8 @@ ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/
 ```
 
 #### KMA (optional)
-The instructions here will install KMA in the default location ResFinder uses. KMA 
-can be installed in another location but the path to KMA will then need to be 
+The instructions here will install KMA in the default location ResFinder uses. KMA
+can be installed in another location but the path to KMA will then need to be
 specified every time you run ResFinder unless you add the kma program to your PATH.
 ```bash
 # Go to the directoy in which you installed the ResFinder tool
@@ -82,7 +83,7 @@ cd kma && make
 ```
 
 ### Databases
-This section describes how to install the databases at the ResFinder default locations. 
+This section describes how to install the databases at the ResFinder default locations.
 The database locations can be changed, but must then be specified to ResFinder at run time.
 
 #### ResFinder database
@@ -185,8 +186,29 @@ The 4 tests will in total take approximately take 5-60 seconds, depending on you
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
 
+# For seeing the unittest options for running the tests
+python3 tests/functional_tests.py -h
+
+# In case you need to point blastn or kma, or the resfinder or the pointfinder databases as they are not in the places indicated above, see the optional arguments for the test by:
+python3 tests/functional_tests.py -res_help
+
+#Which outputs:
+usage: functional_tests.py [-res_help] [-db_res DB_PATH_RES] [-b BLAST_PATH]
+                           [-k KMA_PATH] [-db_point DB_PATH_POINT]
+
+Options:
+  -res_help, --resfinder_help
+  -db_res DB_PATH_RES, --db_path_res DB_PATH_RES
+                        Path to the databases for ResFinder
+  -b BLAST_PATH, --blastPath BLAST_PATH
+                        Path to blastn
+  -k KMA_PATH, --kmaPath KMA_PATH
+                        Path to KMA
+  -db_point DB_PATH_POINT, --db_path_point DB_PATH_POINT
+                        Path to the databases for PointFinder
+
 # Run tests
-python3 tests/functional_test.py
+python3 tests/functional_tests.py
 
 # Output from successful tests
 ....
@@ -199,7 +221,7 @@ OK
 ### Test data
 Test data can be found in the sub-dierectory /tests/data
 
-## Usage 
+## Usage
 
 You can run resfinder command line using python3.
 
@@ -212,7 +234,7 @@ You can run resfinder command line using python3.
 # Example of running resfinder
 python3 run_resfinder.py -o path/to/outdir -s "Escherichia coli" -l 0.6 -t 0.8 --acquired --point -ifq test_isolate_01_*
 
-# The program can be invoked with the -h option 
+# The program can be invoked with the -h option
 usage: run_resfinder.py [-h] [-ifa INPUTFASTA]
                         [-ifq INPUTFASTQ [INPUTFASTQ ...]] [-scripts SCRIPTS]
                         [-o OUT_PATH] [-b BLAST_PATH] [-k KMA_PATH]
@@ -264,7 +286,7 @@ optional arguments:
 
 ### Web-server
 
-A webserver implementing the methods is available at the [CGE 
+A webserver implementing the methods is available at the [CGE
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 

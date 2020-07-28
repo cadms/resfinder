@@ -4,6 +4,7 @@ from subprocess import PIPE, run
 import os
 import shutil
 import sys
+import argparse
 
 
 # This is not best practice but for testing, this is the best I could
@@ -11,8 +12,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # TODO: Species specific aqquired genes only pheno results, not spec specific?
-# TODO: Ability to run test on databases not in default locations.
-
 
 test_names = ["test1", "test2", "test3", "test4"]
 test_data = {
@@ -29,20 +28,40 @@ working_dir = os.path.dirname(os.path.realpath(__file__))
 
 class ResFinderRunTest(unittest.TestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Delete "running_test" folder from previous tests if still exists
+        if os.path.isdir(run_test_dir):
+            try:
+                shutil.rmtree(run_test_dir)
+            # The following error has occured using VirtualBox under Windows 10
+            # with ResFinder installed in a shared folder:
+            #   OSError [Errno: 26] Text file busy: 'tmp'
+            except OSError:
+                procs = run(["rm", "-r", run_test_dir])
+
+        # Set absolute path for database folders and external programs
+        cls.db_path_res = os.path.abspath(args.db_path_res)
+        cls.blastPath = os.path.abspath(args.blast_path)
+        cls.kmaPath = os.path.abspath(args.kma_path)
+        cls.db_path_point = os.path.abspath(args.db_path_point)
+        cls.dir_res = os.path.join(os.path.dirname(__file__), '../', )
+        cls.dir_res = os.path.abspath(cls.dir_res)
         # Change working dir to test dir
         os.chdir(working_dir)
         # Does not allow running two tests in parallel
         os.makedirs(run_test_dir, exist_ok=False)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         try:
             shutil.rmtree(run_test_dir)
         # The following error has occured using VirtualBox under Windows 10
         # with ResFinder installed in a shared folder:
         #   OSError [Errno: 26] Text file busy: 'tmp'
         except OSError:
-            run(["rm", "-r", run_test_dir])
+            procs = run(["rm", "-r", run_test_dir])
+
 
     def test_on_data_with_just_acquired_resgene_using_blast(self):
         # Maria has an E. coli isolate, with unknown resistance.
@@ -58,20 +77,19 @@ class ResFinderRunTest(unittest.TestCase):
 
         # Maria goes on to run ResFinder for acquired genes with her E. coli
         # isolate.
-
         # First she creates a few directories to store her output.
         test1_dir = run_test_dir + "/" + test_names[0]
         os.makedirs(test1_dir)
-
         # Then she runs run_resfinder with her first isolate.
-        cmd_acquired = ("python3 ../run_resfinder.py"
+        cmd_acquired = ("python3  " + self.dir_res + "/run_resfinder.py"
                         + " -ifa " + test_data[test_names[0]]
                         + " -o " + test1_dir
                         + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --db_path_res ../db_resfinder")
+                        + " --db_path_res " + self.db_path_res
+                        + " --blastPath " + self.blastPath)
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -121,15 +139,15 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(test2_dir, exist_ok=False)
 
         # Then she runs run_resfinder with her first isolate.
-        cmd_acquired = ("python3 ../run_resfinder.py"
+        cmd_acquired = ("python3 " + self.dir_res + "/run_resfinder.py"
                         + " -ifq " + test_data[test_names[1]]
                         + " -o " + test2_dir
                         + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " -t 0.8"
                         + " --acquired"
-                        + " --db_path_res ../db_resfinder"
-                        + " --kmaPath ../cge/kma/kma")
+                        + " --db_path_res " + self.db_path_res
+                        + " --kmaPath " + self.kmaPath)
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -178,14 +196,15 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(test3_dir)
 
         # Then she runs run_resfinder with her first isolate.
-        cmd_point = ("python3 ../run_resfinder.py"
+        cmd_point = ("python3 " + self.dir_res + "/run_resfinder.py"
                      + " -ifa " + test_data[test_names[2]]
                      + " -o " + test3_dir
                      + " -s 'Escherichia coli'"
                      + " --min_cov 0.6"
                      + " --threshold 0.8"
                      + " --point"
-                     + " --db_path_point ../db_pointfinder")
+                     + " --db_path_point " + self.db_path_point
+                     + " --blastPath " + self.blastPath)
 
         procs = run(cmd_point, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -220,15 +239,15 @@ class ResFinderRunTest(unittest.TestCase):
         os.makedirs(test4_dir, exist_ok=False)
 
         # Then she runs run_resfinder with her first isolate.
-        cmd_acquired = ("python3 ../run_resfinder.py"
+        cmd_acquired = ("python3 " + self.dir_res + "/run_resfinder.py"
                         + " -ifq " + test_data[test_names[3]]
                         + " -o " + test4_dir
                         + " -s 'Escherichia coli'"
                         + " --min_cov 0.6"
                         + " --threshold 0.8"
                         + " --point"
-                        + " --db_path_point ../db_pointfinder"
-                        + " --kmaPath ../cge/kma/kma")
+                        + " --db_path_point " + self.db_path_point
+                        + " --kmaPath " + self.kmaPath)
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
@@ -254,5 +273,29 @@ class ResFinderRunTest(unittest.TestCase):
         self.assertEqual(point_mut_found, True)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    group = parser.add_argument_group("Options")
+    group.add_argument('-res_help', "--resfinder_help",
+                        action="help")
+    group.add_argument("-db_res", "--db_path_res",
+                       help="Path to the databases for ResFinder",
+                       default="./db_resfinder")
+    group.add_argument("-b", "--blastPath",
+                       dest="blast_path",
+                       help="Path to blastn",
+                       default="./cge/blastn")
+    group.add_argument("-k", "--kmaPath",
+                       dest="kma_path",
+                       help="Path to KMA",
+                       default="./cge/kma/kma")
+    group.add_argument("-db_point", "--db_path_point",
+                       help="Path to the databases for PointFinder",
+                       default="./db_pointfinder")
+    ns, args = parser.parse_known_args(namespace=unittest)
+    return ns, sys.argv[:1] + args
+
 if __name__ == "__main__":
+    args, argv = parse_args()   # run this first
+    sys.argv[:] = argv       # create cleans argv for main()
     unittest.main()
