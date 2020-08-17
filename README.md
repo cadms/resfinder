@@ -259,10 +259,6 @@ optional arguments:
                         Path to kma
   -s SPECIES, --species SPECIES
                         Species in the sample
-  -l MIN_COV, --min_cov MIN_COV
-                        Minimum (breadth-of) coverage
-  -t THRESHOLD, --threshold THRESHOLD
-                        Threshold for identity
   -db_res DB_PATH_RES, --db_path_res DB_PATH_RES
                         Path to the databases for ResFinder
   -db_res_kma DB_PATH_RES_KMA, --db_path_res_kma DB_PATH_RES_KMA
@@ -273,6 +269,10 @@ optional arguments:
                         Databases chosen to search in - if none is specified
                         all is used
   -acq, --acquired      Run resfinder for acquired resistance genes
+	-l MIN_COV, --min_cov MIN_COV
+	                      Minimum (breadth-of) coverage of ResFinder
+  -t THRESHOLD, --threshold THRESHOLD
+											  Threshold for identity of ResFinder
   -c, --point           Run pointfinder for chromosomal mutations
   -db_point DB_PATH_POINT, --db_path_point DB_PATH_POINT
                         Path to the databases for PointFinder
@@ -282,6 +282,14 @@ optional arguments:
                         search.
   -u, --unknown_mut     Show all mutations found even if in unknown to the
                         resistance database
+	-l_p MIN_COV_POINT, --min_cov_point MIN_COV_POINT
+	                      Minimum (breadth-of) coverage of Pointfinder. If None
+	                      is selected, the minimum coverage of ResFinder will be
+	                      used.
+	-t_p THRESHOLD_POINT, --threshold_point THRESHOLD_POINT
+											  Threshold for identity of Pointfinder. If None is
+											  selected, the minimum coverage of ResFinder will be
+											  used.
 ```
 
 ### Web-server
@@ -332,9 +340,9 @@ Citation
 When using the method please cite:
 
 ResFinder 4.0 for predictions of phenotypes from genotypes.  
-Bortolaia V, Kaas RF, Ruppe E, Roberts MC, Schwarz S, Cattoir V, Philippon A, Allesoe RL, Rebelo AR, Florensa AR, Fagelhauer L, 
-Chakraborty T, Neumann B, Werner G, Bender JK, Stingl K, Nguyen M, Coppens J, Xavier BB, Malhotra-Kumar S, Westh H, Pinholt M, 
-Anjum MF, Duggett NA, Kempf I, NykŠsenoja S, Olkkola S, Wieczorek K, Amaro A, Clemente L, Mossong J, Losch S, Ragimbeau C, Lund O, Aarestrup FM.
+Bortolaia V, Kaas RF, Ruppe E, Roberts MC, Schwarz S, Cattoir V, Philippon A, Allesoe RL, Rebelo AR, Florensa AR, Fagelhauer L,
+Chakraborty T, Neumann B, Werner G, Bender JK, Stingl K, Nguyen M, Coppens J, Xavier BB, Malhotra-Kumar S, Westh H, Pinholt M,
+Anjum MF, Duggett NA, Kempf I, Nykï¿½senoja S, Olkkola S, Wieczorek K, Amaro A, Clemente L, Mossong J, Losch S, Ragimbeau C, Lund O, Aarestrup FM.
 Journal of Antimicrobial Chemotherapy. 2020 Aug 11.  
 PMID: 32780112			doi: 10.1093/jac/dkaa345  
 [Epub ahead of print]  
@@ -342,8 +350,8 @@ PMID: 32780112			doi: 10.1093/jac/dkaa345
 References
 =======
 
-1. Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, Madden TL. BLAST+: architecture and applications. BMC Bioinformatics 2009; 10:421. 
-2. Clausen PTLC, Aarestrup FM, Lund O. Rapid and precise alignment of raw reads against redundant databases with KMA. BMC Bioinformatics 2018; 19:307. 
+1. Camacho C, Coulouris G, Avagyan V, Ma N, Papadopoulos J, Bealer K, Madden TL. BLAST+: architecture and applications. BMC Bioinformatics 2009; 10:421.
+2. Clausen PTLC, Aarestrup FM, Lund O. Rapid and precise alignment of raw reads against redundant databases with KMA. BMC Bioinformatics 2018; 19:307.
 
 License
 =======

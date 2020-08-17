@@ -133,16 +133,6 @@ parser.add_argument("-k", "--kmaPath",
 parser.add_argument("-s", "--species",
                     help="Species in the sample",
                     default=None)
-parser.add_argument("-l", "--min_cov",
-                    dest="min_cov",
-                    help="Minimum (breadth-of) coverage",
-                    type=float,
-                    default=0.60)
-parser.add_argument("-t", "--threshold",
-                    dest="threshold",
-                    help="Threshold for identity",
-                    type=float,
-                    default=0.80)
 
 # Acquired resistance options
 parser.add_argument("-db_res", "--db_path_res",
@@ -168,7 +158,16 @@ parser.add_argument("-ao", "--acq_overlap",
                           nucleotides. Default: 30.",
                     type=int,
                     default=30)
-
+parser.add_argument("-l", "--min_cov",
+                    dest="min_cov",
+                    help="Minimum (breadth-of) coverage of ResFinder",
+                    type=float,
+                    default=0.60)
+parser.add_argument("-t", "--threshold",
+                    dest="threshold",
+                    help="Threshold for identity of ResFinder",
+                    type=float,
+                    default=0.80)
 # Point resistance option
 parser.add_argument("-c", "--point",
                     action="store_true",
@@ -191,7 +190,20 @@ parser.add_argument("-u", "--unknown_mut",
                     help="Show all mutations found even if in unknown to the\
                           resistance database",
                     default=False)
-
+parser.add_argument("-l_p", "--min_cov_point",
+                    dest="min_cov_point",
+                    help="Minimum (breadth-of) coverage of Pointfinder. \
+                          If None is selected, the minimum coverage of \
+                          ResFinder will be used.",
+                    type=float,
+                    default=None)
+parser.add_argument("-t_p", "--threshold_point",
+                    dest="threshold_point",
+                    help="Threshold for identity of Pointfinder. \
+                          If None is selected, the minimum coverage of \
+                          ResFinder will be used.",
+                    type=float,
+                    default=None)
 # Temporary option only available temporary
 parser.add_argument("--pickle",
                     action="store_true",
@@ -456,14 +468,24 @@ if args.point is True and args.species:
         out_point = os.path.abspath(args.out_path + "/pointfinder_kma")
         os.makedirs(out_point, exist_ok=True)
 
+    if args.min_cov_point is None:
+        min_cov_point = args.min_cov
+    else:
+        min_cov_point = args.min_cov_point
+
+    if args.threshold_point is None:
+        threshold_point = args.threhsold
+    else:
+        threshold_point = args.threhsold_point
+
     finder = PointFinder(db_path=db_path_point, species=point_species,
                          gene_list=args.specific_gene)
 
     if(args.inputfasta):
         blast_run = finder.blast(inputfile=args.inputfasta,
                                  out_path=out_point,
-                                 min_cov=args.min_cov,
-                                 threshold=args.threshold,
+                                 min_cov=min_cov_point,
+                                 threshold=threshold_point,
                                  blast=blast,
                                  cut_off=False)
         results = blast_run.results
@@ -477,8 +499,8 @@ if args.point is True and args.species:
                              out_path=out_point,
                              db_path_kma=db_path_point,
                              databases=[point_species],
-                             min_cov=args.min_cov,
-                             threshold=args.threshold,
+                             min_cov=min_cov_point,
+                             threshold=threshold_point,
                              kma_path=kma,
                              sample_name="",
                              kma_cge=True,
@@ -511,7 +533,7 @@ if args.point is True and args.species:
     # use std_result
     finder.write_results(out_path=args.out_path, result=results,
                          res_type=method, unknown_flag=args.unknown_mutations,
-                         min_cov=min_cov)
+                         min_cov=min_cov_point)
 
 #DEBUG
 #    print("POINT RES:\n{}".format(json.dumps(results_pnt)))
