@@ -474,9 +474,9 @@ if args.point is True and args.species:
         min_cov_point = args.min_cov_point
 
     if args.threshold_point is None:
-        threshold_point = args.threhsold
+        threshold_point = args.threshold
     else:
-        threshold_point = args.threhsold_point
+        threshold_point = args.threshold_point
 
     finder = PointFinder(db_path=db_path_point, species=point_species,
                          gene_list=args.specific_gene)
