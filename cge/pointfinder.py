@@ -103,13 +103,16 @@ class PointFinder(CGEFinder):
             "insertion",
             "deletion"
         ]
-
         for db_name, db in result.items():
             if(db_name == "excluded"):
                 continue
 
             if(db == "No hit found"):
                 continue
+
+            if(isinstance(db, str)):
+                if db.startswith("Gene found with coverage"):
+                    continue
 
             # Start writing output string (to HTML tab file)
             gene_name = PhenoDB.if_promoter_rename(db_name)

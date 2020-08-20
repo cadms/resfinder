@@ -318,6 +318,10 @@ class PointFinderResultHandler():
             if(db == "No hit found"):
                 continue
 
+            if(isinstance(db, str)):
+                if db.startswith("Gene found with coverage"):
+                    continue
+
             gene_results = []
 
             # For BLAST results
