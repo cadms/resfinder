@@ -318,6 +318,7 @@ class PointFinderResultHandler():
             if(db == "No hit found"):
                 continue
 
+            ###Added to solve current PointFinder
             if(isinstance(db, str)):
                 if db.startswith("Gene found with coverage"):
                     continue

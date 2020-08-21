@@ -110,9 +110,11 @@ class PointFinder(CGEFinder):
             if(db == "No hit found"):
                 continue
 
+            ####Added to solve PointFinder####
             if(isinstance(db, str)):
                 if db.startswith("Gene found with coverage"):
                     continue
+            ####
 
             # Start writing output string (to HTML tab file)
             gene_name = PhenoDB.if_promoter_rename(db_name)
@@ -218,6 +220,8 @@ class PointFinder(CGEFinder):
             GENES['excluded'] = results['excluded']
 
         for gene, hit in GENES.items():
+
+            print(gene,hit)
 
             # Start writing output string (to HTML tab file)
             gene_name = gene  # Not perfeft can differ from specific mutation

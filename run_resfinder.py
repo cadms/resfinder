@@ -484,7 +484,8 @@ if args.point is True and args.species:
     if(args.inputfasta):
         blast_run = finder.blast(inputfile=args.inputfasta,
                                  out_path=out_point,
-                                 min_cov=min_cov_point,
+                        #         min_cov=min_cov_point,
+                                 min_cov=0.01,
                                  threshold=threshold_point,
                                  blast=blast,
                                  cut_off=False)
@@ -499,7 +500,8 @@ if args.point is True and args.species:
                              out_path=out_point,
                              db_path_kma=db_path_point,
                              databases=[point_species],
-                             min_cov=min_cov_point,
+                             min_cov=0.01,
+                        #    min_cov=min_cov_point,
                              threshold=threshold_point,
                              kma_path=kma,
                              sample_name="",
