@@ -166,7 +166,9 @@ class Mutation(Gene):
                     "p.{ref}{pos}_{ref_right}{end}del"
                     .format(pos=self.pos, end=self.end,
                             ref=self.ref_aa.upper(),
-                            ref_right=self.ref_aa_right.upper()))
+#                            ref_right=self.ref_aa_right.upper()))
+                            ref_right=self.ref_aa_right))
+
             # Single deletion
             else:
                 self.mut_string_short = (
