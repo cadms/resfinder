@@ -181,12 +181,12 @@ class PointFinder(CGEFinder):
 
     def results_to_str(self, res_type, results, unknown_flag, min_cov):
         # Initiate output stings with headers
+        gene_list = ', '.join(self.gene_list)
         output_strings = [
             "Mutation\tNucleotide change\tAmino acid change\tResistance\tPMID",
-            "Chromosomal point mutations - Results\nSpecies: %s\nMapping "
-            "methode: %s\n\n\nKnown Mutations\n" % (self.species, res_type), ""
+            "Chromosomal point mutations - Results\nSpecies: %s\nGenes: %s\n"
+            "Mapping methode: %s\n\n\nKnown Mutations\n" % (self.species, gene_list, res_type), ""
         ]
-
         # Get all drug names and add header of all drugs to prediction file
         drug_lst = [drug for drug in self.drug_genes.keys()]
         output_strings[2] = "Sample ID\t" + "\t".join(drug_lst) + "\n"
