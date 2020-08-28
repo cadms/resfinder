@@ -110,7 +110,7 @@ you need to provide the path to kma_index to INSTALL.py
 ##### a) Run INSTALL.py in interactive mode
 ```bash
 # Go to the database directory
-cd path/to/resfinder_db
+cd path/to/db_resfinder
 python3 INSTALL.py
 ```
 If kma_index was found in your path a lot of indexing information will be
