@@ -204,6 +204,7 @@ class ResFinderRunTest(unittest.TestCase):
                      + " --threshold 0.8"
                      + " --point"
                      + " --db_path_point " + self.db_path_point
+                     + " --db_path_res " + self.db_path_res
                      + " --blastPath " + self.blastPath)
 
         procs = run(cmd_point, shell=True, stdout=PIPE, stderr=PIPE,
@@ -247,6 +248,7 @@ class ResFinderRunTest(unittest.TestCase):
                         + " --threshold 0.8"
                         + " --point"
                         + " --db_path_point " + self.db_path_point
+                        + " --db_path_res " + self.db_path_res
                         + " --kmaPath " + self.kmaPath)
 
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
