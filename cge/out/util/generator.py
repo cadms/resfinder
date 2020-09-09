@@ -27,7 +27,10 @@ class Generator():
 
     @staticmethod
     def get_version_commit(gitdir):
-        repo = Repo(gitdir)
+        try:
+            repo = Repo(gitdir)
+        except:
+            return ("unknown", "unknown")
 
         com2tag = {}
         for tag in repo.tags:
