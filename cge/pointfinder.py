@@ -179,7 +179,8 @@ class PointFinder(CGEFinder):
                 out_lst.append(entry.name)
         return tuple(out_lst)
 
-    def results_to_str(self, res_type, results, unknown_flag, min_cov):
+    def results_to_str(self, res_type, results, unknown_flag, min_cov,
+                       perc_iden):
         # Initiate output stings with headers
         gene_list = ', '.join(self.gene_list)
         output_strings = [
@@ -195,6 +196,8 @@ class PointFinder(CGEFinder):
         total_unknown_str = ""
         unique_drug_list = []
         excluded_hits = {}
+        min_cov = min_cov*100
+        perc_iden = perc_iden*100
 
         if res_type == PointFinder.TYPE_BLAST:
             # Patch together partial sequence hits (BLASTER does not do this)
@@ -220,9 +223,6 @@ class PointFinder(CGEFinder):
             GENES['excluded'] = results['excluded']
 
         for gene, hit in GENES.items():
-
-            print(gene,hit)
-
             # Start writing output string (to HTML tab file)
             gene_name = gene  # Not perfeft can differ from specific mutation
             regex = r"promoter_size_(\d+)(?:bp)"
@@ -240,6 +240,30 @@ class PointFinder(CGEFinder):
 
             # Write exclusion reason for genes not found
             if isinstance(GENES[gene], str):
+                output_strings[1] += GENES[gene] + "\n"
+                continue
+
+            if hit['perc_ident'] < perc_iden and hit['perc_coverage'] < min_cov:
+                GENES[gene] = ('Gene found with identity, %s, below minimum '
+                               'identity threshold: %s. And with coverage, %s,'
+                               ' below minimum coverage threshold: %s.'
+                                % (hit['perc_ident'], perc_iden,
+                                   hit['perc_coverage'], min_cov))
+                output_strings[1] += GENES[gene] + "\n"
+                continue
+
+            if hit['perc_ident'] < perc_iden:
+                GENES[gene] = ('Gene found with identity, %s, below minimum '
+                               'identity threshold: %s' % (hit['perc_ident'],
+                                                                   perc_iden))
+                output_strings[1] += GENES[gene] + "\n"
+                continue
+
+            if hit['perc_coverage'] < min_cov:
+                # Gene not found above given coverage
+                GENES[gene] = ('Gene found with coverage, %s, below minimum '
+                               'coverage threshold: %s' % (hit['perc_coverage'],
+                                                                   min_cov))
                 output_strings[1] += GENES[gene] + "\n"
                 continue
 
@@ -310,14 +334,16 @@ class PointFinder(CGEFinder):
 
         return output_strings
 
-    def write_results(self, out_path, result, res_type, unknown_flag, min_cov):
+    def write_results(self, out_path, result, res_type, unknown_flag, min_cov,
+                      perc_iden):
        """
        """
 
        result_str = self.results_to_str(res_type=res_type,
                                         results=result,
                                         unknown_flag=unknown_flag,
-                                        min_cov=min_cov)
+                                        min_cov=min_cov,
+                                        perc_iden=perc_iden)
 
        with open(out_path + "/PointFinder_results.txt", "w") as fh:
           fh.write(result_str[0])
@@ -637,7 +663,6 @@ class PointFinder(CGEFinder):
                     else:
                         not_equal += 1
             identity = equal / float(equal + not_equal)
-
             if coverage >= min_cov:
                 GENES[gene]['perc_coverage'] = coverage
                 GENES[gene]['perc_ident'] = identity
@@ -1859,7 +1884,6 @@ if __name__ == '__main__':
 
         if(len(args.inputfiles) == 2):
             inputfile_2 = args.inputfiles[1]
-
         finder_run = finder.kma(inputfile_1=inputfile_1,
                              inputfile_2=inputfile_2,
                              out_path=args.out_path,

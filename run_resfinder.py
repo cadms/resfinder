@@ -535,7 +535,7 @@ if args.point is True and args.species:
     # use std_result
     finder.write_results(out_path=args.out_path, result=results,
                          res_type=method, unknown_flag=args.unknown_mutations,
-                         min_cov=min_cov_point)
+                         min_cov=min_cov_point, perc_iden=threshold_point)
 
 #DEBUG
 #    print("POINT RES:\n{}".format(json.dumps(results_pnt)))

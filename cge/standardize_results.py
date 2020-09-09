@@ -319,9 +319,12 @@ class PointFinderResultHandler():
                 continue
 
             ###Added to solve current PointFinder
+            if gene_name in res["excluded"]:
+                continue
             if(isinstance(db, str)):
                 if db.startswith("Gene found with coverage"):
                     continue
+            #####               #####
 
             gene_results = []
 
