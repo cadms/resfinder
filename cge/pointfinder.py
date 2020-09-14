@@ -196,8 +196,6 @@ class PointFinder(CGEFinder):
         total_unknown_str = ""
         unique_drug_list = []
         excluded_hits = {}
-        min_cov = min_cov*100
-        perc_iden = perc_iden*100
 
         if res_type == PointFinder.TYPE_BLAST:
             # Patch together partial sequence hits (BLASTER does not do this)
