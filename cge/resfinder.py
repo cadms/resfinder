@@ -117,7 +117,7 @@ class ResFinder(CGEFinder):
 
         return std_results
 
-    def write_results(self, out_path, result, res_type):
+    def write_results(self, out_path, result, res_type, software="ResFinder"):
         """
         """
         if(res_type == ResFinder.TYPE_BLAST):
@@ -130,15 +130,15 @@ class ResFinder(CGEFinder):
             result_str = self.results_to_str(res_type=res_type,
                                              results=result)
 
-        with open(out_path + "/results_tab.txt", "w") as fh:
+        with open(out_path + "/{}_results_tab.txt".format(software), "w") as fh:
             fh.write(result_str[0])
-        with open(out_path + "/results_table.txt", "w") as fh:
+        with open(out_path + "/{}_results_table.txt".format(software), "w") as fh:
             fh.write(result_str[1])
-        with open(out_path + "/results.txt", "w") as fh:
+        with open(out_path + "/{}_results.txt".format(software), "w") as fh:
             fh.write(result_str[2])
-        with open(out_path + "/Resistance_gene_seq.fsa", "w") as fh:
+        with open(out_path + "/{}_Resistance_gene_seq.fsa".format(software), "w") as fh:
             fh.write(result_str[3])
-        with open(out_path + "/Hit_in_genome_seq.fsa", "w") as fh:
+        with open(out_path + "/{}_Hit_in_genome_seq.fsa".format(software), "w") as fh:
             fh.write(result_str[4])
 
     def blast(self, inputfile, out_path, min_cov=0.9, threshold=0.6,

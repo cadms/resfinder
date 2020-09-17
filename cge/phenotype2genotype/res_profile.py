@@ -22,7 +22,8 @@ class PhenoDB(dict):
         The dict consists of Phenotype objects. The keys are unique ids.
     """
 
-    def __init__(self, abclassdef_file, acquired_file=None, point_file=None):
+    def __init__(self, abclassdef_file, acquired_file=None, point_file=None,
+                 disinf_file=None):
 
         # Stores non-redundant complete list of antibiotics in DB.
         self.antibiotics = {}
@@ -46,6 +47,9 @@ class PhenoDB(dict):
 
         if(point_file):
             self.load_point_db(point_file)
+
+        if(disinf_file):
+            self.load_acquired_db(disinf_file)
 
         self.unknown_pheno = Phenotype(unique_id="unknown",
                                        antibiotics=[],

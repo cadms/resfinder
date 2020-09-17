@@ -82,6 +82,9 @@ class GeneResult(dict):
                 GeneResult._split_sbjct_header(self["ref_id"]))
         elif(db_name == "PointFinder"):
             self["name"] = self["ref_id"]
+        elif(db_name == "DisinFinder"):
+            self["name"], self.variant, self["ref_acc"] = (
+                GeneResult._split_sbjct_header(self["ref_id"]))
 
         self["ref_start_pos"] = res["sbjct_start"]
         self["ref_end_pos"] = res["sbjct_end"]
@@ -139,7 +142,9 @@ class GeneResult(dict):
                         .format(deli=delimiter, var=self.variant, **self))
         if(self.db_name == "PointFinder"):
             gene_key = self["name"]
-
+        if(self.db_name == "DisinFinder"):
+            gene_key = ("{name}{deli}{var}{deli}{ref_acc}"
+                        .format(deli=delimiter, var=self.variant, **self))
         # Attach random string if key already exists
         minimum_gene_key = gene_key
         while(gene_key in res_collection["genes"]):
@@ -256,7 +261,6 @@ class ResFinderResultHandler():
             for unique_id, hit_db in db.items():
                 if(unique_id in res["excluded"]):
                     continue
-
                 gene_result = GeneResult(res_collection, hit_db, ref_db_name)
                 res_collection.add_class(cl="genes", **gene_result)
 

@@ -177,6 +177,11 @@ parser.add_argument("-c", "--point",
 parser.add_argument("-db_point", "--db_path_point",
                     help="Path to the databases for PointFinder",
                     default=None)
+parser.add_argument("-db_point_kma", "--db_path_point_kma",
+                    help="Path to the PointFinder databases indexed with KMA. \
+                          Defaults to the 'kma_indexing' directory inside the \
+                          given database directory.",
+                    default=None)
 parser.add_argument("-g",
                     dest="specific_gene",
                     nargs='+',
@@ -203,6 +208,20 @@ parser.add_argument("-t_p", "--threshold_point",
                           If None is selected, the minimum coverage of \
                           ResFinder will be used.",
                     type=float,
+                    default=None)
+# Disinfectant resistance option
+parser.add_argument("-disinf", "--disinfectant",
+                    action="store_true",
+                    dest="disinf",
+                    help="Run disinfectant resistance genes detection",
+                    default=False)
+parser.add_argument("-db_disinf", "--db_path_disinf",
+                    help="Path to the databases for DisinFinder",
+                    default=None)
+parser.add_argument("-db_disinf_kma", "--db_path_disinf_kma",
+                    help="Path to the DisinFinder databases indexed with KMA. \
+                          Defaults to the 'kma_indexing' directory inside the \
+                          given database directory.",
                     default=None)
 # Temporary option only available temporary
 parser.add_argument("--pickle",
@@ -270,6 +289,7 @@ else:
     kma = None
 
 db_path_point = None
+db_path_disinf = None
 if(args.species):
     args.species = args.species.lower()
 
@@ -315,10 +335,12 @@ if(args.species):
 args.out_path = os.path.abspath(args.out_path)
 os.makedirs(args.out_path, exist_ok=True)
 
-if args.acquired is False and args.point is False:
+if args.acquired is False and args.point is False and args.disinf is False:
     sys.exit("Please specify to look for acquired resistance genes, "
+             "acquired disinfectant genes,"
              "chromosomal mutaitons or both!\n")
 
+# Check ResFinder database
 if(args.db_path_res is None):
     args.db_path_res = (os.path.dirname(
         os.path.realpath(__file__)) + "/db_resfinder")
@@ -327,7 +349,6 @@ if(not os.path.exists(args.db_path_res)):
     sys.exit("Could not locate ResFinder database path: %s"
              % args.db_path_res)
 
-# Check ResFinder KMA database
 if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
     args.db_path_res_kma = args.db_path_res
     if(not os.path.exists(args.db_path_res_kma)):
@@ -347,7 +368,9 @@ if(args.acquired):
 if(args.point):
     DatabaseHandler.load_database_metadata("PointFinder", std_result,
                                            db_path_point_root)
-
+if(args.disinf):
+    DatabaseHandler.load_database_metadata("DisinFinder", std_result,
+                                           args.db_path_disinf)
 ##########################################################################
 # ResFinder
 ##########################################################################
@@ -546,6 +569,128 @@ if args.point is True and args.species:
 
 #DEBUG
 #    print("\n\nSTD RES:\n{}".format(json.dumps(std_result)))
+##########################################################################
+# DisinFinder
+##########################################################################
+
+if args.disinf is True:
+
+    if(args.db_path_disinf is None):
+        args.db_path_disinf = (os.path.dirname(
+            os.path.realpath(__file__)) + "/db_disinfinder")
+    args.db_path_disinf = os.path.abspath(args.db_path_disinf)
+    if(not os.path.exists(args.db_path_disinf)):
+        sys.exit("Could not locate DisinFinder database path: %s"
+                 % args.db_path_disinf)
+
+    if(args.db_path_disinf_kma is None and args.inputfastq):
+        args.db_path_disinf_kma = args.db_path_disinf
+        if(not os.path.exists(args.db_path_disinf_kma)):
+            sys.exit("Could not locate ResFinder database index path: %s"
+                     % args.db_path_disinf_kma)
+
+    threshold = float(args.threshold)
+
+    if(args.inputfasta):
+        out_disinf_blast = args.out_path + "/disinfinder_blast"
+        os.makedirs(out_disinf_blast, exist_ok=True)
+    if(args.inputfastq):
+        out_disinf_kma = args.out_path + "/disinfinder_kma"
+        os.makedirs(out_disinf_kma, exist_ok=True)
+
+    db_path_disinf = args.db_path_disinf
+
+    # Check if valid database is provided
+    if(db_path_disinf is None):
+        db_path_disinf = (os.path.dirname(os.path.realpath(__file__))
+                       + "/db_disinfinder")
+
+    if not os.path.exists(db_path_disinf):
+        sys.exit("Input Error: The specified disinfectant database directory "
+                 "does not exist!\nProvided path: " + str(db_path_disinf))
+    else:
+        # Check existence of config file
+        db_config_file = '%s/config' % (db_path_disinf)
+        if not os.path.exists(db_config_file):
+            sys.exit("Input Error: The disinfectant database config file could"
+                     " not be found!")
+
+    # Check existence of notes file
+    notes_path = "%s/notes.txt" % (db_path_disinf)
+    if not os.path.exists(notes_path):
+        sys.exit('Input Error: disinfectant notes.txt not found! (%s)' % (notes_path))
+
+    blast_results = None
+    kma_results = None
+
+    # Actually running ResFinder (for acquired resistance)
+    disinf_finder = ResFinder(db_conf_file=db_config_file,
+                              db_path=db_path_disinf,
+                              notes=notes_path,
+                              db_path_kma=args.db_path_disinf_kma)
+
+    if(args.inputfasta):
+        blast_results = disinf_finder.blast(inputfile=args.inputfasta,
+                                            out_path=out_disinf_blast,
+                                            min_cov=min_cov,
+                                            threshold=threshold,
+                                            blast=blast,
+                                            allowed_overlap=args.acq_overlap)
+
+        # DEPRECATED
+        # use std_result
+        new_std_res = ResFinder.old_results_to_standard_output(
+            blast_results.results, software="ResFinder", version="4.0.0",
+            run_date="fake_run_date", run_cmd="Fake run cmd",
+            id=sample_name)
+
+        # DEPRECATED
+        # use std_result
+        disinf_finder.write_results(out_path=args.out_path,
+                                      result=blast_results,
+                                      res_type=ResFinder.TYPE_BLAST,
+                                      software="DisinFinder")
+
+        ResFinderResultHandler.standardize_results(std_result,
+                                                   blast_results.results,
+                                                   "DisinFinder")
+#DEBUG
+#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
+
+    else:
+        kma_run = disinf_finder.kma(inputfile_1=inputfastq_1,
+                                      inputfile_2=inputfastq_2,
+                                      out_path=out_disinf_kma,
+                                      db_path_kma=args.db_path_disinf_kma,
+                                      databases=disinf_finder.databases,
+                                      min_cov=min_cov,
+                                      threshold=args.threshold,
+                                      kma_path=kma,
+                                      sample_name="",
+                                      kma_cge=True,
+                                      kma_apm="p",
+                                      kma_1t1=True)
+
+        # DEPRECATED
+        # use std_result
+        new_std_res = ResFinder.old_results_to_standard_output(
+            kma_run.results, software="ResFinder", version="4.0.0",
+            run_date="fake_run_date", run_cmd="Fake run cmd",
+            id=sample_name)
+
+        # DEPRECATED
+        # use std_result
+        disinf_finder.write_results(out_path=args.out_path,
+                                      result=kma_run.results,
+                                      res_type=ResFinder.TYPE_KMA,
+                                      software="DisinFinder")
+
+
+        ResFinderResultHandler.standardize_results(std_result,
+                                                   kma_run.results,
+                                                   "DisinFinder")
+#DEBUG
+#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 
 ##########################################################################
 # Phenotype to genotype
@@ -557,13 +702,19 @@ if(db_path_point):
 else:
     point_file = None
 
+if(db_path_disinf):
+    disinf_file = db_path_disinf + "/phenotypes.txt"
+else:
+    disinf_file = None
+
+
 res_pheno_db = PhenoDB(
     abclassdef_file=(args.db_path_res + "/antibiotic_classes.txt"),
-    acquired_file=args.db_path_res + "/phenotypes.txt", point_file=point_file)
+    acquired_file=args.db_path_res + "/phenotypes.txt", point_file=point_file,
+    disinf_file=disinf_file)
 
 # Isolate object store results
 isolate = Isolate(name=sample_name)
-
 if(args.acquired):
     isolate.load_finder_results(std_table=std_result,
                                 phenodb=res_pheno_db,
@@ -580,6 +731,15 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
+
+if(args.disinf):
+    isolate.load_finder_results(std_table=std_result,
+                                phenodb=res_pheno_db,
+                                type="genes")
+    # isolate.load_finder_results(std_table=std_result,
+    #                             phenodb=res_pheno_db)
+    # isolate.load_finder_results(std_table=new_std_res,
+    #                             phenodb=res_pheno_db)
 
 isolate.calc_res_profile(res_pheno_db)
 
