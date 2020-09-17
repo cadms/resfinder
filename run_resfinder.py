@@ -429,7 +429,7 @@ if args.acquired is True:
         # DEPRECATED
         # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
-            blast_results.results, software="ResFinder", version="4.0.0",
+            blast_results.results, software="ResFinder", version="4.1.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
@@ -462,7 +462,7 @@ if args.acquired is True:
         # DEPRECATED
         # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
-            kma_run.results, software="ResFinder", version="4.0.0",
+            kma_run.results, software="ResFinder", version="4.1.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
@@ -550,7 +550,7 @@ if args.point is True and args.species:
     # DEPRECATED
     # use std_result
     new_std_pnt = finder.old_results_to_standard_output(
-        result=results_pnt, software="ResFinder", version="4.0.0",
+        result=results_pnt, software="ResFinder", version="4.1.0",
         run_date="fake_run_date", run_cmd="Fake run cmd",
         id=sample_name)
 
@@ -640,7 +640,7 @@ if args.disinf is True:
         # DEPRECATED
         # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
-            blast_results.results, software="ResFinder", version="4.0.0",
+            blast_results.results, software="ResFinder", version="4.1.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
@@ -674,7 +674,7 @@ if args.disinf is True:
         # DEPRECATED
         # use std_result
         new_std_res = ResFinder.old_results_to_standard_output(
-            kma_run.results, software="ResFinder", version="4.0.0",
+            kma_run.results, software="ResFinder", version="4.1.0",
             run_date="fake_run_date", run_cmd="Fake run cmd",
             id=sample_name)
 
