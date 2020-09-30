@@ -572,7 +572,6 @@ if args.point is True and args.species:
 ##########################################################################
 # DisinFinder
 ##########################################################################
-
 if args.disinf is True:
 
     if(args.db_path_disinf is None):
@@ -603,7 +602,7 @@ if args.disinf is True:
     # Check if valid database is provided
     if(db_path_disinf is None):
         db_path_disinf = (os.path.dirname(os.path.realpath(__file__))
-                       + "/db_disinfinder")
+                          + "/db_disinfinder")
 
     if not os.path.exists(db_path_disinf):
         sys.exit("Input Error: The specified disinfectant database directory "
@@ -647,9 +646,9 @@ if args.disinf is True:
         # DEPRECATED
         # use std_result
         disinf_finder.write_results(out_path=args.out_path,
-                                      result=blast_results,
-                                      res_type=ResFinder.TYPE_BLAST,
-                                      software="DisinFinder")
+                                    result=blast_results,
+                                    res_type=ResFinder.TYPE_BLAST,
+                                    software="DisinFinder")
 
         ResFinderResultHandler.standardize_results(std_result,
                                                    blast_results.results,
@@ -659,17 +658,17 @@ if args.disinf is True:
 
     else:
         kma_run = disinf_finder.kma(inputfile_1=inputfastq_1,
-                                      inputfile_2=inputfastq_2,
-                                      out_path=out_disinf_kma,
-                                      db_path_kma=args.db_path_disinf_kma,
-                                      databases=disinf_finder.databases,
-                                      min_cov=min_cov,
-                                      threshold=args.threshold,
-                                      kma_path=kma,
-                                      sample_name="",
-                                      kma_cge=True,
-                                      kma_apm="p",
-                                      kma_1t1=True)
+                                    inputfile_2=inputfastq_2,
+                                    out_path=out_disinf_kma,
+                                    db_path_kma=args.db_path_disinf_kma,
+                                    databases=disinf_finder.databases,
+                                    min_cov=min_cov,
+                                    threshold=args.threshold,
+                                    kma_path=kma,
+                                    sample_name="",
+                                    kma_cge=True,
+                                    kma_apm="p",
+                                    kma_1t1=True)
 
         # DEPRECATED
         # use std_result
@@ -681,17 +680,15 @@ if args.disinf is True:
         # DEPRECATED
         # use std_result
         disinf_finder.write_results(out_path=args.out_path,
-                                      result=kma_run.results,
-                                      res_type=ResFinder.TYPE_KMA,
-                                      software="DisinFinder")
-
+                                    result=kma_run.results,
+                                    res_type=ResFinder.TYPE_KMA,
+                                    software="DisinFinder")
 
         ResFinderResultHandler.standardize_results(std_result,
                                                    kma_run.results,
                                                    "DisinFinder")
 #DEBUG
 #        print("STD RESULT:\n{}".format(json.dumps(std_result)))
-
 ##########################################################################
 # Phenotype to genotype
 ##########################################################################
@@ -707,12 +704,10 @@ if(db_path_disinf):
 else:
     disinf_file = None
 
-
 res_pheno_db = PhenoDB(
     abclassdef_file=(args.db_path_res + "/antibiotic_classes.txt"),
     acquired_file=args.db_path_res + "/phenotypes.txt", point_file=point_file,
     disinf_file=disinf_file)
-
 # Isolate object store results
 isolate = Isolate(name=sample_name)
 if(args.acquired):
@@ -731,7 +726,6 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
-
 if(args.disinf):
     isolate.load_finder_results(std_table=std_result,
                                 phenodb=res_pheno_db,
@@ -740,9 +734,7 @@ if(args.disinf):
     #                             phenodb=res_pheno_db)
     # isolate.load_finder_results(std_table=new_std_res,
     #                             phenodb=res_pheno_db)
-
 isolate.calc_res_profile(res_pheno_db)
-
 ResFinderResultHandler.load_res_profile(std_result, isolate)
 
 #TODO

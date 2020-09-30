@@ -78,6 +78,20 @@ class Result(dict):
         else:
             self[cl] = res
 
+    def modify_class(self, cl, result_type=None, **kwargs):
+        type = self._get_type(result_type, **kwargs)
+        res = Result(result_type=type, **kwargs)
+        res_id = res["ref_id"].replace("_", ";;")
+        for key, value in res.items():
+            if key not in self[cl][res_id]:
+                self[cl][res_id][key] = value
+            elif self[cl][res_id][key] != value:
+                self[cl][res_id][key] = \
+                        self[cl][res_id][key] \
+                        + ", " + value
+            else:
+                pass
+
     def check_results(self, errors=None):
         self.errors = {}
 
