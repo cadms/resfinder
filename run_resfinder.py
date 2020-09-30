@@ -726,14 +726,7 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
-if(args.disinf):
-    isolate.load_finder_results(std_table=std_result,
-                                phenodb=res_pheno_db,
-                                type="genes")
-    # isolate.load_finder_results(std_table=std_result,
-    #                             phenodb=res_pheno_db)
-    # isolate.load_finder_results(std_table=new_std_res,
-    #                             phenodb=res_pheno_db)
+
 isolate.calc_res_profile(res_pheno_db)
 ResFinderResultHandler.load_res_profile(std_result, isolate)
 
@@ -748,6 +741,7 @@ pheno_profile_str = isolate.profile_to_str_table(header=True)
 # TODO: REMOVE THE NEED FOR THE PICKLED FILE
 if(args.pickle):
     isolate_pickle = open("{}/isolate.p".format(args.out_path), "wb")
+    print(isolate)
     pickle.dump(isolate, isolate_pickle, protocol=2)
 
 pheno_table_file = args.out_path + '/pheno_table.txt'
