@@ -45,5 +45,5 @@ class ValueParsers():
     def parse_float(val):
         try:
             val = float(val)
-        except ValueError:
+        except TypeError:
             return "Value must be a float. Value was: {}".format(val)
