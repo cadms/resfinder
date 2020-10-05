@@ -82,16 +82,19 @@ class GeneResult(dict):
                 GeneResult._split_sbjct_header(self["ref_id"]))
         elif(db_name == "PointFinder"):
             self["name"] = self["ref_id"]
+        elif(db_name == "DisinFinder"):
+            self["name"], self.variant, self["ref_acc"] = (
+                GeneResult._split_sbjct_header(self["ref_id"]))
 
         self["ref_start_pos"] = res["sbjct_start"]
         self["ref_end_pos"] = res["sbjct_end"]
-        self["key"] = self._get_unique_gene_key(res_collection)
         self["identity"] = res["perc_ident"]
         self["alignment_length"] = res["HSP_length"]
         self["ref_gene_lenght"] = res["sbjct_length"]
         self["query_id"] = res["contig_name"]
         self["query_start_pos"] = res["query_start"]
         self["query_end_pos"] = res["query_end"]
+        self["key"] = self._get_unique_gene_key(res_collection)
 
         # BLAST coverage formatted results
         coverage = res.get("coverage", None)
@@ -108,7 +111,6 @@ class GeneResult(dict):
 
         db_key = DatabaseHandler.get_key(res_collection, db_name)
         self["ref_database"] = db_key
-
         self.remove_NAs()
 
     @staticmethod
@@ -139,14 +141,23 @@ class GeneResult(dict):
                         .format(deli=delimiter, var=self.variant, **self))
         if(self.db_name == "PointFinder"):
             gene_key = self["name"]
-
+        if(self.db_name == "DisinFinder"):
+            gene_key = ("{name}{deli}{var}{deli}{ref_acc}"
+                        .format(deli=delimiter, var=self.variant, **self))
         # Attach random string if key already exists
         minimum_gene_key = gene_key
-        while(gene_key in res_collection["genes"]):
-            rnd_str = GeneResult.randomString()
-            gene_key = ("{key}{deli}{rnd}"
-                        .format(key=minimum_gene_key, deli=delimiter,
-                                rnd=rnd_str))
+        if gene_key in res_collection["genes"]:
+            if (self["query_id"]
+                    != res_collection["genes"][gene_key]["query_id"]
+                or self["query_start_pos"]
+                    != res_collection["genes"][gene_key]["query_start_pos"]
+                or self["query_end_pos"]
+                    != res_collection["genes"][gene_key]["query_end_pos"]):
+                while(gene_key in res_collection["genes"]):
+                    rnd_str = GeneResult.randomString()
+                    gene_key = ("{key}{deli}{rnd}"
+                                .format(key=minimum_gene_key, deli=delimiter,
+                                        rnd=rnd_str))
 
         return gene_key
 
@@ -161,11 +172,11 @@ class PhenotypeResult(dict):
         self["type"] = "phenotype"
         self["category"] = "amr"
         self["key"] = antibiotic.name
-        self["amr_classes"] = antibiotic.classes
-        self["amr_resistance"] = antibiotic.name
+        self["classes"] = antibiotic.classes
+        self["resistance"] = antibiotic.name
 
     def resistant(self, res):
-        self["amr_resistant"] = res
+        self["resistant"] = res
 
     def add_feature(self, res_collection, isolate, feature):
         # Get all keys in the result that matches the feature in question.
@@ -256,9 +267,11 @@ class ResFinderResultHandler():
             for unique_id, hit_db in db.items():
                 if(unique_id in res["excluded"]):
                     continue
-
                 gene_result = GeneResult(res_collection, hit_db, ref_db_name)
-                res_collection.add_class(cl="genes", **gene_result)
+                if gene_result["key"] in res_collection["genes"]:
+                    res_collection.modify_class(cl="genes", **gene_result)
+                else:
+                    res_collection.add_class(cl="genes", **gene_result)
 
 
 class DatabaseHandler():
