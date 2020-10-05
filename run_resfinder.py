@@ -30,60 +30,6 @@ import json
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-
-def create_tab_acquired(isolate, phenodb):
-    """ Alternative method to create the downloadeable tabbed result file. This
-         method will include the additional information from the phenotype
-         database.
-    """
-    output_str = ("Resistance gene\tIdentity\tAlignment Length/Gene Length\t"
-                  "Position in reference\tContig\tPosition in contig\t"
-                  "Phenotype\tClass\tPMID\tAccession no.\tNotes\n")
-
-    for unique_id in isolate:
-        for feature in isolate[unique_id]:
-
-            # Extract phenotypes
-            phenotype_out_list = []
-            phenotype = phenodb[feature.unique_id]
-
-            # Append stars to phenotypes that are suggested by the curators and
-            # not published
-            for antibiotic in phenotype.phenotype:
-                if(antibiotic in phenotype.sug_phenotype):
-                    antibiotic = antibiotic + "*"
-                phenotype_out_list.append(antibiotic)
-
-            phenotype_out_str = ",".join(phenotype_out_list)
-
-            output_str += (feature.hit.name + "\t"
-                           + str(feature.hit.identity) + "\t"
-                           + str(feature.hit.match_length)
-                           + "/" + str(feature.hit.ref_length) + "\t"
-                           + str(feature.hit.start_ref)
-                           + ".." + str(feature.hit.end_ref) + "\t"
-                           + feature.seq_region + "\t"
-                           + str(feature.start)
-                           + ".." + str(feature.end) + "\t"
-                           + phenotype_out_str + "\t"
-                           + ",".join(phenotype.ab_class) + "\t"
-                           + ",".join(phenotype.pmid) + "\t"
-                           + feature.hit.acc + "\t"
-                           + phenotype.notes + "\n")
-
-    # Find AMR classes with no hits
-    no_class_hits = []
-    for ab_class in phenodb.antibiotics:
-        if(ab_class not in isolate.resprofile.resistance_classes):
-            no_class_hits.append(ab_class)
-
-    if(no_class_hits):
-        output_str += ("\nNo hits found in the classes: "
-                       + ",".join(no_class_hits) + "\n")
-
-    return output_str
-
-
 # TODO: Add fix species choice
 species_transl = {"c. jejuni": "campylobacter jejuni",
                   "c.jejuni": "campylobacter jejuni",
@@ -726,7 +672,6 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
-
 isolate.calc_res_profile(res_pheno_db)
 ResFinderResultHandler.load_res_profile(std_result, isolate)
 
@@ -741,7 +686,6 @@ pheno_profile_str = isolate.profile_to_str_table(header=True)
 # TODO: REMOVE THE NEED FOR THE PICKLED FILE
 if(args.pickle):
     isolate_pickle = open("{}/isolate.p".format(args.out_path), "wb")
-    print(isolate)
     pickle.dump(isolate, isolate_pickle, protocol=2)
 
 pheno_table_file = args.out_path + '/pheno_table.txt'

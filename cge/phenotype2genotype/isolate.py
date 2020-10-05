@@ -115,7 +115,6 @@ class Isolate(dict):
             if(type == "genes"
                and re.search("PointFinder", feat_info["ref_database"])):
                continue
-
             unique_id = Isolate.get_phenodb_id(feat_info, type)
 
             phenotypes = phenodb.get(unique_id, None)
