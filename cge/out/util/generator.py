@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from git import Repo
+from git.exc import InvalidGitRepositoryError
 from datetime import datetime, timezone
 
 from ..result import Result
@@ -29,7 +30,7 @@ class Generator():
     def get_version_commit(gitdir):
         try:
             repo = Repo(gitdir)
-        except:
+        except InvalidGitRepositoryError:
             return ("unknown", "unknown")
 
         com2tag = {}
