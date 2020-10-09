@@ -33,7 +33,7 @@ process resfinder{
     module unload perl
     source /home/projects/cge/apps/env/rf4_env/bin/activate
     module load ncbi-blast/2.8.1+
-    $python3 $resfinder -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
+    $python3 $resfinder -disinf -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
     """
 }
 
