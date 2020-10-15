@@ -30,8 +30,10 @@ process resfinder{
 
     """
     set +u
-    module unload perl
+    module unload mgmapper metabat fastqc
+    module unload ncbi-blast perl
     source /home/projects/cge/apps/env/rf4_env/bin/activate
+    module load perl
     module load ncbi-blast/2.8.1+
     $python3 $resfinder -disinf -acq --point -ifq $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
     """
