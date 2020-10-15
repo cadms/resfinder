@@ -147,18 +147,27 @@ class GeneResult(dict):
         # Attach random string if key already exists
         minimum_gene_key = gene_key
         if gene_key in res_collection["genes"]:
-            if (self["query_id"]
+            if(self["query_id"] == "NA"):
+                gene_key = self.get_rnd_unique_gene_key(
+                    gene_key, res_collection, minimum_gene_key, delimiter)
+            elif (self["query_id"]
                     != res_collection["genes"][gene_key]["query_id"]
-                or self["query_start_pos"]
+                  or self["query_start_pos"]
                     != res_collection["genes"][gene_key]["query_start_pos"]
-                or self["query_end_pos"]
+                  or self["query_end_pos"]
                     != res_collection["genes"][gene_key]["query_end_pos"]):
-                while(gene_key in res_collection["genes"]):
-                    rnd_str = GeneResult.randomString()
-                    gene_key = ("{key}{deli}{rnd}"
-                                .format(key=minimum_gene_key, deli=delimiter,
-                                        rnd=rnd_str))
+                gene_key = self.get_rnd_unique_gene_key(
+                    gene_key, res_collection, minimum_gene_key, delimiter)
 
+        return gene_key
+
+    def get_rnd_unique_gene_key(self, gene_key, res_collection,
+                                minimum_gene_key, delimiter):
+        while(gene_key in res_collection["genes"]):
+            rnd_str = GeneResult.randomString()
+            gene_key = ("{key}{deli}{rnd}"
+                        .format(key=minimum_gene_key, deli=delimiter,
+                                rnd=rnd_str))
         return gene_key
 
     @staticmethod
