@@ -17,7 +17,7 @@ then the dependencies, and finally the databases. A more detailed breakdown of t
 installation is provided below:
 
 1. Install ResFinder tool
-2. Install python modules: Tabulate, BioPython, CGECore
+2. Install python modules
 3. Install BLAST (optional)
 4. install KMA (optional)
 5. Download ResFinder database
@@ -52,7 +52,7 @@ KMA is used to analyse read data (ie. FASTQ files).
 #### Python modules: Tabulate, BioPython, CGECore and Python-Git
 To install the needed python modules you can use pip
 ```bash
-pip3 install tabulate biopython cgecore gitpython
+pip3 install tabulate biopython cgecore gitpython python-dateutil
 ```
 For more information visit the respective website
 ```url
@@ -100,7 +100,7 @@ git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git db_resf
 cd /path/to/some/dir/resfinder
 git clone https://git@bitbucket.org/genomicepidemiology/pointfinder_db.git db_pointfinder
 ```
-#### PointFinder database
+#### DisinFinder database
 ```bash
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
