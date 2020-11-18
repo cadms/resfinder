@@ -62,7 +62,6 @@ class ResFinderRunTest(unittest.TestCase):
         except OSError:
             procs = run(["rm", "-r", run_test_dir])
 
-
     def test_on_data_with_just_acquired_resgene_using_blast(self):
         # Maria has an E. coli isolate, with unknown resistance.
         # At first, she just wants to know which acquired resistance genes are
@@ -94,11 +93,11 @@ class ResFinderRunTest(unittest.TestCase):
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
-        fsa_hit = test1_dir + "/Hit_in_genome_seq.fsa"
-        fsa_res = test1_dir + "/Resistance_gene_seq.fsa"
-        res_table = test1_dir + "/results_table.txt"
-        res_tab = test1_dir + "/results_tab.txt"
-        results = test1_dir + "/results.txt"
+        fsa_hit = test1_dir + "/ResFinder_Hit_in_genome_seq.fsa"
+        fsa_res = test1_dir + "/ResFinder_Resistance_gene_seq.fsa"
+        res_table = test1_dir + "/ResFinder_results_table.txt"
+        res_tab = test1_dir + "/ResFinder_results_tab.txt"
+        results = test1_dir + "/ResFinder_results.txt"
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
@@ -152,11 +151,11 @@ class ResFinderRunTest(unittest.TestCase):
         procs = run(cmd_acquired, shell=True, stdout=PIPE, stderr=PIPE,
                     check=True)
 
-        fsa_hit = test2_dir + "/Hit_in_genome_seq.fsa"
-        fsa_res = test2_dir + "/Resistance_gene_seq.fsa"
-        res_table = test2_dir + "/results_table.txt"
-        res_tab = test2_dir + "/results_tab.txt"
-        results = test2_dir + "/results.txt"
+        fsa_hit = test2_dir + "/ResFinder_Hit_in_genome_seq.fsa"
+        fsa_res = test2_dir + "/ResFinder_Resistance_gene_seq.fsa"
+        res_table = test2_dir + "/ResFinder_results_table.txt"
+        res_tab = test2_dir + "/ResFinder_results_tab.txt"
+        results = test2_dir + "/ResFinder_results.txt"
 
         with open(fsa_hit, "r") as fh:
             check_result = fh.readline()
@@ -279,7 +278,7 @@ def parse_args():
     parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
     group = parser.add_argument_group("Options")
     group.add_argument('-res_help', "--resfinder_help",
-                        action="help")
+                       action="help")
     group.add_argument("-db_res", "--db_path_res",
                        help="Path to the databases for ResFinder",
                        default="./db_resfinder")

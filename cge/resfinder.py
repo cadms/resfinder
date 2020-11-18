@@ -424,8 +424,8 @@ class ResFinder(CGEFinder):
         """
         """
         # Check if databases and config file are correct/correponds
-        if databases is '':
-                sys.exit("Input Error: No database was specified!\n")
+        if databases == '':
+            sys.exit("Input Error: No database was specified!\n")
         elif databases is None:
             # Choose all available databases from the config file
             self.databases = self.configured_dbs.keys()
