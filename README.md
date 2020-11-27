@@ -38,8 +38,8 @@ Setting up ResFinder script and database
 # Go to wanted location for resfinder
 cd /path/to/some/dir
 
-# Clone branch 4.0 and enter the resfinder directory
-git clone -b 4.0 https://git@bitbucket.org/genomicepidemiology/resfinder.git
+# Clone the latest version and enter the resfinder directory
+git clone https://git@bitbucket.org/genomicepidemiology/resfinder.git
 cd resfinder
 
 ```
