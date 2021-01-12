@@ -236,6 +236,10 @@ else:
 
 db_path_point = None
 db_path_disinf = None
+
+if(args.species.lower() == "other"):
+    args.species = None
+
 if(args.species):
     args.species = args.species.lower()
 
