@@ -179,6 +179,9 @@ parser.add_argument("--pickle",
 
 args = parser.parse_args()
 
+if(args.species.lower() == "other"):
+    args.species = None
+
 if(args.point and not args.species):
     sys.exit("ERROR: Chromosomal point mutations cannot be located if no "
              "species has been provided. Please provide species using the "
@@ -236,9 +239,6 @@ else:
 
 db_path_point = None
 db_path_disinf = None
-
-if(args.species.lower() == "other"):
-    args.species = None
 
 if(args.species):
     args.species = args.species.lower()
