@@ -179,7 +179,7 @@ parser.add_argument("--pickle",
 
 args = parser.parse_args()
 
-if(args.species.lower() == "other"):
+if(args.species is not None and args.species.lower() == "other"):
     args.species = None
 
 if(args.point and not args.species):

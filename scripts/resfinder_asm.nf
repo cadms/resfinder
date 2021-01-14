@@ -7,11 +7,7 @@ params.input = './*.fa'
 // params.indir = './'
 // params.ext = '.fa'
 params.outdir = '.'
-params.species
-params.point = '--point'
-
-if (params.species == 'other'){
-  params.point = ''}
+params.species = 'other'
 
 println("Search pattern: $params.input")
 
@@ -40,7 +36,12 @@ process resfinder{
     source /home/projects/cge/apps/env/rf4_env/bin/activate
     module load perl
     module load ncbi-blast/2.8.1+
-    $python3 $resfinder -acq -disinf -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species' '$params.point'
+    if [ $params.species = 'other' ]
+    then
+        $python3 $resfinder -acq -disinf -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
+    else
+        $python3 $resfinder -acq -disinf -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species' --point
+    fi
     """
 }
 
