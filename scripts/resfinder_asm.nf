@@ -38,9 +38,9 @@ process resfinder{
     module load ncbi-blast/2.8.1+
     if [ $params.species = 'other' ]
     then
-        $python3 $resfinder -acq -disinf -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
+        $python3 $resfinder -acq -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species'
     else
-        $python3 $resfinder -acq -disinf -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species' --point
+        $python3 $resfinder -acq -ifa $datasetFile -o '$params.outdir/$sampleID' -s '$params.species' --point
     fi
     """
 }

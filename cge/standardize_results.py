@@ -82,9 +82,6 @@ class GeneResult(dict):
                 GeneResult._split_sbjct_header(self["ref_id"]))
         elif(db_name == "PointFinder"):
             self["name"] = self["ref_id"]
-        elif(db_name == "DisinFinder"):
-            self["name"], self.variant, self["ref_acc"] = (
-                GeneResult._split_sbjct_header(self["ref_id"]))
 
         self["ref_start_pos"] = res["sbjct_start"]
         self["ref_end_pos"] = res["sbjct_end"]
@@ -141,9 +138,6 @@ class GeneResult(dict):
                         .format(deli=delimiter, var=self.variant, **self))
         if(self.db_name == "PointFinder"):
             gene_key = self["name"]
-        if(self.db_name == "DisinFinder"):
-            gene_key = ("{name}{deli}{var}{deli}{ref_acc}"
-                        .format(deli=delimiter, var=self.variant, **self))
         # Attach random string if key already exists
         minimum_gene_key = gene_key
         if gene_key in res_collection["genes"]:
@@ -181,10 +175,11 @@ class PhenotypeResult(dict):
         self["type"] = "phenotype"
         self["category"] = "amr"
         self["key"] = antibiotic.name
-        self["classes"] = antibiotic.classes
+        self["amr_classes"] = antibiotic.classes
         self["resistance"] = antibiotic.name
+        self["resistant"] = False
 
-    def resistant(self, res):
+    def set_resistant(self, res):
         self["resistant"] = res
 
     def add_feature(self, res_collection, isolate, feature):
@@ -194,10 +189,8 @@ class PhenotypeResult(dict):
         # they will all have different keys, but identical ref ids.
 
         ref_id, type = PhenotypeResult.get_ref_id_and_type(feature, isolate)
-
         feature_keys = PhenotypeResult.get_keys_matching_ref_id(
             ref_id, res_collection[type])
-
         # Add keys to phenotype results
         pheno_feat_keys = self.get(type, [])
         pheno_feat_keys = pheno_feat_keys + feature_keys
@@ -210,7 +203,6 @@ class PhenotypeResult(dict):
             pheno_keys = feat_result.get("phenotypes", [])
             pheno_keys.append(self["key"])
             feat_result["phenotypes"] = pheno_keys
-
         if(type == "genes"):
             db_key = DatabaseHandler.get_key(res_collection, "ResFinder")
         elif(type == "seq_variations"):
@@ -234,8 +226,10 @@ class PhenotypeResult(dict):
     def get_keys_matching_ref_id(ref_id, res_collection):
         out_keys = []
         for key, results in res_collection.items():
+#            tmp_ref_id = "_".join(results["ref_id"].split("_")[:-1]) + "_" + results["var_aa"]
             if(ref_id == results["ref_id"]):
                 out_keys.append(key)
+
         return out_keys
 
 
@@ -249,10 +243,9 @@ class ResFinderResultHandler():
             for phenodb_ab in isolate.resprofile.phenodb.antibiotics[ab_class]:
 
                 phenotype = PhenotypeResult(phenodb_ab)
-
                 # Isolate is resistant towards the antibiotic
                 if(phenodb_ab in isolate.resprofile.resistance):
-                    phenotype.resistant(True)
+                    phenotype.set_resistant(True)
 
                     isolate_ab = isolate.resprofile.resistance[phenodb_ab]
                     for unique_id, feature in isolate_ab.features.items():
@@ -260,7 +253,7 @@ class ResFinderResultHandler():
 
                 # No resistance found
                 else:
-                    phenotype.resistant(False)
+                    phenotype.set_resistant(False)
 
                 res_collection.add_class(cl="phenotypes", **phenotype)
 
@@ -318,16 +311,13 @@ class PointFinderResultHandler():
 
                 # Isolate is resistant towards the antibiotic
                 if(phenodb_ab in isolate.resprofile.resistance):
-                    phenotype.resistant(True)
+                    phenotype.set_resistant(True)
 
                     isolate_ab = isolate.resprofile.resistance[phenodb_ab]
                     for unique_id, feature in isolate_ab.features.items():
-                        if(isinstance(feature, Gene)):
-                            phenotype.add_gene(res_collection, isolate, feature)
-
-                # No resistance found
-                else:
-                    phenotype.resistant(False)
+                        if(isinstance(feature, ResMutation)):
+                            phenotype.add_feature(res_collection, isolate,
+                                                  feature)
 
                 res_collection.add_class(cl="phenotypes", **phenotype)
 

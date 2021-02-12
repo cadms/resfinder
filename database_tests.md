@@ -9,7 +9,6 @@ This file will test the validity of the databases installed in the default
 locations. These are:
 - [resfinder app dir]/db_resfinder
 - [resfinder app dir]/db_pointfinder
-- [resfinder app dir]/db_disinfinder
 Where [resfinder app dir] is the root directory of the ResFinder application.
 You will find the "run_resfinder.py" file in this directory.
 
@@ -28,8 +27,6 @@ lines of the python code below in this file.
 
 >>> db_resfinder = "db_resfinder/"
 >>> db_pointfinder = "db_pointfinder/"
->>> db_disinfinder = "db_disinfinder/"
-
 ```
 
 ## Test phenotype.txt and resistens-overview.txt files
@@ -42,7 +39,6 @@ lines of the python code below in this file.
 ...    abclassdef_file="{}antibiotic_classes.txt".format(db_resfinder),
 ...    acquired_file="{}phenotypes.txt".format(db_resfinder),
 ...    point_file="{}campylobacter/resistens-overview.txt".format(db_pointfinder),
-...    disinf_file="{}phenotypes.txt".format(db_disinfinder))
 
 >>> phenodb = PhenoDB(
 ...    abclassdef_file="{}antibiotic_classes.txt".format(db_resfinder),

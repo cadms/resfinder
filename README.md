@@ -22,9 +22,8 @@ installation is provided below:
 4. install KMA (optional)
 5. Download ResFinder database
 6. Download PointFinder database
-7. Download DisinFinder database
-8. Index databases with KMA (if installed)
-9. Test installation
+7. Index databases with KMA (if installed)
+8. Test installation
 
 A small script has been written to automate this process. It is available from the
 scripts directory and is named install_resfinder.sh. It is very simple and might
@@ -99,12 +98,6 @@ git clone https://git@bitbucket.org/genomicepidemiology/resfinder_db.git db_resf
 # Go to the directoy in which you installed the ResFinder tool
 cd /path/to/some/dir/resfinder
 git clone https://git@bitbucket.org/genomicepidemiology/pointfinder_db.git db_pointfinder
-```
-#### DisinFinder database
-```bash
-# Go to the directoy in which you installed the ResFinder tool
-cd /path/to/some/dir/resfinder
-git clone https://git@bitbucket.org/genomicepidemiology/disinfinder_db.git db_disinfinder
 ```
 
 #### Indexing databases with KMA
@@ -297,14 +290,6 @@ optional arguments:
 											  Threshold for identity of Pointfinder. If None is
 											  selected, the minimum coverage of ResFinder will be
 											  used.
-	-disinf, --disinfectant
-                        Run disinfectant resistance genes detection
-  -db_disinf DB_PATH_DISINF, --db_path_disinf DB_PATH_DISINF
-	                      Path to the databases for DisinFinder
-	-db_disinf_kma DB_PATH_DISINF_KMA, --db_path_disinf_kma DB_PATH_DISINF_KMA
-	                      Path to the DisinFinder databases indexed with KMA.
-	                      Defaults to the 'kma_indexing' directory inside the
-	                      given database directory.
 
 ```
 

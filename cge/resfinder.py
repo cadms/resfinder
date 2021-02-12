@@ -473,7 +473,7 @@ class ResFinder(CGEFinder):
                     db = "%s/%s.%s" % (self.db_path, db_prefix, ext)
                     if not os.path.exists(db):
                         sys.exit(("Input Error: The database file (%s) "
-                                  "could not be found!") % (db_path))
+                                  "could not be found!") % (db))
 
                 if db_prefix not in self.configured_dbs:
                     self.configured_dbs[db_prefix] = []
