@@ -103,7 +103,7 @@ class Isolate(dict):
                 phenodb_id = ref_id
             # Amino acid mutation
             else:
-                phenodb_id = ref_id[:-3] + feat_res_dict["var_aa"]
+                phenodb_id = ref_id[:-1] + feat_res_dict["var_aa"]
             return phenodb_id
 
         elif(type == "genes"):

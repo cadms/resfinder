@@ -531,7 +531,6 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
-
 isolate.calc_res_profile(res_pheno_db)
 if(args.acquired):
     ResFinderResultHandler.load_res_profile(std_result, isolate)
