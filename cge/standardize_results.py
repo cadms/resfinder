@@ -30,7 +30,6 @@ class SeqVariationResult(dict):
         self["type"] = "seq_variation"
         self["ref_id"] = ("{id}{deli}{pos}{deli}{var}"
                           .format(id=region_name, pos=self["ref_start_pos"],
-#                                  var=self["var_codon"], deli="_"))
                                   var=self["var_aa"], deli="_"))
         self["key"] = self._get_unique_key()
         self["seq_var"] = mut_string
@@ -227,7 +226,6 @@ class PhenotypeResult(dict):
     def get_keys_matching_ref_id(ref_id, res_collection):
         out_keys = []
         for key, results in res_collection.items():
-#            tmp_ref_id = "_".join(results["ref_id"].split("_")[:-1]) + "_" + results["var_aa"]
             if(ref_id == results["ref_id"]):
                 out_keys.append(key)
 
@@ -253,7 +251,6 @@ class ResFinderResultHandler():
                         if(isinstance(feature, ResGene)):
                             phenotype.add_feature(res_collection, isolate,
                                                   feature)
-                print(phenotype)
                 res_collection.add_class(cl="phenotypes", **phenotype)
 
     @staticmethod
@@ -307,7 +304,6 @@ class PointFinderResultHandler():
             for phenodb_ab in isolate.resprofile.phenodb.antibiotics[ab_class]:
 
                 phenotype = PhenotypeResult(phenodb_ab)
-                print(phenotype)
                 # Isolate is resistant towards the antibiotic
                 if(phenodb_ab in isolate.resprofile.resistance):
                     phenotype.set_resistant(True)
@@ -317,7 +313,6 @@ class PointFinderResultHandler():
                         if(isinstance(feature, ResMutation)):
                             phenotype.add_feature(res_collection, isolate,
                                                   feature)
-                print(phenotype)
                 res_collection.add_class(cl="phenotypes", **phenotype)
 
     @staticmethod
