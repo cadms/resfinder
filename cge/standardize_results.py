@@ -12,7 +12,6 @@ import json
 class SeqVariationResult(dict):
     def __init__(self, res_collection, mismatch, region_results, db_name):
         self.res_collection = res_collection
-
         self.load_var_type(mismatch[0])
         self["ref_start_pos"] = mismatch[1]
         self["ref_end_pos"] = mismatch[2]
@@ -23,14 +22,20 @@ class SeqVariationResult(dict):
         if(len(mismatch) > 7):
             self["ref_aa"] = mismatch[7].lower()
             self["var_aa"] = mismatch[8].lower()
-
         region_name = region_results[0]["ref_id"]
         region_name = PhenoDB.if_promoter_rename(region_name)
 
         self["type"] = "seq_variation"
-        self["ref_id"] = ("{id}{deli}{pos}{deli}{var}"
-                          .format(id=region_name, pos=self["ref_start_pos"],
-                                  var=self["var_aa"], deli="_"))
+        if(len(mismatch) > 7):
+            self["ref_id"] = ("{id}{deli}{pos}{deli}{var}"
+                              .format(id=region_name,
+                                      pos=self["ref_start_pos"],
+                                      var=self["var_aa"], deli="_"))
+        else:
+            self["ref_id"] = ("{id}{deli}{pos}{deli}{var}"
+                              .format(id=region_name,
+                                      pos=self["ref_start_pos"],
+                                      var=self["var_codon"], deli="_"))
         self["key"] = self._get_unique_key()
         self["seq_var"] = mut_string
 
@@ -353,9 +358,9 @@ class PointFinderResultHandler():
             mismatches = db["mis_matches"]
 
 #DEBUG
-#            print("MISMATCHES: {}".format(mismatches))
-
+            print("MISMATCHES: {}".format(mismatches))
             for mismatch in mismatches:
+                print(mismatch)
                 seq_var_result = SeqVariationResult(
                     res_collection, mismatch, gene_results, ref_db_name)
                 res_collection.add_class(cl="seq_variations", **seq_var_result)
