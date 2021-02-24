@@ -1,7 +1,42 @@
-FROM debian:9.4-slim
+FROM debian:stretch
 
 ENV DEBIAN_FRONTEND noninteractive
 
+### RUN set -ex; \
+
+RUN apt-get update -qq; \
+    apt-get install -y -qq git \
+    apt-utils \
+    wget \
+    python3-pip \
+    ncbi-blast+ \
+    libz-dev \
+    ; \
+    rm -rf /var/cache/apt/* /var/lib/apt/lists/*;
+
+ENV DEBIAN_FRONTEND Teletype
+
+# Install python dependencies
+RUN pip3 install -U biopython==1.73 tabulate cgecore gitpython python-dateutil;
+
+# RESFINDER setup
+COPY run_resfinder.py /usr/src/run_resfinder.py
+
+ADD cge /usr/src/cge
+ADD tests /usr/src/tests
+
+# Install kma
+RUN cd /usr/src/cge; \
+    git clone --depth 1 https://bitbucket.org/genomicepidemiology/kma.git; \
+    cd kma && make; \
+    mv kma* /bin/
+
+
+RUN chmod 755 /usr/src/run_resfinder.py
+RUN chmod 755 /usr/src/tests/functional_tests.py
+
+
+ENV PATH $PATH:/usr/src
 # Setup .bashrc file for convenience during debugging
 RUN echo "alias ls='ls -h --color=tty'\n"\
 "alias ll='ls -lrt'\n"\
@@ -10,47 +45,9 @@ RUN echo "alias ls='ls -h --color=tty'\n"\
 "alias cwd='readlink -f .'\n"\
 "PATH=$PATH\n">> ~/.bashrc
 
-RUN set -ex && \
-    # Basix setup \
-    apt-get update -y -qq && \
-    apt-get install -y -qq git \
-    apt-utils \
-    wget \
-    python3-pip \
-    libz-dev \
-    && \
-    # Python 3 setup \
-    pip3 install --upgrade pip setuptools && \
-    ln -sf /usr/bin/pip3 /usr/bin/pip && \
-    ln -sf /usr/bin/python3 /usr/bin/python && \
-    # Install python dependencies \
-    pip install cython tabulate numpy biopython && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
 
-# Install BLAST
-RUN wget -q ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.7.1/ncbi-blast-2.7.1+-x64-linux.tar.gz && \
-    tar -zxvf ncbi-blast-2.7.1+-x64-linux.tar.gz && \
-    ln -s /ncbi-blast-2.7.1+/bin/blastn /usr/bin/blastn && \
-    rm ncbi-blast-2.7.1+-x64-linux.tar.gz
+# Change working directory
+WORKDIR "/usr/src/"
 
-# Install ResFinder and databases
-RUN pip install cgecore==1.5.1 && \
-    git clone -b 4.0 https://bitbucket.org/genomicepidemiology/resfinder.git && \
-    mkdir resfinder/db_resfinder && \
-    mkdir resfinder/db_pointfinder && \
-    chmod a+x resfinder/run_resfinder.py && \
-    ln -s /resfinder/run_resfinder.py /usr/bin/resfinder && \
-    # Install KMA \
-    apt-get install -y -qq libz-dev && \
-    git clone --branch 1.2.11 https://bitbucket.org/genomicepidemiology/kma.git resfinder/cge/kma && \
-    cd resfinder/cge/kma && make && cd ../.. && \
-    ln -s /resfinder/cge/kma/kma /usr/bin/kma && \
-    ln -s /resfinder/cge/kma/kma_index /usr/bin/kma_index && \
-    apt-get clean && \
-    rm -rf /var/cache/apt/* /var/lib/apt/lists/*
-
-ENV DEBIAN_FRONTEND Teletype
-
-WORKDIR /workdir
-
-ENTRYPOINT ["/resfinder/run_resfinder.py"]
+# Execute program when running the container
+ENTRYPOINT ["python3", "/usr/src/run_resfinder.py"]

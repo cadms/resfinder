@@ -177,8 +177,30 @@ kma_index -i db_pointfinder/neisseria_gonorrhoeae/*.fsa -o db_pointfinder/neisse
 kma_index -i db_pointfinder/salmonella/*.fsa -o db_pointfinder/salmonella/salmonella
 kma_index -i db_pointfinder/mycobacterium_tuberculosis/*.fsa -o db_pointfinder/mycobacterium_tuberculosis/mycobacterium_tuberculosis
 ```
+### Install ResFinder with Docker
+If you would like to build a docker image with ResFinder, make sure you have cloned the ResFinder directory as well as installed and indexed the databases: `db_pointfinder` and `db_resfinder`. Then run the following commands:
+```bash
+# Go to ResFinder directory
+cd path/to/resfinder
+# Build docker image with name resfinder
+docker build -t resfinder .
+```
+When running the docker make sure to mount the `db_resfinder` and the `db_pointfinder` with the flag -v, as shown in the examples below. 
+
+You can test the installation by running the docker with the test files: 
+```bash
+cd path/to/resfinder/
+mkdir results
+
+# Run with raw data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder -v $(pwd)/results/:/usr/src/results resfinder -ifq /usr/src/tests/data/test_isolate_01_1.fq /usr/src/tests/data/test_isolate_01_2.fq -acq -db_res /usr/src/db_resfinder -o /usr/src/results
+
+# Run with assembled data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder  -v $(pwd)/results/:/usr/src/results resfinder -ifa /usr/src/tests/data/test_isolate_01.fa -acq -db_res /usr/src/db_resfinder -o /usr/src/results
+```
 
 ### Test ResFinder intallation
+(This will not function with the docker installation.)
 If you did not install BLAST, test 1 and 3 will fail. If you did not install KMA, test 2
 and 4 will fail.
 The 4 tests will in total take approximately take 5-60 seconds, depending on your system.
