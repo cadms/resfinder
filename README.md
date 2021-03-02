@@ -177,27 +177,6 @@ kma_index -i db_pointfinder/neisseria_gonorrhoeae/*.fsa -o db_pointfinder/neisse
 kma_index -i db_pointfinder/salmonella/*.fsa -o db_pointfinder/salmonella/salmonella
 kma_index -i db_pointfinder/mycobacterium_tuberculosis/*.fsa -o db_pointfinder/mycobacterium_tuberculosis/mycobacterium_tuberculosis
 ```
-### Install ResFinder with Docker
-If you would like to build a docker image with ResFinder, make sure you have cloned the ResFinder directory as well as installed and indexed the databases: `db_pointfinder` and `db_resfinder`. Then run the following commands:
-```bash
-# Go to ResFinder directory
-cd path/to/resfinder
-# Build docker image with name resfinder
-docker build -t resfinder .
-```
-When running the docker make sure to mount the `db_resfinder` and the `db_pointfinder` with the flag -v, as shown in the examples below. 
-
-You can test the installation by running the docker with the test files: 
-```bash
-cd path/to/resfinder/
-mkdir results
-
-# Run with raw data (this command mounts the results to the local directory "results")
-docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder -v $(pwd)/results/:/usr/src/results resfinder -ifq /usr/src/tests/data/test_isolate_01_1.fq /usr/src/tests/data/test_isolate_01_2.fq -acq -db_res /usr/src/db_resfinder -o /usr/src/results
-
-# Run with assembled data (this command mounts the results to the local directory "results")
-docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder  -v $(pwd)/results/:/usr/src/results resfinder -ifa /usr/src/tests/data/test_isolate_01.fa -acq -db_res /usr/src/db_resfinder -o /usr/src/results
-```
 
 ### Test ResFinder intallation
 (This will not function with the docker installation.)
@@ -321,41 +300,27 @@ A webserver implementing the methods is available at the [CGE
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
-### Docker
-
-The databases needs to be cloned and possibly index seperately. This is described on each of the database bitbucket sites:
-```url
-https://bitbucket.org/genomicepidemiology/resfinder_db/overview
-https://bitbucket.org/genomicepidemiology/pointfinder_db/overview
-```
-
-The databases needs to be mounted when running docker using the -v option.
-
-It can be desirable to create environment variables:
+### Install ResFinder with Docker
+If you would like to build a docker image with ResFinder, make sure you have cloned the ResFinder directory as well as installed and indexed the databases: `db_pointfinder` and `db_resfinder`. Then run the following commands:
 ```bash
-PF_DB=/Users/rolf/ownCloud2/Scripts-CGE/database_pointfinder
-RF_DB=/Users/rolf/ownCloud2/Scripts-CGE/resfinder_db
-```
-
-#### Build and test docker image
-```bash
-# Go to directory containing the dockerfile
-cd /some/dir
-# Build image
+# Go to ResFinder directory
+cd path/to/resfinder
+# Build docker image with name resfinder
 docker build -t resfinder .
-# Test installation
-docker run --rm -v $(pwd):/workdir -v $PF_DB:/resfinder/db_pointfinder -v $RF_DB:/resfinder/db_resfinder --entrypoint /resfinder/tests/functional_tests.py resfinder
 ```
-If you did not use environment variables, simply replace them with the appropriate paths.
+When running the docker make sure to mount the `db_resfinder` and the `db_pointfinder` with the flag -v, as shown in the examples below. 
 
-#### Runnning the docker image
-
-The docker image should be used as an executable.
-Example:
+You can test the installation by running the docker with the test files: 
 ```bash
-docker run --rm -v $(pwd):/workdir -v $PF_DB:/resfinder/db_pointfinder -v $RF_DB:/resfinder/db_resfinder resfinder -o <output_dir> -s "<species>" --acquired --point -ifq <path/to/*.fq>
+cd path/to/resfinder/
+mkdir results
+
+# Run with raw data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder -v $(pwd)/results/:/usr/src/results resfinder -ifq /usr/src/tests/data/test_isolate_01_1.fq /usr/src/tests/data/test_isolate_01_2.fq -acq -db_res /usr/src/db_resfinder -o /usr/src/results
+
+# Run with assembled data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder  -v $(pwd)/results/:/usr/src/results resfinder -ifa /usr/src/tests/data/test_isolate_01.fa -acq -db_res /usr/src/db_resfinder -o /usr/src/results
 ```
-If you did not use environment variables, simply replace them with the appropriate paths.
 
 Citation
 =======
