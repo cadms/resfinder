@@ -260,6 +260,11 @@ optional arguments:
                         Path to kma
   -s SPECIES, --species SPECIES
                         Species in the sample
+						Available species: Campylobacter, Campylobacter jejuni, Campylobacter coli, 
+						Enterococcus faecalis, Enterococcus faecium, Escherichia coli, Helicobacter pylori,
+						Klebsiella, Mycobacterium tuberculosis, Neisseria gonorrhoeae,
+						Plasmodium falciparum, Salmonella, Salmonella enterica, Staphylococcus aureus
+						-s "Other" can be used for metagenomic samples or samples with unknown species.
   -db_res DB_PATH_RES, --db_path_res DB_PATH_RES
                         Path to the databases for ResFinder
   -db_res_kma DB_PATH_RES_KMA, --db_path_res_kma DB_PATH_RES_KMA
