@@ -980,7 +980,8 @@ class PointFinder(CGEFinder):
         del_codon = PointFinder.get_codon(sbjct_seq, codon_no, start_offset)
         pos_name = "p.%s%d" % (PointFinder.aa(del_codon), codon_no)
 
-        if len(sbjct_rf_indel) == 3:
+        # This has been changed
+        if len(sbjct_rf_indel) == 3 and mutation == "del":
             return pos_name + mutation
 
         end_codon_no = codon_no + math.ceil(len(sbjct_nucs) / 3) - 1
@@ -988,10 +989,8 @@ class PointFinder(CGEFinder):
                                           start_offset)
         pos_name += "_%s%d%s" % (PointFinder.aa(end_codon), end_codon_no,
                                  mutation)
-
         if mutation == "delins":
             pos_name += aa_alt
-
         return pos_name
 
     @staticmethod
@@ -1275,11 +1274,11 @@ class PointFinder(CGEFinder):
                                 sbjct_seq, indel, sbjct_rf_indel, qry_rf_indel,
                                 codon_no, mut, sbjct_start - 1)
                         )
-
                         if "Frameshift" in mut_name:
                             mut_name = (mut_name.split("-")[0]
                                         + "- Frame restored")
-
+                        if mut_name is "p.V940delins - Frame restored":
+                            sys.exit()
                     mis_matches += [[mut, codon_no_indel, seq_pos, indel,
                                      mut_name, sbjct_rf_indel, qry_rf_indel,
                                      aa_ref, aa_alt]]
@@ -1383,6 +1382,11 @@ class PointFinder(CGEFinder):
                 r"^p.(\D{1})(\d+)_(\D{1})(\d+)delins(\S+)$", m)
             single_delins_match = re.search(
                 r"^p.(\D{1})(\d+)delins(\S+)$", m)
+            # TODO: is both necessary?
+            multi_delins_match2 = re.search(
+                r"^p.(\D{1})(\d+)_(\D{1})(\d+)delins$", m)
+            single_delins_match2 = re.search(
+                r"^p.(\D{1})(\d+)delins$", m)
             multi_ins_match = re.search(
                 r"^p.(\D{1})(\d+)_(\D{1})(\d+)ins(\D*)$", m)
             if(multi_delins_match or single_delins_match):
@@ -1485,7 +1489,6 @@ class PointFinder(CGEFinder):
             # nuc_alt = mis_matches[i][6]
             ref = mis_matches[i][-2]
             alt = mis_matches[i][-1]
-
             mut_dict = PointFinder.mutstr2mutdict(mut_name)
 
             mut_id = ("{gene}_{pos}_{alt}"
