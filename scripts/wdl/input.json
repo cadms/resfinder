@@ -1,0 +1,4 @@
+{
+    "Resistance.inputSamplesFile": "../../tests/data/wdl_input.tsv",
+    "Resistance.outputDir": "/home/rkmo/delme/"
+}
