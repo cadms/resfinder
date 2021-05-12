@@ -2,60 +2,104 @@ workflow Resistance {
     File inputSamplesFile
     Array[Array[File]] inputSamples = read_tsv(inputSamplesFile)
 
-		String outputDir
+    String outputDir
+    Float geneCov
+    Float geneID
+    Float pointCov
+    Float pointID
+    String python
+    String kma
+    String blastn
+    String resfinder
+    String resDB
+    String pointDB
+    String disinfDB
 
     scatter (sample in inputSamples) {
         call ResFinder {
-            input: fq1=sample[0],
-                fq2=sample[1],
-                species=sample[2],
-								outputRoot=outputDir
+            input: inputSample=sample,
+                outputRoot=outputDir,
+                geneCov=geneCov,
+                geneID=geneID,
+                pointCov=pointCov,
+                pointID=pointID,
+                python=python,
+                kma=kma,
+                blastn=blastn,
+                resfinder=resfinder,
+                resDB=resDB,
+                pointDB=pointDB,
+                disinfDB=disinfDB
         }
     }
 }
 
 task ResFinder {
 
-    String fq1
-    String fq2
-    String species
-		String outputRoot
-    String filename = basename(fq1)
+    Array[String] inputSample
+    Float geneCov
+    Float geneID
+    Float pointCov
+    Float pointID
+    String python
+    String kma
+    String blastn
+    String resfinder
+    String resDB
+    String pointDB
+    String disinfDB
+
+    String inputPath1 = inputSample[0]
+    String inputPath2 = inputSample[1]
+    String species = inputSample[2]
+    String inputType = inputSample[3]
+
+    String outputRoot
+    String filename = basename(inputPath1)
     String out_dir_name = "${outputRoot}/${filename}.rf_out"
 
     command {
+
+        set +u
+        module unload mgmapper metabat fastqc
+        module unload ncbi-blast perl
+        source /home/projects/cge/apps/env/rf4_env/bin/activate
+        module load perl
+        module load ncbi-blast/2.8.1+
+
         mkdir ${out_dir_name}
 
-				if [ ${species} = 'other' ]
-				then
-					$CGE_PYTHON $CGE_RESFINDER \
-							-ifq ${fq1} ${fq2} \
-							--blastPath $CGE_BLASTN \
-							--kmaPath $CGE_KMA \
-							--species "${species}" \
-							--db_path_res $CGE_RESFINDER_RESGENE_DB \
-							--acquired \
-							--acq_overlap 30 \
-							--min_cov $CGE_RESFINDER_GENE_COV \
-							--threshold $CGE_RESFINDER_GENE_ID \
-							-o ${out_dir_name}
-				else
-		        $CGE_PYTHON $CGE_RESFINDER \
-		            -ifq ${fq1} ${fq2} \
-		            --blastPath $CGE_BLASTN \
-		            --kmaPath $CGE_KMA \
-		            --species "${species}" \
-		            --db_path_res $CGE_RESFINDER_RESGENE_DB \
-		            --acquired \
-		            --acq_overlap 30 \
-		            --min_cov $CGE_RESFINDER_GENE_COV \
-		            --threshold $CGE_RESFINDER_GENE_ID \
-		            --point \
-		            --db_path_point $CGE_RESFINDER_RESPOINT_DB \
-		            --min_cov_point $CGE_RESFINDER_POINT_COV \
-		            --threshold_point $CGE_RESFINDER_POINT_ID \
-		            -o ${out_dir_name}
-				fi
+        inputArgs=""
+        pointArgs=""
+
+        if [ "${species}" = "other" ] && [ "${inputType}" = "paired" ]
+        then
+            inputArgs+="-ifq ${inputPath1} ${inputPath2}"
+        elif [ "${inputType}" = "paired" ]
+        then
+            inputArgs+="-ifq ${inputPath1} ${inputPath2}"
+            pointArgs+="--point --db_path_point ${pointDB} --min_cov_point ${pointCov} --threshold_point ${pointID}"
+        elif [ "${species}" = "other"] && [ "${inputType}" = "assembly" ]
+        then
+            inputArgs+="-ifa ${inputPath1}"
+        elif [ "${inputType}" = "assembly" ]
+        then
+            inputArgs+="-ifa ${inputPath1}"
+            pointArgs+="--point --db_path_point ${pointDB} --min_cov_point ${pointCov} --threshold_point ${pointID}"
+        fi
+
+        ${python} ${resfinder} \
+            $inputArgs \
+            --blastPath ${blastn} \
+            --kmaPath ${kma} \
+            --species "${species}" \
+            --db_path_res ${resDB} \
+            --acquired \
+            --acq_overlap 30 \
+            --min_cov ${geneCov} \
+            --threshold ${geneID} \
+            -o ${out_dir_name} \
+            $pointArgs
     }
     output {
         File rf_out = "${out_dir_name}/std_format_under_development.json"
@@ -63,7 +107,7 @@ task ResFinder {
     runtime {
         walltime: "1:00:00"
         cpu: 2
-        memory_mb = 3900.0
-        queue = "cge"
+        memory: "4 GB"
+        queue: "cge"
     }
 }

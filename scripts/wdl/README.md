@@ -73,6 +73,9 @@ export CGE_RESFINDER_POINT_ID="0.8"
 
 ```bash
 
-java -jar /home/mydir/wdls/resfinder.wdl --inputs input.json
+module load openjdk/16 cromwell/50
+
+java -Dconfig.file=/home/projects/cge/apps/resfinder/resfinder/scripts/wdl/computerome.conf -jar /services/tools/cromwell/50/cromwell-50.jar run /home/projects/cge/apps/resfinder/resfinder/scripts/wdl/resfinder.wdl --inputs /home/projects/cge/apps/resfinder/resfinder/scripts/wdl/input.json
+
 
 ```
