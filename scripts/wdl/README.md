@@ -28,6 +28,7 @@ Each row should contain a single sample.
 If species cannot be provided put "other" (cases sensitive).
 
 #### Type of data
+
 * assembly: Fasta file containing contigs from a de novo assembly.
 * paired: Couple of fastq files containing read data for foward and reverse
 reads.
@@ -54,6 +55,7 @@ reads.
 JSON formatted file containing input and output information.
 
 The file should consist of a single dict/hash/map with the following keys:
+
 * Resistance.inputSamplesFile: Absolute path to input_data.tsv
 * Resistance.outputDir: Absolute path to output directory.
 * Resistance.geneCov: Fraction of gene coverage needed for resistance gene hits.
@@ -66,6 +68,7 @@ hits.
 
 If running on Computerome and are using the input.json template, you probably
 won't need to change the following:
+
 * Resistance.python: Path to python3 interpreter.
 * Resistance.kma: Path to kma application.
 * Resistance.blastn: Path to blastn application.
@@ -151,6 +154,7 @@ All ResFinder output will be located in the provided output directory.
 
 In the directory where you execute Cromwell the following two directories will
 also be created:
+
 * cromwell-executions
 * cromwell-workflow-logs
 
