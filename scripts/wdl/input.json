@@ -10,6 +10,5 @@
     "Resistance.blastn": "blastn",
     "Resistance.resfinder": "/home/projects/cge/apps/resfinder/resfinder/run_resfinder.py",
     "Resistance.resDB": "/home/projects/cge/apps/resfinder/resfinder/db_resfinder",
-    "Resistance.pointDB": "/home/projects/cge/apps/resfinder/resfinder/db_pointfinder",
-    "Resistance.disinfDB": "/home/projects/cge/apps/resfinder/resfinder/db_disinfinder"
+    "Resistance.pointDB": "/home/projects/cge/apps/resfinder/resfinder/db_pointfinder"
 }

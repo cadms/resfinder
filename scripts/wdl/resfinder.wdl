@@ -13,7 +13,6 @@ workflow Resistance {
     String resfinder
     String resDB
     String pointDB
-    String disinfDB
 
     scatter (sample in inputSamples) {
         call ResFinder {
@@ -28,8 +27,7 @@ workflow Resistance {
                 blastn=blastn,
                 resfinder=resfinder,
                 resDB=resDB,
-                pointDB=pointDB,
-                disinfDB=disinfDB
+                pointDB=pointDB
         }
     }
 }
@@ -47,7 +45,6 @@ task ResFinder {
     String resfinder
     String resDB
     String pointDB
-    String disinfDB
 
     String inputPath1 = inputSample[0]
     String inputPath2 = inputSample[1]
