@@ -8,6 +8,7 @@ report issues relating to this directory.
 ## Prepare input files
 
 Two input files are needed:
+
 1. input_data.tsv
 2. input.json
 
@@ -15,6 +16,7 @@ Templates can be found in the ResFinder directory scripts/wdl.
 
 ### input_data.tsv
 Tab separated file. Should contain columns in the following order:
+
 1. Absolute path to fasta/fastq file 1
 2. Absolute path to fastq file 2 (Can be empty, but must exist)
 3. Species
