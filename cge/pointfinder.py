@@ -35,12 +35,15 @@ class GeneListError(Exception):
 
 class PointFinder(CGEFinder):
 
-    def __init__(self, db_path, species, gene_list=None):
+    def __init__(self, db_path, species, gene_list=None, ignore_indels=False,
+        ignore_stop_codons=False):
         """
         """
         self.species = species
         self.specie_path = db_path
         self.RNA_gene_list = []
+        self.ignore_indels = ignore_indels
+        self.ignore_stop_codons = ignore_stop_codons
 
         self.gene_list = PointFinder.get_file_content(
             self.specie_path + "/genes.txt")
@@ -755,7 +758,7 @@ class PointFinder(CGEFinder):
                         sbjct_gene_start = 1
 
                         # Find mismatches in gene part
-                        mis_matches += PointFinder.find_codon_mismatches(
+                        mis_matches += self.find_codon_mismatches(
                             sbjct_gene_start, sbjct_gene_seq, qry_gene_seq)
 
                 # No promoter, only gene is found
@@ -765,12 +768,12 @@ class PointFinder(CGEFinder):
                     sbjct_gene_start = sbjct_start - promtr_len
 
                     # Find mismatches in gene part
-                    mis_matches += PointFinder.find_codon_mismatches(
+                    mis_matches += self.find_codon_mismatches(
                         sbjct_gene_start, sbjct_seq, qry_seq)
 
             else:
                 # Find mismatches in gene
-                mis_matches += PointFinder.find_codon_mismatches(
+                mis_matches += self.find_codon_mismatches(
                     sbjct_start, sbjct_seq, qry_seq)
 
         return mis_matches
@@ -1142,8 +1145,7 @@ class PointFinder(CGEFinder):
 
         return indels
 
-    @staticmethod
-    def find_codon_mismatches(sbjct_start, sbjct_seq, qry_seq):
+    def find_codon_mismatches(self, sbjct_start, sbjct_seq, qry_seq):
         """
         This function takes two alligned sequence (subject and query),
         and the position on the subject where the alignment starts. The
@@ -1172,6 +1174,19 @@ class PointFinder(CGEFinder):
         sbjct_seq = sbjct_seq[i_start:]
         qry_seq = qry_seq[i_start:]
 
+        if self.ignore_indels:
+            sbjct_seq_with_insertions_removed = ""
+            qry_seq_with_insertions_removed = ""
+            # Remove insertions in query sequence (assumed to be sequencing error)
+            for i in range(len(sbjct_seq)):
+                if sbjct_seq[i] != '-':
+                    sbjct_seq_with_insertions_removed += sbjct_seq[i]
+                    qry_seq_with_insertions_removed += qry_seq[i]
+            
+            sbjct_seq = sbjct_seq_with_insertions_removed
+            qry_seq = qry_seq_with_insertions_removed
+
+
         # Find codon number of the first codon in the sequence, start
         # at 0
         codon_no = int((sbjct_start - 1) / 3)  # 1,2,3 start on 0
@@ -1181,9 +1196,10 @@ class PointFinder(CGEFinder):
         s_shift = 0
         mut_no = 0
 
-        # Find inserts and deletions in sequence
-        indel_no = 0
-        indels = PointFinder.get_indels(sbjct_seq, qry_seq, sbjct_start)
+        if not self.ignore_indels:
+            # Find inserts and deletions in sequence
+            indel_no = 0
+            indels = PointFinder.get_indels(sbjct_seq, qry_seq, sbjct_start)
 
         # Go through sequence and save mutations when found
         for index in range(0, len(sbjct_seq), 3):
@@ -1205,9 +1221,9 @@ class PointFinder(CGEFinder):
             # Check for mutations
             if sbjct_codon.upper() != qry_codon.upper():
 
-                # Check for codon insertions and deletions and
-                # frameshift mutations
-                if "-" in sbjct_codon or "-" in qry_codon:
+                if ("-" in sbjct_codon or "-" in qry_codon) and not self.ignore_indels:
+                    # Check for codon insertions and deletions and
+                    # frameshift mutations
 
                     # Get indel info
                     try:
@@ -1251,7 +1267,7 @@ class PointFinder(CGEFinder):
 
                         if s_shift > q_shift:
                             nucs_needed = (int((len(sbjct_rf_indel) / 3) * 3)
-                                           + shift_diff)
+                                        + shift_diff)
                             pre_qry_indel = qry_rf_indel
                             qry_rf_indel = PointFinder.get_inframe_gap(
                                 qry_seq[q_i:], nucs_needed)
@@ -1259,7 +1275,7 @@ class PointFinder(CGEFinder):
 
                         elif q_shift > s_shift:
                             nucs_needed = (int((len(qry_rf_indel) / 3) * 3)
-                                           + shift_diff)
+                                        + shift_diff)
                             pre_sbjct_indel = sbjct_rf_indel
                             sbjct_rf_indel = PointFinder.get_inframe_gap(
                                 sbjct_seq[s_i:], nucs_needed)
@@ -1277,8 +1293,8 @@ class PointFinder(CGEFinder):
                         if mut_name is "p.V940delins - Frame restored":
                             sys.exit()
                     mis_matches += [[mut, codon_no_indel, seq_pos, indel,
-                                     mut_name, sbjct_rf_indel, qry_rf_indel,
-                                     aa_ref, aa_alt]]
+                                    mut_name, sbjct_rf_indel, qry_rf_indel,
+                                    aa_ref, aa_alt]]
 
                     # Check if the next mutation in the indels list is
                     # in the current codon.
@@ -1294,15 +1310,15 @@ class PointFinder(CGEFinder):
                                 indel_data = indels[j]
                             except IndexError:
                                 sys.exit("indel_data list is out of range, "
-                                         "bug!")
+                                        "bug!")
                             mut = indel_data[0]
                             codon_no_indel = indel_data[1]
                             seq_pos = indel_data[2] + sbjct_start - 1
                             indel = indel_data[3]
                             indel_no += 1
                             mis_matches += [[mut, codon_no_indel, seq_pos,
-                                             indel, mut_name, sbjct_rf_indel,
-                                             qry_rf_indel, aa_ref, aa_alt]]
+                                            indel, mut_name, sbjct_rf_indel,
+                                            qry_rf_indel, aa_ref, aa_alt]]
 
                     # Set codon number, and save nucleotides from out
                     # of frame mutations
@@ -1329,15 +1345,15 @@ class PointFinder(CGEFinder):
                                          aa_ref, aa_alt]]
                 # If a Premature stop codon occur report it an stop the
                 # loop
-
-                try:
-                    if mis_matches[-1][-1] == "*":
-                        mut_name += " - Premature stop codon"
-                        mis_matches[-1][4] = (mis_matches[-1][4].split("-")[0]
-                                              + " - Premature stop codon")
-                        break
-                except IndexError:
-                    pass
+                if not self.ignore_stop_codons:
+                    try:
+                        if mis_matches[-1][-1] == "*":
+                            mut_name += " - Premature stop codon"
+                            mis_matches[-1][4] = (mis_matches[-1][4].split("-")[0]
+                                                + " - Premature stop codon")
+                            break
+                    except IndexError:
+                        pass
 
         # Sort mutations on position
         mis_matches = sorted(mis_matches, key=lambda x: x[1])
@@ -1839,6 +1855,22 @@ if __name__ == '__main__':
                               search for - if none is specified all genes are \
                               included in the search.",
                         default=None)
+    parser.add_argument("-ii",
+                        dest="ignore_indels",
+                        metavar="IGNORE_INDELS",
+                        action="store_true",
+                        help="Assume all insertions and deletions are \
+                              sequencing errors. Don't account for \
+                              frameshifts caused by indels.",
+                        default=False)
+    parser.add_argument("-ic",
+                        dest="ignore_stop_codons",
+                        metavar="IGNORE_STOP_CODONS",
+                        action="store_true",
+                        help="Assume premature stop codons are a result of \
+                              sequencing error. Detect mutations that \
+                              occur after premature stop codon.",
+                        default=False)
 
     args = parser.parse_args()
 
@@ -1861,7 +1893,9 @@ if __name__ == '__main__':
     kma_db_path = args.db_path + "/" + args.species
 
     finder = PointFinder(db_path=kma_db_path, species=args.species,
-                         gene_list=args.specific_gene)
+                         gene_list=args.specific_gene,
+                         ignore_indels=args.ignore_indels,
+                         ignore_stop_codons=args.ignore_stop_codons)
 
     if method == PointFinder.TYPE_BLAST:
 

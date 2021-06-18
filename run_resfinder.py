@@ -162,6 +162,16 @@ parser.add_argument("--pickle",
                           Currently needed in the CGE webserver. Dependency \
                           and this option is being removed.",
                     default=False)
+parser.add_argument("-ii",
+                    dest="ignore_indels",
+                    action="store_true",
+                    help="Ignore frameshift-causing indels in Pointfinder.",
+                    default=False)
+parser.add_argument("-ic",
+                    dest="ignore_stop_codons",
+                    action="store_true",
+                    help="Ignore premature stop codons in Pointfinder.",
+                    default=False)
 
 args = parser.parse_args()
 
@@ -433,7 +443,8 @@ if args.point is True and args.species:
         threshold_point = args.threshold_point
 
     finder = PointFinder(db_path=db_path_point, species=point_species,
-                         gene_list=args.specific_gene)
+                         gene_list=args.specific_gene, ignore_indels=args.ignore_indels,
+                         ignore_stop_codons=args.ignore_stop_codons)
 
     if(args.inputfasta):
         blast_run = finder.blast(inputfile=args.inputfasta,
