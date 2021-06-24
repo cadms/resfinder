@@ -106,12 +106,12 @@ parser.add_argument("-ao", "--acq_overlap",
                     default=30)
 parser.add_argument("-l", "--min_cov",
                     dest="min_cov",
-                    help="Minimum (breadth-of) coverage of ResFinder",
+                    help="Minimum (breadth-of) coverage of ResFinder within the range 0-1.",
                     type=float,
                     default=0.60)
 parser.add_argument("-t", "--threshold",
                     dest="threshold",
-                    help="Threshold for identity of ResFinder",
+                    help="Threshold for identity of ResFinder within the range 0-1.",
                     type=float,
                     default=0.80)
 # Point resistance option
@@ -143,14 +143,14 @@ parser.add_argument("-u", "--unknown_mut",
                     default=False)
 parser.add_argument("-l_p", "--min_cov_point",
                     dest="min_cov_point",
-                    help="Minimum (breadth-of) coverage of Pointfinder. \
+                    help="Minimum (breadth-of) coverage of Pointfinder within the range 0-1. \
                           If None is selected, the minimum coverage of \
                           ResFinder will be used.",
                     type=float,
                     default=None)
 parser.add_argument("-t_p", "--threshold_point",
                     dest="threshold_point",
-                    help="Threshold for identity of Pointfinder. \
+                    help="Threshold for identity of Pointfinder within the range 0-1. \
                           If None is selected, the minimum coverage of \
                           ResFinder will be used.",
                     type=float,
@@ -172,6 +172,14 @@ if(args.point and not args.species):
     sys.exit("ERROR: Chromosomal point mutations cannot be located if no "
              "species has been provided. Please provide species using the "
              "--species option.")
+
+# Check if coverage/identity parameters are valid
+if(args.min_cov > 1.0 or args.min_cov < 0.0):
+    sys.exit("ERROR: Minimum coverage above 1 or below 0 is not allowed. Please select a minimum coverage within the range 0-1 with the flag -l.")
+
+if(args.threshold > 1.0 or args.threshold < 0.0):
+    sys.exit("ERROR: Threshold for identity of ResFinder above 1 or below 0 is not allowed. Please select a threshold for identity within the range 0-1 with the flag -t.")
+
 
 # Create a "sample" name
 if(args.inputfasta):
@@ -426,11 +434,15 @@ if args.point is True and args.species:
         min_cov_point = args.min_cov
     else:
         min_cov_point = args.min_cov_point
+        if(args.min_cov_point > 1.0 or args.min_cov_point < 0.0):
+            sys.exit("ERROR: Minimum coverage above 1 or below 0 is not allowed. Please select a minimum coverage within the range 0-1 with the flag -l_p.")
 
     if args.threshold_point is None:
         threshold_point = args.threshold
     else:
         threshold_point = args.threshold_point
+        if(args.threshold_point > 1.0 or args.threshold_point < 0.0):
+            sys.exit("ERROR: Threshold for identity of PointFinder above 1 or below 0 is not allowed. Please select a threshold for identity within the range 0-1 with the flag -t_p.")
 
     finder = PointFinder(db_path=db_path_point, species=point_species,
                          gene_list=args.specific_gene)
