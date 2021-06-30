@@ -358,9 +358,7 @@ class PointFinderResultHandler():
             mismatches = db["mis_matches"]
 
 #DEBUG
-            print("MISMATCHES: {}".format(mismatches))
             for mismatch in mismatches:
-                print(mismatch)
                 seq_var_result = SeqVariationResult(
                     res_collection, mismatch, gene_results, ref_db_name)
                 res_collection.add_class(cl="seq_variations", **seq_var_result)

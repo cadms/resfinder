@@ -190,7 +190,7 @@ class PointFinder(CGEFinder):
         ]
         # Get all drug names and add header of all drugs to prediction file
         drug_lst = [drug for drug in self.drug_genes.keys()]
-        output_strings[2] = "Sample ID\t" + "\t".join(drug_lst) + "\n"
+        output_strings[2] = "\t".join(drug_lst) + "\n"
 
         # Define variables to write temporary output into
         total_unknown_str = ""
@@ -1213,9 +1213,6 @@ class PointFinder(CGEFinder):
                     try:
                         indel_data = indels[indel_no]
                     except IndexError:
-                        print(sbjct_codon, qry_codon)
-                        print(indels)
-                        print(gene, indel_data, indel_no)
                         sys.exit("indel_data list is out of range, bug!")
 
                     mut = indel_data[0]
