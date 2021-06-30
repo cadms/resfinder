@@ -277,8 +277,10 @@ optional arguments:
   -acq, --acquired      Run resfinder for acquired resistance genes
 	-l MIN_COV, --min_cov MIN_COV
 	                      Minimum (breadth-of) coverage of ResFinder
+						  Valid interval: 0.00-1.00
   -t THRESHOLD, --threshold THRESHOLD
 											  Threshold for identity of ResFinder
+											  Valid interval: 0.00-1.00
   -c, --point           Run pointfinder for chromosomal mutations
   -db_point DB_PATH_POINT, --db_path_point DB_PATH_POINT
                         Path to the databases for PointFinder
