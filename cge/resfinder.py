@@ -11,6 +11,7 @@ import collections
 
 from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
+# TODO: delete deprecated dependencies:
 from .output.table import TableResults
 
 

@@ -15,9 +15,11 @@ import random
 
 from cgecore.blaster import Blaster
 from cgecore.cgefinder import CGEFinder
-from .output.table import TableResults
 from .phenotype2genotype.feature import ResMutation
 from .phenotype2genotype.res_profile import PhenoDB
+
+# TODO: delete deprecated dependencies:
+from .output.table import TableResults
 
 
 def eprint(*args, **kwargs):

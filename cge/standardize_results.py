@@ -260,6 +260,7 @@ class ResFinderResultHandler():
 
     @staticmethod
     def standardize_results(res_collection, res, ref_db_name):
+        print("ResFinder res dict:\n{}".format(res))
         for db_name, db in res.items():
             if(db_name == "excluded"):
                 continue
@@ -322,6 +323,8 @@ class PointFinderResultHandler():
 
     @staticmethod
     def standardize_results(res_collection, res, ref_db_name):
+        print("RES DIR:\n{}".format(res))
+
         for gene_name, db in res.items():
             if(gene_name == "excluded"):
                 continue

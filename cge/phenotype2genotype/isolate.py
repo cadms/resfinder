@@ -93,7 +93,20 @@ class Isolate(dict):
 
     @staticmethod
     def get_phenodb_id(feat_res_dict, type):
+        """
+            Input:
+                feat_res_dict: entry in the dict 'genes' or 'seq_variations'
+                               from a cge2 Result object.
+                type: Which dict in the Result object, either 'seq_regions' or
+                      'seq_variations'
+            Output: Key formatted as the ones in the PhenoDB object.
 
+            Method is used to reformat an id from a Result object, so that it
+            can be used to query a PhenoDB object.
+
+            TODO: Make this method obsolete by harmonizing the ids in PhenoDB
+                  with the ones from the Result object.
+        """
         if(type == "seq_variations"):
             ref_id = feat_res_dict["ref_id"]
             var_aa = feat_res_dict.get("var_aa", None)
@@ -104,17 +117,30 @@ class Isolate(dict):
             # Amino acid mutation
             else:
                 phenodb_id = ref_id[:-1] + feat_res_dict["var_aa"]
-            return phenodb_id
+            return phenodb_id.replace(";;", "_")
 
-        elif(type == "genes"):
+        elif(type == "seq_regions"):
             return "{}_{}".format(feat_res_dict["name"],
                                   feat_res_dict["ref_acc"])
 
     def load_finder_results(self, std_table, phenodb, type):
+        """
+            Input:
+                std_table: Result object from cge2 module loaded with ResFinder
+                           and/or Pointfinder results.
+                phenodb: PhenoDB object
+                type: 'seq_regions' or 'seq_variations', for ResFinder and
+                      PointFinder results, respectively.
+
+            Method loads Isolate object
+        """
         for key, feat_info in std_table[type].items():
-            if(type == "genes"
+
+            # Skip genes from PointFinder database (not resistance genes).
+            if(type == "seq_regions"
                and re.search("PointFinder", feat_info["ref_database"])):
                continue
+
             unique_id = Isolate.get_phenodb_id(feat_info, type)
             phenotypes = phenodb.get(unique_id, None)
             ab_class = set()
@@ -125,7 +151,7 @@ class Isolate(dict):
             else:
                 ab_class.add(Isolate.NO_AB_CLASS)
 
-            if(type == "genes"):
+            if(type == "seq_regions"):
                 res_feature = self.new_res_gene(feat_info, unique_id, ab_class)
             elif(type == "seq_variations"):
                 res_feature = self.new_res_mut(feat_info, unique_id, ab_class)
@@ -144,7 +170,7 @@ class Isolate(dict):
         else:
             nucleotide_mut = False
         feat_res = ResMutation(unique_id=unique_id,
-                               seq_region=";;".join(feat_info["genes"]),
+                               seq_region=";;".join(feat_info["seq_regions"]),
                                pos=feat_info["ref_start_pos"],
                                ref_codon=feat_info["ref_codon"],
                                mut_codon=feat_info["var_codon"],
@@ -160,10 +186,11 @@ class Isolate(dict):
         return feat_res
 
     def new_res_gene(self, gene_info, unique_id, ab_class):
+
         hit = DBHit(name=gene_info["name"],
                     identity=gene_info["identity"],
                     match_length=gene_info["alignment_length"],
-                    ref_length=gene_info["ref_gene_lenght"],
+                    ref_length=gene_info["ref_seq_lenght"],
                     start_ref=gene_info["ref_start_pos"],
                     end_ref=gene_info["ref_end_pos"],
                     acc=gene_info["ref_acc"],
@@ -201,7 +228,7 @@ class Isolate(dict):
             hit = DBHit(name=gene_info["name"],
                         identity=gene_info["identity"],
                         match_length=gene_info["alignment_length"],
-                        ref_length=gene_info["ref_gene_lenght"],
+                        ref_length=gene_info["ref_seq_lenght"],
                         start_ref=gene_info["ref_start_pos"],
                         end_ref=gene_info["ref_end_pos"],
                         acc=gene_info["ref_acc"],

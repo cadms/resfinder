@@ -4,20 +4,25 @@ import os
 import subprocess
 from argparse import ArgumentParser
 import pickle
+import json
+
+from cgelib.output.result import Result
 
 from cge.resfinder import ResFinder
 from cge.pointfinder import PointFinder
+from cge.output.std_results import ResFinderResultHandler
+from cge.output.std_results import PointFinderResultHandler
 
 #  Modules used to create the extended ResFinder output (phenotype output)
 from cge.phenotype2genotype.isolate import Isolate
 from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
-from cge.out.util.generator import Generator
-from cge.standardize_results import ResFinderResultHandler, DatabaseHandler
-from cge.standardize_results import PointFinderResultHandler
 
-import json
+# from cge.out.util.generator import Generator
+# from cge.standardize_results import ResFinderResultHandler, DatabaseHandler
+# from cge.standardize_results import PointFinderResultHandler
+
 # TODO list:
 # TODO: Add input data check
 
@@ -29,6 +34,7 @@ import json
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 # TODO: Add fix species choice
 species_transl = {"c. jejuni": "campylobacter jejuni",
@@ -63,7 +69,6 @@ parser.add_argument("-ifq", "--inputfastq",
                           paired-end data if two files are provided.",
                     nargs="+",
                     default=None)
-
 parser.add_argument("-o", "--outputPath",
                     dest="out_path",
                     help="Path to blast output",
@@ -79,6 +84,13 @@ parser.add_argument("-k", "--kmaPath",
 parser.add_argument("-s", "--species",
                     help="Species in the sample",
                     default=None)
+parser.add_argument("--ignore_missing_species",
+                    action="store_true",
+                    help="If set, species is provided and --point flag is set, "
+                         "will not throw an error if no database is found for "
+                         "the provided species. If species is not found. Point "
+                         "mutations will silently be ignored.",
+                    default=False)
 
 # Acquired resistance options
 parser.add_argument("-db_res", "--db_path_res",
@@ -114,6 +126,7 @@ parser.add_argument("-t", "--threshold",
                     help="Threshold for identity of ResFinder",
                     type=float,
                     default=0.80)
+
 # Point resistance option
 parser.add_argument("-c", "--point",
                     action="store_true",
@@ -155,6 +168,7 @@ parser.add_argument("-t_p", "--threshold_point",
                           ResFinder will be used.",
                     type=float,
                     default=None)
+
 # Temporary option only available temporary
 parser.add_argument("--pickle",
                     action="store_true",
@@ -211,13 +225,15 @@ if(args.inputfastq):
         kma = (os.path.dirname(os.path.realpath(__file__)) + "/cge/kma/kma")
         kma = os.path.abspath(kma)
         try:
-            _ = subprocess.check_output([kma, "-h"])
+            _ = subprocess.run([kma, "-h"], check=True, stderr=subprocess.PIPE,
+                               stdout=subprocess.PIPE)
         except FileNotFoundError as e:
             kma = "kma"
     else:
         kma = args.kma_path
     try:
-        _ = subprocess.check_output([kma, "-h"])
+        _ = subprocess.run([kma, "-h"], check=True, stderr=subprocess.PIPE,
+                           stdout=subprocess.PIPE)
     except FileNotFoundError as e:
         sys.exit("ERROR: Unable to execute kma from the path: {}".format(kma))
 else:
@@ -225,7 +241,7 @@ else:
 
 db_path_point = None
 
-if(args.species):
+if(args.species and args.species.lower() != "other"):
     args.species = args.species.lower()
 
     fixed_species = species_transl.get(args.species, None)
@@ -258,6 +274,8 @@ if(args.species):
             # and use that instead
             if(tmp_list[0] in point_dbs):
                 point_species = tmp_list[0]
+            elif(args.ignore_missing_species):
+                args.point = False
             else:
                 sys.exit("ERROR: species '%s' (%s) does not seem to exist"
                          " as a PointFinder database."
@@ -265,6 +283,9 @@ if(args.species):
 
         db_path_point_root = db_path_point
         db_path_point = db_path_point + "/" + point_species
+
+if(args.species and args.species.lower() == "other"):
+    args.point = False
 
 # Check output directory
 args.out_path = os.path.abspath(args.out_path)
@@ -292,16 +313,14 @@ if(args.db_path_res_kma is None and args.acquired and args.inputfastq):
 min_cov = float(args.min_cov)
 
 # Initialise result dict
-init_software_result = {"software_name": "ResFinder"}
 git_path = os.path.abspath(os.path.dirname(__file__))
-std_result = Generator.init_software_result(name="ResFinder", gitdir=git_path)
+std_result = Result.init_software_result(name="ResFinder", gitdir=git_path)
 
 if(args.acquired):
-    DatabaseHandler.load_database_metadata("ResFinder", std_result,
-                                           args.db_path_res)
+    std_result.init_database("ResFinder", args.db_path_res)
 if(args.point):
-    DatabaseHandler.load_database_metadata("PointFinder", std_result,
-                                           db_path_point_root)
+    std_result.init_database("PointFinder", db_path_point_root)
+
 ##########################################################################
 # ResFinder
 ##########################################################################
@@ -373,8 +392,6 @@ if args.acquired is True:
         ResFinderResultHandler.standardize_results(std_result,
                                                    blast_results.results,
                                                    "ResFinder")
-#DEBUG
-#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 
     else:
         kma_run = acquired_finder.kma(inputfile_1=inputfastq_1,
@@ -406,8 +423,6 @@ if args.acquired is True:
         ResFinderResultHandler.standardize_results(std_result,
                                                    kma_run.results,
                                                    "ResFinder")
-#DEBUG
-#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 
 ##########################################################################
 # PointFinder
@@ -491,15 +506,10 @@ if args.point is True and args.species:
                          res_type=method, unknown_flag=args.unknown_mutations,
                          min_cov=min_cov_point, perc_iden=threshold_point)
 
-#DEBUG
-#    print("POINT RES:\n{}".format(json.dumps(results_pnt)))
-
     PointFinderResultHandler.standardize_results(std_result,
                                                  results_pnt,
                                                  "PointFinder")
 
-#DEBUG
-#        print("STD RESULT:\n{}".format(json.dumps(std_result)))
 ##########################################################################
 # Phenotype to genotype
 ##########################################################################
@@ -513,12 +523,14 @@ else:
 res_pheno_db = PhenoDB(
     abclassdef_file=(args.db_path_res + "/antibiotic_classes.txt"),
     acquired_file=args.db_path_res + "/phenotypes.txt", point_file=point_file)
+
 # Isolate object store results
 isolate = Isolate(name=sample_name)
+
 if(args.acquired):
     isolate.load_finder_results(std_table=std_result,
                                 phenodb=res_pheno_db,
-                                type="genes")
+                                type="seq_regions")
     # isolate.load_finder_results(std_table=std_result,
     #                             phenodb=res_pheno_db)
     # isolate.load_finder_results(std_table=new_std_res,
@@ -531,20 +543,18 @@ if(args.point):
     #                                 phenodb=res_pheno_db)
     # isolate.load_pointfinder_tab(args.out_path + "/PointFinder_results.txt",
     #                                      res_pheno_db)
+
 isolate.calc_res_profile(res_pheno_db)
-if(args.acquired):
-    ResFinderResultHandler.load_res_profile(std_result, isolate)
-if(args.point):
-    PointFinderResultHandler.load_res_profile(std_result, isolate)
+ResFinderResultHandler.load_res_profile(std_result, isolate)
 
+std_result_file = "{}/std_format.json".format(args.out_path)
 
-#TODO
-std_result_file = "{}/std_format_under_development.json".format(args.out_path)
 with open(std_result_file, 'w') as fh:
-    fh.write(json.dumps(std_result))
+    fh.write(std_result.json_dumps())
 
 # Create and write the downloadable tab file
 pheno_profile_str = isolate.profile_to_str_table(header=True)
+
 # TODO: REMOVE THE NEED FOR THE PICKLED FILE
 if(args.pickle):
     isolate_pickle = open("{}/isolate.p".format(args.out_path), "wb")
