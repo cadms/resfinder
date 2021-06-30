@@ -1276,7 +1276,7 @@ class PointFinder(CGEFinder):
                         if "Frameshift" in mut_name:
                             mut_name = (mut_name.split("-")[0]
                                         + "- Frame restored")
-                        if mut_name is "p.V940delins - Frame restored":
+                        if mut_name == "p.V940delins - Frame restored":
                             sys.exit()
                     mis_matches += [[mut, codon_no_indel, seq_pos, indel,
                                      mut_name, sbjct_rf_indel, qry_rf_indel,
