@@ -9,3 +9,4 @@ db_pointfinder
 db_resfinder
 db_disinfinder
 ._*
+tests/doctest_tmp
