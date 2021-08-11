@@ -2,6 +2,8 @@
 import random
 import string
 
+from cgelib.utils.loaders_mixin import LoadersMixin
+
 from .exceptions import DuplicateKeyError
 from cge.phenotype2genotype.res_profile import PhenoDB
 from .gene_result import GeneResult
@@ -47,7 +49,7 @@ class ResFinderResultHandler():
                         "Non-unique key was: {}".format(gene_result["key"]))
 
     @staticmethod
-    def load_res_profile(res_collection, isolate):
+    def load_res_profile(res_collection, isolate, amr_abbreviations):
         """
             Input:
                 res_collection: Result object created by the cge core module.
@@ -77,6 +79,25 @@ class ResFinderResultHandler():
                                                   feature)
 
                 res_collection.add_class(cl="phenotypes", **phenotype)
+
+        amr_sum = ResFinderResultHandler.create_amr_summary_str(
+            res_collection, amr_abbreviations)
+        res_collection.add(**{"result_summary": amr_sum})
+
+    @staticmethod
+    def create_amr_summary_str(res_collection, amr_abbreviations):
+        amr_list = []
+        for key, phenotype in res_collection["phenotypes"].items():
+            if(phenotype["amr_resistant"] is True):
+                amr_name = phenotype["amr_resistance"].capitalize()
+                amr = amr_abbreviations.get(amr_name,
+                                            [phenotype["amr_resistance"]])
+                amr_list.append(amr[0])
+        if(amr_list):
+            out_str = "_".join(amr_list)
+        else:
+            out_str = ""
+        return out_str
 
 
 class PointFinderResultHandler():

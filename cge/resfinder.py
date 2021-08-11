@@ -17,16 +17,12 @@ from .output.table import TableResults
 
 class ResFinder(CGEFinder):
 
-    def __init__(self, db_conf_file, notes, db_path, db_path_kma=None,
+    def __init__(self, db_conf_file, notes, db_path, db_path_kma,
                  databases=None):
         """
         """
         self.db_path = db_path
-
-        if(db_path_kma is None):
-            self.db_path_kma = db_path
-        else:
-            self.db_path_kma = db_path_kma
+        self.db_path_kma = db_path_kma
 
         self.configured_dbs = dict()
         self.kma_db_files = None
@@ -39,84 +35,6 @@ class ResFinder(CGEFinder):
         self.load_notes(notes=notes)
 
         self.blast_results = None
-        # self.kma_results = None
-        # self.results = None
-
-    @staticmethod
-    def old_results_to_standard_output(result, software, version, run_date,
-                                       run_cmd, id, mutation=False,
-                                       tableresults=None):
-        """
-        """
-        std_results = TableResults(software, version, run_date, run_cmd, id)
-        headers = [
-            "template_name",
-            "template_length",
-            "template_start_pos",
-            "template_end_pos",
-            "aln_length",
-            "aln_identity",
-            "aln_gaps",
-            "aln_template_string",
-            "aln_query_string",
-            "aln_homology_string",
-            "template_variant",
-            "acc_no",
-            "query_id",
-            "query_start_pos",
-            "query_end_pos",
-            "query_depth",
-            "blast_eval",
-            "blast_bitscore",
-            "pval",
-            "software_score"
-        ]
-
-        for db_name, db in result.items():
-            if(db_name == "excluded"):
-                continue
-
-            if(db == "No hit found"):
-                continue
-
-            std_results.add_table(db_name)
-            std_db = std_results.long[db_name]
-            std_db.add_headers(headers)
-            std_db.lock_headers = True
-
-            for unique_id, hit_db in db.items():
-                if(unique_id in result["excluded"]):
-                    continue
-                # TODO: unique_id == unique_db_id
-                sbjct = hit_db["sbjct_header"].split("_")
-                template = sbjct[0]
-                variant = sbjct[1]
-                acc = "_".join(sbjct[2:])
-                unique_db_id = ("{}_{}".format(template, acc))
-                std_db[unique_db_id] = {
-                    "template_name": template,
-                    "template_variant": variant,
-                    "acc_no": acc,
-                    "template_length": hit_db["sbjct_length"],
-                    "template_start_pos": hit_db["sbjct_start"],
-                    "template_end_pos": hit_db["sbjct_end"],
-                    "aln_length": hit_db["HSP_length"],
-                    "aln_identity": hit_db["perc_ident"],
-                    "aln_gaps": hit_db["gaps"],
-                    "aln_template_string": hit_db["sbjct_string"],
-                    "aln_query_string": hit_db["query_string"],
-                    "aln_homology_string": hit_db["homo_string"],
-                    "query_id": hit_db["contig_name"],
-                    "query_start_pos": hit_db["query_start"],
-                    "query_end_pos": hit_db["query_end"],
-                    "query_depth": hit_db.get("query_depth", "NA"),
-                    "blast_eval": hit_db.get("evalue", "NA"),
-                    "blast_bitscore": hit_db.get("bit", "NA"),
-                    "pval": hit_db.get("p_value", "NA"),
-                    "software_score": hit_db["cal_score"]
-                }
-
-        return std_results
 
     def write_results(self, out_path, result, res_type, software="ResFinder"):
         """

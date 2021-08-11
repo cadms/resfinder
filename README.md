@@ -178,6 +178,28 @@ kma_index -i db_pointfinder/salmonella/*.fsa -o db_pointfinder/salmonella/salmon
 kma_index -i db_pointfinder/mycobacterium_tuberculosis/*.fsa -o db_pointfinder/mycobacterium_tuberculosis/mycobacterium_tuberculosis
 ```
 
+### Install ResFinder with Docker
+If you would like to build a docker image with ResFinder, make sure you have cloned the ResFinder directory as well as installed and indexed the databases: `db_pointfinder` and `db_resfinder`. Then run the following commands:
+```bash
+# Go to ResFinder directory
+cd path/to/resfinder
+# Build docker image with name resfinder
+docker build -t resfinder .
+```
+When running the docker make sure to mount the `db_resfinder` and the `db_pointfinder` with the flag -v, as shown in the examples below.
+
+You can test the installation by running the docker with the test files:
+```bash
+cd path/to/resfinder/
+mkdir results
+
+# Run with raw data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder -v $(pwd)/results/:/usr/src/results resfinder -ifq /usr/src/tests/data/test_isolate_01_1.fq /usr/src/tests/data/test_isolate_01_2.fq -acq -db_res /usr/src/db_resfinder -o /usr/src/results
+
+# Run with assembled data (this command mounts the results to the local directory "results")
+docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder  -v $(pwd)/results/:/usr/src/results resfinder -ifa /usr/src/tests/data/test_isolate_01.fa -acq -db_res /usr/src/db_resfinder -o /usr/src/results
+```
+
 ### Test ResFinder intallation
 (This will not function with the docker installation.)
 If you did not install BLAST, test 1 and 3 will fail. If you did not install KMA, test 2
@@ -260,7 +282,7 @@ optional arguments:
                         Path to kma
   -s SPECIES, --species SPECIES
                         Species in the sample
-						Available species: Campylobacter, Campylobacter jejuni, Campylobacter coli, 
+						Available species: Campylobacter, Campylobacter jejuni, Campylobacter coli,
 						Enterococcus faecalis, Enterococcus faecium, Escherichia coli, Helicobacter pylori,
 						Klebsiella, Mycobacterium tuberculosis, Neisseria gonorrhoeae,
 						Plasmodium falciparum, Salmonella, Salmonella enterica, Staphylococcus aureus
@@ -298,8 +320,51 @@ optional arguments:
 											  Threshold for identity of Pointfinder. If None is
 											  selected, the minimum coverage of ResFinder will be
 											  used.
-
 ```
+
+### Environment Variables
+
+Environment variables recognized by ResFinder, the flag they replace and the default value for the flag. Provided commandline flags will always take precedence. Set environment variables takes precedence over default flag values.
+
+Additional Environment variables can be added by appending entries to the table below. The 'Flag' entry in the table must be the double dash flag recognized by ResFinder. The 'Default Value' entry is just for information.
+
+#### Environment Variables Table
+
+| Environment Variabel       | Flag            | Default Value  |
+|----------------------------|-----------------|----------------|
+| CGE_KMA                    | kmaPath         | kma            |
+| CGE_BLASTN                 | blastPath       | blastn         |
+| CGE_RESFINDER_RESGENE_DB   | db_path_res     | db_resfinder   |
+| CGE_RESFINDER_RESPOINT_DB  | db_path_point   | db_pointfinder |
+| CGE_RESFINDER_GENE_COV     | min_cov         | 0.60           |
+| CGE_RESFINDER_GENE_ID      | threshold       | 0.80           |
+| CGE_RESFINDER_POINT_COV    | min_cov_point   | 0.60           |
+| CGE_RESFINDER_POINT_ID     | threshold_point | 0.80           |
+
+### Species Abbreviations
+
+ResFinder understands the species abbreviations listed in the Species Abbreviations Table. Additional species abbreviations can be added by appending entries to the table below. Important! All entries should be kept in lower case, although at runtime the ResFinder species flag will be case insensitive.
+
+#### Species Abbreviations Table
+
+| Species                       | Abbreviation            |
+|-------------------------------|-------------------------|
+| campylobacter jejuni          | c. jejuni               |
+| campylobacter jejuni          | c.jejuni                |
+| campylobacter jejuni          | c jejuni                |
+| campylobacter jejuni          | cjejuni                 |
+| campylobacter coli            | c. coli                 |
+| campylobacter coli            | c.coli                  |
+| campylobacter coli            | c coli                  |
+| campylobacter coli            | ccoli                   |
+| escherichia coli              | e. coli                 |
+| escherichia coli              | e.coli                  |
+| escherichia coli              | e coli                  |
+| escherichia coli              | ecoli                   |
+| salmonella enterica           | s. enterica             |
+| salmonella enterica           | s.enterica              |
+| salmonella enterica           | s enterica              |
+| salmonella enterica           | senterica               |
 
 ### Web-server
 
@@ -307,35 +372,13 @@ A webserver implementing the methods is available at the [CGE
 website](http://www.genomicepidemiology.org/) and can be found here:
 https://cge.cbs.dtu.dk/services/ResFinder/
 
-### Install ResFinder with Docker
-If you would like to build a docker image with ResFinder, make sure you have cloned the ResFinder directory as well as installed and indexed the databases: `db_pointfinder` and `db_resfinder`. Then run the following commands:
-```bash
-# Go to ResFinder directory
-cd path/to/resfinder
-# Build docker image with name resfinder
-docker build -t resfinder .
-```
-When running the docker make sure to mount the `db_resfinder` and the `db_pointfinder` with the flag -v, as shown in the examples below. 
-
-You can test the installation by running the docker with the test files: 
-```bash
-cd path/to/resfinder/
-mkdir results
-
-# Run with raw data (this command mounts the results to the local directory "results")
-docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder -v $(pwd)/results/:/usr/src/results resfinder -ifq /usr/src/tests/data/test_isolate_01_1.fq /usr/src/tests/data/test_isolate_01_2.fq -acq -db_res /usr/src/db_resfinder -o /usr/src/results
-
-# Run with assembled data (this command mounts the results to the local directory "results")
-docker run --rm -it -v $(pwd)/db_resfinder/:/usr/src/db_resfinder  -v $(pwd)/results/:/usr/src/results resfinder -ifa /usr/src/tests/data/test_isolate_01.fa -acq -db_res /usr/src/db_resfinder -o /usr/src/results
-```
-
 Citation
 =======
 
 When using the method please cite:
 
 ResFinder 4.0 for predictions of phenotypes from genotypes.  
-Bortolaia V, Kaas RF, Ruppe E, Roberts MC, Schwarz S, Cattoir V, Philippon A, Allesoe RL, Rebelo AR, Florensa AR, Fagelhauer L,
+Bortolaia V, Kaas RS, Ruppe E, Roberts MC, Schwarz S, Cattoir V, Philippon A, Allesoe RL, Rebelo AR, Florensa AR, Fagelhauer L,
 Chakraborty T, Neumann B, Werner G, Bender JK, Stingl K, Nguyen M, Coppens J, Xavier BB, Malhotra-Kumar S, Westh H, Pinholt M,
 Anjum MF, Duggett NA, Kempf I, Nyk�senoja S, Olkkola S, Wieczorek K, Amaro A, Clemente L, Mossong J, Losch S, Ragimbeau C, Lund O, Aarestrup FM.
 Journal of Antimicrobial Chemotherapy. 2020 Aug 11.  

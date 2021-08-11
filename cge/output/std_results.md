@@ -182,6 +182,16 @@ Create Isolate object
 ...                             type="seq_variations")
 >>> isolate.calc_res_profile(res_pheno_db)
 
+>>> import os.path
+>>> import inspect
+>>> from cgelib.utils.loaders_mixin import LoadersMixin
+>>> std_results_file = inspect.getfile(ResFinderResultHandler)
+>>> std_results_dir = os.path.dirname(os.path.realpath(std_results_file))
+>>> amr_abbreviations_file = ("{}/../../amr_abbreviations.md"
+...                           .format(std_results_dir))
+>>> amr_abbreviations = LoadersMixin.load_md_table_after_keyword(
+...     amr_abbreviations_file, "## Abbreviations")
+
 ```
 
 #### Test
@@ -189,9 +199,11 @@ Create Isolate object
 ```python
 
 >>> from cge.output.std_results import PointFinderResultHandler
->>> ResFinderResultHandler.load_res_profile(res, isolate)
+>>> ResFinderResultHandler.load_res_profile(res, isolate, amr_abbreviations)
 >>> res["phenotypes"]["ampicillin"]["seq_regions"]
 []
+>>> res["result_summary"]
+'UBE'
 
 ```
 
@@ -244,5 +256,46 @@ gyrA
 ...   print(k)
 gyrA;;81;;d
 gyrA;;82;;g
+
+```
+
+### create\_amr\_summary\_str(res_collection, amr_abbreviations)
+
+#### Setup
+
+```python
+
+>>> phenotype1 = {
+...     "type": "phenotype",
+...     "key": "ampicillin+clavulanic acid",
+...     "category": "amr",
+...     "amr_classes": ['beta-lactam'],
+...     "amr_resistance": "ampicillin+clavulanic acid",
+...     "amr_resistant": True}
+>>> phenotype2 = {
+...     "type": "phenotype",
+...     "key": "imipenem",
+...     "category": "amr",
+...     "amr_classes": ['beta-lactam'],
+...     "amr_resistance": "imipenem",
+...     "amr_resistant": True}
+>>> phenotype3 = {
+...     "type": "phenotype",
+...     "key": "doxycycline",
+...     "category": "amr",
+...     "amr_classes": ['tetracycline'],
+...     "amr_resistance": "doxycycline",
+...     "amr_resistant": True}
+>>> res.add_class(cl="phenotypes", clobber_warn=False, **phenotype1)
+>>> res.add_class(cl="phenotypes", clobber_warn=False, **phenotype2)
+>>> res.add_class(cl="phenotypes", clobber_warn=False, **phenotype3)
+
+```
+
+```python
+
+>>> sum_str = ResFinderResultHandler.create_amr_summary_str(res, amr_abbreviations)
+>>> sum_str
+'AML_IMI_UBE_DOX'
 
 ```

@@ -28,6 +28,15 @@ class Generator():
 
     @staticmethod
     def get_version_commit(gitdir):
+        """
+            Input: Path to git directory
+            Return: (version, commmit_hash)
+
+            commmit_hash: The 40 character hash describing the exact commit of
+            the git directory.
+            version: The tag of the current commit. If no tag exists the first
+            7 characters of the commit hash will be returned instead.
+        """
         try:
             repo = Repo(gitdir)
         except InvalidGitRepositoryError:
