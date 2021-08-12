@@ -38,7 +38,7 @@ class GeneListError(Exception):
 class PointFinder(CGEFinder):
 
     def __init__(self, db_path, species, gene_list=None, ignore_indels=False,
-        ignore_stop_codons=False):
+                 ignore_stop_codons=False):
         """
         """
         self.species = species
@@ -1147,17 +1147,33 @@ class PointFinder(CGEFinder):
 
         return indels
 
+    @staticmethod
+    def _remove_insertions_in_seq(sbjct_seq, qry_seq):
+        """
+        Remove insertions in query sequence (ex.: assumed to be sequencing
+        errors).
+        """
+        sbjct_seq_list = []
+        qry_seq_list = []
+
+        for i, char in enumerate(sbjct_seq):
+            if char != '-':
+                sbjct_seq_list.append(char)
+                qry_seq_list.append(qry_seq[i])
+
+        return ("".join(sbjct_seq_list), "".join(qry_seq_list))
+
     def find_codon_mismatches(self, sbjct_start, sbjct_seq, qry_seq):
         """
         This function takes two alligned sequence (subject and query),
         and the position on the subject where the alignment starts. The
-        sequences are compared codon by codon. If a mis matches is
+        sequences are compared codon by codon. If a mismatch is
         found it is saved in 'mis_matches'. If a gap is found the
         function get_inframe_gap is used to find the indel sequence and
         keep the sequence in the correct reading frame. The function
         translate_indel is used to name indel mutations and translate
-        the indels to amino acids The function returns a list of tuples
-        containing all needed informations about the mutation in order
+        the indels to amino acids. The function returns a list of tuples
+        containing all needed information about the mutation in order
         to look it up in the database dict known mutation and the with
         the output files the the user.
         """
@@ -1177,17 +1193,8 @@ class PointFinder(CGEFinder):
         qry_seq = qry_seq[i_start:]
 
         if self.ignore_indels:
-            sbjct_seq_with_insertions_removed = ""
-            qry_seq_with_insertions_removed = ""
-            # Remove insertions in query sequence (assumed to be sequencing error)
-            for i in range(len(sbjct_seq)):
-                if sbjct_seq[i] != '-':
-                    sbjct_seq_with_insertions_removed += sbjct_seq[i]
-                    qry_seq_with_insertions_removed += qry_seq[i]
-            
-            sbjct_seq = sbjct_seq_with_insertions_removed
-            qry_seq = qry_seq_with_insertions_removed
-
+            sbjct_seq, qry_seq = PointFinder._remove_insertions_in_seq(
+                sbjct_seq, qry_seq)
 
         # Find codon number of the first codon in the sequence, start
         # at 0
@@ -1223,7 +1230,8 @@ class PointFinder(CGEFinder):
             # Check for mutations
             if sbjct_codon.upper() != qry_codon.upper():
 
-                if ("-" in sbjct_codon or "-" in qry_codon) and not self.ignore_indels:
+                if(("-" in sbjct_codon or "-" in qry_codon)
+                   and not self.ignore_indels):
                     # Check for codon insertions and deletions and
                     # frameshift mutations
 
@@ -1269,7 +1277,7 @@ class PointFinder(CGEFinder):
 
                         if s_shift > q_shift:
                             nucs_needed = (int((len(sbjct_rf_indel) / 3) * 3)
-                                        + shift_diff)
+                                           + shift_diff)
                             pre_qry_indel = qry_rf_indel
                             qry_rf_indel = PointFinder.get_inframe_gap(
                                 qry_seq[q_i:], nucs_needed)
@@ -1277,7 +1285,7 @@ class PointFinder(CGEFinder):
 
                         elif q_shift > s_shift:
                             nucs_needed = (int((len(qry_rf_indel) / 3) * 3)
-                                        + shift_diff)
+                                           + shift_diff)
                             pre_sbjct_indel = sbjct_rf_indel
                             sbjct_rf_indel = PointFinder.get_inframe_gap(
                                 sbjct_seq[s_i:], nucs_needed)
@@ -1295,8 +1303,8 @@ class PointFinder(CGEFinder):
                         if mut_name == "p.V940delins - Frame restored":
                             sys.exit()
                     mis_matches += [[mut, codon_no_indel, seq_pos, indel,
-                                    mut_name, sbjct_rf_indel, qry_rf_indel,
-                                    aa_ref, aa_alt]]
+                                     mut_name, sbjct_rf_indel, qry_rf_indel,
+                                     aa_ref, aa_alt]]
 
                     # Check if the next mutation in the indels list is
                     # in the current codon.
@@ -1312,15 +1320,15 @@ class PointFinder(CGEFinder):
                                 indel_data = indels[j]
                             except IndexError:
                                 sys.exit("indel_data list is out of range, "
-                                        "bug!")
+                                         "bug!")
                             mut = indel_data[0]
                             codon_no_indel = indel_data[1]
                             seq_pos = indel_data[2] + sbjct_start - 1
                             indel = indel_data[3]
                             indel_no += 1
                             mis_matches += [[mut, codon_no_indel, seq_pos,
-                                            indel, mut_name, sbjct_rf_indel,
-                                            qry_rf_indel, aa_ref, aa_alt]]
+                                             indel, mut_name, sbjct_rf_indel,
+                                             qry_rf_indel, aa_ref, aa_alt]]
 
                     # Set codon number, and save nucleotides from out
                     # of frame mutations
@@ -1351,8 +1359,9 @@ class PointFinder(CGEFinder):
                     try:
                         if mis_matches[-1][-1] == "*":
                             mut_name += " - Premature stop codon"
-                            mis_matches[-1][4] = (mis_matches[-1][4].split("-")[0]
-                                                + " - Premature stop codon")
+                            mis_matches[-1][4] = (
+                                mis_matches[-1][4].split("-")[0]
+                                + " - Premature stop codon")
                             break
                     except IndexError:
                         pass

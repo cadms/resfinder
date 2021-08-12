@@ -21,7 +21,7 @@ class Config():
         "species": None,
         "ignore_missing_species": False,
         "db_path_res": None,
-        "db_path_res_kma": None,  ###
+        "db_path_res_kma": None,
         "databases": None,
         "acquired": None,
         "acq_overlap": 30,
@@ -34,6 +34,8 @@ class Config():
         "unknown_mut": False,
         "min_cov_point": 0.01,
         "threshold_point": 0.8,
+        "ignore_indels": False,
+        "ignore_stop_codons": False,
         "pickle": False
     }
 
@@ -197,6 +199,8 @@ class Config():
         self.pf_gene_id = args.threshold_point
 
         self.unknown_mut = args.unknown_mut
+        self.ignore_indels = args.ignore_indels
+        self.ignore_stop_codons = args.ignore_stop_codons
 
     def set_phenotype_opts(self, args):
         self.point_file = None

@@ -31,6 +31,8 @@
 ...         self.unknown_mut = None
 ...         self.min_cov_point = None
 ...         self.threshold_point = None
+...         self.ignore_indels = None
+...         self.ignore_stop_codons = None
 ...         self.pickle = False
 
 >>> args = DummyArgs()
@@ -77,6 +79,13 @@ None
 '/...test_isolate_01.fa'
 >>> conf_fasta.sample_name
 'test_isolate_01.fa'
+
+>>> conf_fasta.unknown_mut
+False
+>>> conf_fasta.ignore_indels
+False
+>>> conf_fasta.ignore_stop_codons
+False
 
 ```
 

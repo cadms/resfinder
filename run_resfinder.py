@@ -138,6 +138,14 @@ parser.add_argument("-t_p", "--threshold_point",
                           "coverage of ResFinder will be used."),
                     type=float,
                     default=None)
+parser.add_argument("-ii", "--ignore_indels",
+                    action="store_true",
+                    help="Ignore frameshift-causing indels in Pointfinder.",
+                    default=None)
+parser.add_argument("-ic", "--ignore_stop_codons",
+                    action="store_true",
+                    help="Ignore premature stop codons in Pointfinder.",
+                    default=None)
 
 # Temporary option only available temporary
 parser.add_argument("--pickle",
@@ -145,16 +153,6 @@ parser.add_argument("--pickle",
                     help="Create a pickle dump of the Isolate object. \
                           Currently needed in the CGE webserver. Dependency \
                           and this option is being removed.",
-                    default=False)
-parser.add_argument("-ii",
-                    dest="ignore_indels",
-                    action="store_true",
-                    help="Ignore frameshift-causing indels in Pointfinder.",
-                    default=False)
-parser.add_argument("-ic",
-                    dest="ignore_stop_codons",
-                    action="store_true",
-                    help="Ignore premature stop codons in Pointfinder.",
                     default=False)
 
 args = parser.parse_args()
@@ -236,8 +234,8 @@ if(conf.point):
 
     finder = PointFinder(db_path=conf.db_path_point, species=conf.species_dir,
                          gene_list=conf.specific_gene,
-                         ignore_indels=args.ignore_indels,
-                         ignore_stop_codons=args.ignore_stop_codons)
+                         ignore_indels=conf.ignore_indels,
+                         ignore_stop_codons=conf.ignore_stop_codons)
 
     if(conf.inputfasta):
 
