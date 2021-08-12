@@ -21,12 +21,8 @@ from cge.phenotype2genotype.res_profile import PhenoDB
 from cge.phenotype2genotype.res_sumtable import ResSumTable
 from cge.phenotype2genotype.res_sumtable import PanelNameError
 
-# from cge.out.util.generator import Generator
-# from cge.standardize_results import ResFinderResultHandler, DatabaseHandler
-# from cge.standardize_results import PointFinderResultHandler
-
 # TODO list:
-# TODO: Add input data check
+# TODO: JSON output summary is not species dependent
 
 
 def eprint(*args, **kwargs):
@@ -237,7 +233,7 @@ if(conf.point):
 
         blast_run = finder.blast(inputfile=conf.inputfasta,
                                  out_path=conf.outPath_point_blast,
-                                 min_cov=conf.pf_gene_cov,
+                                 min_cov=0.01,  # Sorts on coverage later
                                  threshold=conf.pf_gene_id,
                                  blast=conf.blast,
                                  cut_off=False)
@@ -252,7 +248,7 @@ if(conf.point):
                              out_path=conf.outPath_point_kma,
                              db_path_kma=conf.db_path_point,
                              databases=[conf.species_dir],
-                             min_cov=conf.pf_gene_cov,
+                             min_cov=0.01,  # Sorts on coverage later
                              threshold=conf.pf_gene_id,
                              kma_path=conf.kma,
                              sample_name=conf.sample_name,
@@ -274,13 +270,6 @@ if(conf.point):
             results_pnt = {}
         else:
             results_pnt["excluded"] = results["excluded"]
-
-    # DEPRECATED
-    # use std_result
-    # new_std_pnt = finder.old_results_to_standard_output(
-    #    result=results_pnt, software="ResFinder", version="4.1.0",
-    #    run_date="fake_run_date", run_cmd="Fake run cmd",
-    #    id=sample_name)
 
     # DEPRECATED
     # TODO: make a write method that depends on the json output

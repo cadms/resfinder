@@ -27,6 +27,7 @@ lines of the python code below in this file.
 
 >>> db_resfinder = "db_resfinder/"
 >>> db_pointfinder = "db_pointfinder/"
+
 ```
 
 ## Test phenotype.txt and resistens-overview.txt files
@@ -38,7 +39,7 @@ lines of the python code below in this file.
 >>> phenodb = PhenoDB(
 ...    abclassdef_file="{}antibiotic_classes.txt".format(db_resfinder),
 ...    acquired_file="{}phenotypes.txt".format(db_resfinder),
-...    point_file="{}campylobacter/resistens-overview.txt".format(db_pointfinder),
+...    point_file="{}campylobacter/resistens-overview.txt".format(db_pointfinder))
 
 >>> phenodb = PhenoDB(
 ...    abclassdef_file="{}antibiotic_classes.txt".format(db_resfinder),
