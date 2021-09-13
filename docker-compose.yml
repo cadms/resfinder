@@ -1,0 +1,11 @@
+version: '2'
+services:
+  resfinder:
+    build:
+      context: .
+    entrypoint: bash
+    volumes:
+      - ./data/:/usr/src/data
+      - ./db_resfinder/:/usr/src/db_resfinder
+      - ./db_pointfinder/:/usr/src/db_pointfinder
+#entrypoint: python3 tests/functional_tests.py -b /usr/bin/blastn -k /bin/kma      

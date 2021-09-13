@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:11
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -31,6 +31,10 @@ RUN cd /usr/src/cge; \
     cd kma && make; \
     mv kma* /bin/
 
+RUN chmod +x /bin/kma
+
+RUN ln -s /bin/kma /usr/src/cge/kma/kma
+RUN ln -s /usr/bin/blastn /usr/src/cge/blastn
 
 RUN chmod 755 /usr/src/run_resfinder.py
 RUN chmod 755 /usr/src/tests/functional_tests.py
