@@ -1,4 +1,8 @@
-Modified version of resfinder to allow for batch processing - Zack Whedbee
+Modified version of resfinder to allow for batch processing
+Use of run_batch_resfinder.py is the same as run_resfinder.py but instead of 
+passing a single FASTA file using the ifa parameter an entire directory of FASTA files 
+can be passed using the ifd parameter.
+- Zack Whedbee
 
 
 ResFinder documentation
