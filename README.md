@@ -1,3 +1,6 @@
+Modified version of resfinder to allow for batch processing - Zack Whedbee
+
+
 ResFinder documentation
 =============
 
