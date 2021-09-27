@@ -21,6 +21,7 @@ RUN pip3 install -U biopython==1.73 tabulate cgecore gitpython python-dateutil;
 
 # RESFINDER setup
 COPY run_resfinder.py /usr/src/run_resfinder.py
+COPY run_batch_resfinder.py /usr/src/run_batch_resfinder.py
 
 ADD cge /usr/src/cge
 ADD tests /usr/src/tests
