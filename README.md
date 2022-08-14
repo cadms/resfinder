@@ -185,7 +185,7 @@ kma_index -i db_pointfinder/salmonella/*.fsa -o db_pointfinder/salmonella/salmon
 kma_index -i db_pointfinder/mycobacterium_tuberculosis/*.fsa -o db_pointfinder/mycobacterium_tuberculosis/mycobacterium_tuberculosis
 ```
 
-### Test ResFinder intallation
+### Test ResFinder installation
 (This will not function with the docker installation.)
 If you did not install BLAST, test 1 and 3 will fail. If you did not install KMA, test 2
 and 4 will fail.
