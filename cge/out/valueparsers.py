@@ -8,7 +8,7 @@ class ValueParsers():
     def parse_char64(val):
         val = str(val)
         if(len(val) != 64):
-            return ("This field expects a string of lenght 64 but the lenght "
+            return ("This field expects a string of length 64 but the length "
                     "of the string is {}. The string is: {}"
                     .format(len(val), val))
 
