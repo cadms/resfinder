@@ -27,7 +27,7 @@ test_gene = {
     "name": "gen_name",
     "identity": "187",
     "alignment_length": "800",
-    "ref_gene_lenght": "800",
+    "ref_gene_length": "800",
     "coverage": "89",
     "ref_id": "some_ref_id"
 }
@@ -50,7 +50,7 @@ test_trans_table = {
     "gene": "name",
     "id": "identity",
     "alignment": "alignment_length",
-    "gene_lenght": "ref_gene_lenght",
+    "gene_length": "ref_gene_length,
     "cov": "coverage"
 }
 
@@ -61,7 +61,7 @@ test_gene2 = {
     "gene": "gen_name2",
     "id": "97",
     "alignment": "800",
-    "gene_lenght": "800",
+    "gene_length": "800",
     "cov": "99"
 }
 

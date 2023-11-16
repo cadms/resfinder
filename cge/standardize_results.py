@@ -92,7 +92,7 @@ class GeneResult(dict):
         self["ref_end_pos"] = res["sbjct_end"]
         self["identity"] = res["perc_ident"]
         self["alignment_length"] = res["HSP_length"]
-        self["ref_gene_lenght"] = res["sbjct_length"]
+        self["ref_gene_length"] = res["sbjct_length"]
         self["query_id"] = res["contig_name"]
         self["query_start_pos"] = res["query_start"]
         self["query_end_pos"] = res["query_end"]
